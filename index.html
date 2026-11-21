@@ -73,6 +73,8 @@ a{color:var(--pri)}h1{font-size:24px;margin:0 0 4px}h2{font-size:19px}h3{font-si
 .tut-f{display:-webkit-box;display:-webkit-flex;display:flex;padding:8px;border-top:1px solid var(--line)}.tut-f .inp{margin:0 6px 0 0}
 #login{min-height:100vh;display:-webkit-box;display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center;padding:20px}
 .login-card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:30px;max-width:400px;width:100%;text-align:center}.logo{font-size:40px;color:var(--pri)}.or{margin:18px 0;color:var(--muted);border-top:1px solid var(--line);height:0}.or span{position:relative;top:-11px;background:var(--card);padding:0 10px}
+.tabs2{display:-webkit-box;display:-webkit-flex;display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:14px 0 6px}.tabs2 a{-webkit-box-flex:1;-webkit-flex:1;flex:1;text-align:center;padding:8px;text-decoration:none;color:var(--ink)}.tabs2 a.on{background:var(--pri);color:#fff}
+#emailF .inp{margin-bottom:6px}#emailF .btn{margin-top:6px}.lerr{color:var(--no);min-height:18px}
 #toast{position:fixed;left:50%;bottom:24px;-webkit-transform:translateX(-50%);transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;opacity:0;pointer-events:none;-webkit-transition:opacity .2s;transition:opacity .2s;z-index:50;max-width:90%}#toast.show{opacity:1}
 .prose p{margin:6px 0}.sumtext h2{color:var(--pri);margin-top:18px}.sumtext h3{margin-top:14px}.sumtext ul{padding-left:20px;margin:4px 0}.sumtext h4{margin:10px 0 4px;color:var(--pri)}
 @media (max-width:900px){.grid4>.card{width:calc(50% - 14px)}.cards>.card{width:calc(50% - 14px)}}
@@ -493,7 +495,32 @@ function bootWeb() {
 function showLogin() {
     $('#shell').className = 'hidden';
     $('#login').className = '';
-    $('#login').innerHTML = "<div class=\"login-card\">\n    <div class=\"logo\">\u271A</div><h1>General Surgery</h1><p class=\"muted\">Lessons \u00B7 MCQs from old exams \u00B7 OSCE clinical cases</p>\n    <button class=\"btn primary wide\" data-act=\"google\" ".concat(APP.fbReady ? '' : 'disabled', ">Continue with Google</button>\n    <p class=\"small muted\">").concat(APP.fbReady ? 'Your progress, grades and mistakes are saved to your account and follow you on every device.' : 'Google sign-in is not configured yet on this copy of the site.', "</p>\n    <div class=\"or\"><span>or</span></div>\n    <button class=\"btn wide\" data-act=\"guest\">Continue as guest</button>\n    <p class=\"small muted\">Guest mode: everything works, but nothing is saved when you close the page.</p></div>");
+    $('#login').innerHTML = "<div class=\"login-card\">\n    <div class=\"logo\">\u271A</div><h1>General Surgery</h1><p class=\"muted\">Lessons \u00B7 MCQs from old exams \u00B7 OSCE clinical cases</p>\n    ".concat(APP.fbReady ? "<form id=\"emailF\" class=\"left\">\n      <div class=\"tabs2\"><a href=\"#\" class=\"".concat(LOGIN_MODE === 'in' ? 'on' : '', "\" data-act=\"lmode\" data-id=\"in\">Sign in</a><a href=\"#\" class=\"").concat(LOGIN_MODE === 'up' ? 'on' : '', "\" data-act=\"lmode\" data-id=\"up\">Create account</a></div>\n      <input id=\"lEmail\" class=\"inp\" type=\"email\" placeholder=\"E-mail\" autocomplete=\"email\" autocapitalize=\"off\" required>\n      ").concat(LOGIN_MODE !== 'reset' ? "<input id=\"lPass\" class=\"inp\" type=\"password\" placeholder=\"Password".concat(LOGIN_MODE === 'up' ? ' (min. 6 characters)' : '', "\" autocomplete=\"").concat(LOGIN_MODE === 'up' ? 'new-password' : 'current-password', "\" required>") : '', "\n      ").concat(LOGIN_MODE === 'up' ? '<input id="lPass2" class="inp" type="password" placeholder="Repeat password" autocomplete="new-password" required>' : '', "\n      <div id=\"lErr\" class=\"small lerr\"></div>\n      <button class=\"btn primary wide\" type=\"submit\">").concat(LOGIN_MODE === 'up' ? 'Create my account' : LOGIN_MODE === 'reset' ? 'Send reset e-mail' : 'Sign in', "</button>\n      <p class=\"small center\">").concat(LOGIN_MODE === 'reset' ? '<a href="#" data-act="lmode" data-id="in">Back to sign in</a>' : '<a href="#" data-act="lmode" data-id="reset">Forgot password?</a>', "</p></form>\n    <p class=\"small muted\">Your progress, grades and mistakes are saved to your account and follow you on every device.</p>\n    <div class=\"or\"><span>or</span></div>\n    <button class=\"btn wide\" data-act=\"google\">Continue with Google</button>") : '<p class="small muted">Accounts are not configured yet on this copy of the site.</p>', "\n    <div class=\"or\"><span>or</span></div>\n    <button class=\"btn wide\" data-act=\"guest\">Continue as guest</button>\n    <p class=\"small muted\">Guest mode: everything works, but nothing is saved when you close the page.</p></div>");
+}
+var LOGIN_MODE = 'in';
+var AUTH_ERR = { 'auth/email-already-in-use': 'An account already exists with this e-mail – use "Sign in".', 'auth/invalid-email': 'This e-mail address is not valid.',
+    'auth/weak-password': 'The password needs at least 6 characters.', 'auth/user-not-found': 'No account with this e-mail – use "Create account".',
+    'auth/wrong-password': 'Wrong password – try again or use "Forgot password?".', 'auth/invalid-credential': 'E-mail or password is not correct.',
+    'auth/invalid-login-credentials': 'E-mail or password is not correct.', 'auth/too-many-requests': 'Too many attempts – wait a few minutes.', 'auth/network-request-failed': 'No internet connection.' };
+function emailSubmit() {
+    var auth = window.firebase.auth();
+    var err = $('#lErr');
+    err.textContent = '';
+    var email = ($('#lEmail').value || '').trim();
+    var pass = $('#lPass') ? $('#lPass').value : '';
+    var fail = function (e) { err.textContent = AUTH_ERR[e && e.code] || (e && e.message) || 'Something went wrong.'; };
+    if (LOGIN_MODE === 'up') {
+        if (pass !== $('#lPass2').value) {
+            err.textContent = 'The two passwords are different.';
+            return;
+        }
+        auth.createUserWithEmailAndPassword(email, pass).catch(fail);
+    }
+    else if (LOGIN_MODE === 'reset') {
+        auth.sendPasswordResetEmail(email).then(function () { err.textContent = 'E-mail sent – check your inbox (and spam).'; }).catch(fail);
+    }
+    else
+        auth.signInWithEmailAndPassword(email, pass).catch(fail);
 }
 function startGuest() {
     S.guest = true;
@@ -948,6 +975,10 @@ document.addEventListener('click', function (ev) {
         case 'google':
             googleLogin();
             break;
+        case 'lmode':
+            LOGIN_MODE = id;
+            showLogin();
+            break;
         case 'guest':
             startGuest();
             break;
@@ -1158,7 +1189,11 @@ document.addEventListener('change', function (ev) {
         render();
     }
 });
-document.addEventListener('submit', function (ev) { if (ev.target.id === 'tutF') {
+document.addEventListener('submit', function (ev) { if (ev.target.id === 'emailF') {
+    ev.preventDefault();
+    emailSubmit();
+    return;
+} if (ev.target.id === 'tutF') {
     ev.preventDefault();
     var v = $('#tutIn').value.trim();
     if (v)

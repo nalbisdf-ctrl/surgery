@@ -1,8 +1,9 @@
-/* Paste your Firebase web config here (Firebase console → Project settings → Your apps → Web app).
-   Until you do, the site works in guest mode only. */
+/* Firebase web config (public by design – security is enforced by Firestore rules). */
 window.FIREBASE_CONFIG = {
-  apiKey: "PASTE_API_KEY",
-  authDomain: "PASTE_PROJECT_ID.firebaseapp.com",
-  projectId: "PASTE_PROJECT_ID",
-  appId: "PASTE_APP_ID"
+  apiKey: "AIzaSyALncKgHv9qpxvw2zNJ7AAgzKhj7JiIdI4",
+  authDomain: "surgery-study.firebaseapp.com",
+  projectId: "surgery-study",
+  storageBucket: "surgery-study.firebasestorage.app",
+  messagingSenderId: "606961481502",
+  appId: "1:606961481502:web:264ac4e42264aa0e68bb0f"
 };
