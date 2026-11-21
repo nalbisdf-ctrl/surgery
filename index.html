@@ -42,6 +42,12 @@ a{color:var(--pri)}h1{font-size:24px;margin:0 0 4px}h2{font-size:19px}h3{font-si
 .key li{margin-bottom:4px}.trap{border-color:var(--warn);background:var(--warnbg)}
 .sheet{border:1px solid var(--line);border-radius:10px;margin-bottom:8px;padding:0 12px}.sheet summary,.mist summary,details summary{cursor:pointer;padding:10px 0;font-weight:600}.sheet h4{margin:10px 0 4px;color:var(--pri);font-size:14px}.sheet ul{margin:0 0 6px;padding-left:20px}.def{font-style:italic}
 .gloss dt{font-weight:700;float:left;clear:left;width:190px}.gloss dd{margin:0 0 6px 200px}
+.tabs{display:flex;flex-wrap:wrap;margin-top:12px;border-bottom:1px solid var(--line)}.tab{padding:8px 12px;margin-right:4px;border-radius:8px 8px 0 0;color:var(--muted);text-decoration:none;font-weight:600;font-size:14px}.tab.on{background:var(--card);color:var(--pri);border:1px solid var(--line);border-bottom-color:var(--card);margin-bottom:-1px}
+.toc{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:8px 0 14px}.toc ol{margin:6px 0 0 18px;padding:0}.toc li{margin:3px 0}.toc li.sub{list-style:none;margin-left:18px;font-size:14px}.toc li.sub:before{content:"– ";color:var(--muted)}
+.course{line-height:1.6;font-size:15px}.course h2{color:var(--pri);border-bottom:2px solid var(--pri2);padding-bottom:4px;margin:26px 0 10px;font-size:20px}.course h3{margin:18px 0 6px;font-size:17px}.course h4{margin:14px 0 4px;font-size:15px;color:var(--pri)}.course p{margin:6px 0}.course ul{margin:4px 0 8px 20px;padding:0}.course li{margin:2px 0}.course li.ar{list-style:none;margin-left:-14px}.course li.ar:before{content:"→ ";color:var(--pri);font-weight:700}
+.course figure{margin:12px 0;text-align:center}.course figure img{max-width:100%;height:auto;border-radius:8px;border:1px solid var(--line);background:#fff}.course .cap{font-size:13px;color:var(--muted);text-align:center;margin-top:-4px}
+.course table{border-collapse:collapse;width:100%;margin:10px 0;font-size:14px;display:block;overflow-x:auto}.course td,.course th{border:1px solid var(--line);padding:5px 7px;vertical-align:top}.course tr:first-child td{background:var(--pri2);font-weight:600}
+h2.ch{margin:0 0 4px;font-size:21px}details.pm{margin-top:8px}details.pm>summary{font-weight:600;color:var(--pri);cursor:pointer}
 .svgwrap{overflow-x:auto;margin:6px 0}.svgwrap svg{width:100%;min-width:560px;height:auto;display:block}
 .mm-root{fill:var(--pri)}.mm-root-t{fill:#fff;font-weight:700;font-size:15px}.mm-edge,.edge{stroke:var(--muted);stroke-width:1.5;fill:none}.mm-node{stroke:var(--line)}.c0{fill:var(--c0)}.c1{fill:var(--c1)}.c2{fill:var(--c2)}.c3{fill:var(--c3)}.c4{fill:var(--c4)}.c5{fill:var(--c5)}
 .mm-node-t{fill:var(--ink);font-weight:600;font-size:13px}.mm-leaf{fill:var(--card);stroke:var(--line)}.mm-leaf-t{fill:var(--ink);font-size:12.5px}
@@ -95,6 +101,15 @@ a{color:var(--pri)}h1{font-size:24px;margin:0 0 4px}h2{font-size:19px}h3{font-si
 <div id="tutor"></div>
 <div id="toast"></div>
 <script>"use strict";
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
 if (window.NodeList && !NodeList.prototype.forEach)
     NodeList.prototype.forEach = Array.prototype.forEach;
 /* SVG drawings & mind maps — all generated, colours from CSS variables */
@@ -153,16 +168,42 @@ function mindMap(lecture, paths) {
     });
     return s + '</svg>';
 }
+/* ---------- Pathology mind map: centre + 6 branches (auto from the sheet) ---------- */
+function short(t, n) { t = String(t).replace(/\s*\([^)]{25,}\)/g, ''); return t.length > n ? t.slice(0, n - 1).replace(/\s+\S*$/, '') + '…' : t; }
+function pathMap(p) {
+    var br = [['Signs & symptoms', p.sx, 0], ['Examination', p.ex, 1], ['Investigations', (p.lab || []).concat(p.img || []), 2],
+        ['Treatment', p.tx, 3], ['Complications', p.cx, 4], ['Key facts', p.oth, 5]].filter(function (b) { return b[1] && b[1].length; });
+    var left = br.filter(function (_, i) { return i % 2 === 0; }), right = br.filter(function (_, i) { return i % 2 === 1; });
+    var W = 900, BW = 300, LH = 15;
+    function col(list) { var y = 14; return list.map(function (b) { var items = b[1].slice(0, 6).map(function (t) { return wrapText('• ' + short(t, 110), 44); }); var h = 30 + items.reduce(function (a, l) { return a + l.length * LH + 3; }, 0) + 6; var o = { b: b, items: items, y: y, h: h }; y += h + 14; return o; }); }
+    var L = col(left), R = col(right);
+    var H = Math.max(L.length ? L[L.length - 1].y + L[L.length - 1].h : 0, R.length ? R[R.length - 1].y + R[R.length - 1].h : 0, 160) + 14;
+    var cl = wrapText(p.n, 18), ch = cl.length * 18 + 22, cx = W / 2, cy = H / 2;
+    var s = "<svg viewBox=\"0 0 ".concat(W, " ").concat(H, "\" class=\"mm\" role=\"img\" aria-label=\"Mind map ").concat(esc(p.n), "\" xmlns=\"").concat(SVGNS, "\">");
+    function box(o, x, side) {
+        var my = o.y + 15;
+        var ex = side ? x : x + BW;
+        s += "<path d=\"M".concat(cx + (side ? 110 : -110), " ").concat(cy, " C ").concat((cx + ex) / 2, " ").concat(cy, ", ").concat((cx + ex) / 2, " ").concat(my, ", ").concat(ex, " ").concat(my, "\" class=\"mm-edge\"/>");
+        s += "<rect x=\"".concat(x, "\" y=\"").concat(o.y, "\" width=\"").concat(BW, "\" height=\"").concat(o.h, "\" rx=\"10\" class=\"mm-leaf\"/><rect x=\"").concat(x, "\" y=\"").concat(o.y, "\" width=\"").concat(BW, "\" height=\"28\" rx=\"10\" class=\"mm-node c").concat(o.b[2], "\"/>");
+        s += "<text x=\"".concat(x + 12, "\" y=\"").concat(o.y + 19, "\" class=\"mm-node-t\">").concat(esc(o.b[0]), "</text>");
+        var yy = o.y + 30 + 13;
+        o.items.forEach(function (l) { s += "<text class=\"mm-leaf-t\">".concat(tspans(l, x + 10, yy, LH), "</text>"); yy += l.length * LH + 3; });
+    }
+    L.forEach(function (o) { return box(o, 8, false); });
+    R.forEach(function (o) { return box(o, W - BW - 8, true); });
+    s += "<rect x=\"".concat(cx - 110, "\" y=\"").concat(cy - ch / 2, "\" width=\"220\" height=\"").concat(ch, "\" rx=\"14\" class=\"mm-root\"/><text class=\"mm-root-t\" text-anchor=\"middle\">").concat(tspans(cl, cx, cy - ch / 2 + 26, 18), "</text>");
+    return s + '</svg>';
+}
 /* ---------- generic helpers ---------- */
 function ladder(title, items) {
-    var W = 640, rowH = 46;
-    var H = 40 + items.length * (rowH + 8);
-    var s = "<svg viewBox=\"0 0 ".concat(W, " ").concat(H, "\" class=\"dr\" xmlns=\"").concat(SVGNS, "\"><text x=\"12\" y=\"24\" class=\"dr-title\">").concat(esc(title), "</text>");
-    items.forEach(function (it, i) {
-        var y = 38 + i * (rowH + 8);
-        var lines = wrapText(it[1], 62);
-        s += "<rect x=\"12\" y=\"".concat(y, "\" width=\"96\" height=\"").concat(rowH, "\" rx=\"8\" class=\"lv lv").concat(Math.min(i, 5), "\"/><text x=\"60\" y=\"").concat(y + 28, "\" text-anchor=\"middle\" class=\"lv-t\">").concat(esc(it[0]), "</text>");
-        s += "<rect x=\"116\" y=\"".concat(y, "\" width=\"").concat(W - 128, "\" height=\"").concat(rowH, "\" rx=\"8\" class=\"box\"/><text class=\"box-t\">").concat(tspans(lines, 128, y + (lines.length > 1 ? 19 : 28), 16), "</text>");
+    var W = 640;
+    var y = 38;
+    var rows = [];
+    items.forEach(function (it) { var lines = wrapText(it[1], 64); var ll = wrapText(it[0], 11); var h = Math.max(46, lines.length * 16 + 16, ll.length * 16 + 14); rows.push({ it: it, lines: lines, ll: ll, y: y, h: h }); y += h + 8; });
+    var s = "<svg viewBox=\"0 0 ".concat(W, " ").concat(y + 4, "\" class=\"dr\" xmlns=\"").concat(SVGNS, "\"><text x=\"12\" y=\"24\" class=\"dr-title\">").concat(esc(title), "</text>");
+    rows.forEach(function (r, i) {
+        s += "<rect x=\"12\" y=\"".concat(r.y, "\" width=\"96\" height=\"").concat(r.h, "\" rx=\"8\" class=\"lv lv").concat(Math.min(i, 5), "\"/><text text-anchor=\"middle\" class=\"lv-t\">").concat(tspans(r.ll, 60, r.y + r.h / 2 - (r.ll.length - 1) * 8 + 5, 16), "</text>");
+        s += "<rect x=\"116\" y=\"".concat(r.y, "\" width=\"").concat(W - 128, "\" height=\"").concat(r.h, "\" rx=\"8\" class=\"box\"/><text class=\"box-t\">").concat(tspans(r.lines, 128, r.y + r.h / 2 - (r.lines.length - 1) * 8 + 5, 16), "</text>");
     });
     return s + '</svg>';
 }
@@ -224,6 +265,56 @@ function hiatal() {
     return "<svg viewBox=\"0 0 640 360\" class=\"dr\" xmlns=\"".concat(SVGNS, "\"><text x=\"12\" y=\"24\" class=\"dr-title\">Hiatal hernia types (\u25CF = gastro-esophageal junction)</text>").concat(one(40, 'Type I – sliding', true, false)).concat(one(360, 'Type II – rolling (para-esophageal)', false, true), "</svg>");
 }
 var DRAW = {
+    savary: function () { return ladder('Savary-Miller – reflux esophagitis', [['I', 'Isolated, non-confluent erythema / erosions'], ['II', 'Confluent but NOT circumferential erosions'], ['III', 'Circumferential erosions'], ['IV', 'Complications: ulcer, stricture, short esophagus'], ['V', 'Barrett epithelium (intestinal metaplasia)']]); },
+    losAngeles: function () { return ladder('Los Angeles classification – erosive esophagitis', [['A', 'Mucosal breaks ≤ 5 mm, not between fold tops'], ['B', 'Breaks > 5 mm, not continuous between folds'], ['C', 'Continuous between ≥ 2 folds, < 75% circumference'], ['D', '≥ 75% of the circumference']]); },
+    causticGrades: function () { return ladder('Zargar – endoscopic grading of caustic injury', [['0', 'Normal mucosa'], ['1', 'Oedema, hyperaemia'], ['2a', 'Friable, erosions, blisters, superficial ulcers'], ['2b', '2a + deep or circumferential ulceration → stenosis risk'], ['3a', 'Focal necrosis'], ['3b', 'Extensive necrosis → perforation risk, surgery']]); },
+    siewert: function () { return ladder('Siewert – adenocarcinoma of the GE junction', [['Type I', 'Centre 1–5 cm ABOVE the Z-line (distal esophagus, Barrett) → transthoracic esophagectomy'], ['Type II', 'Centre 1 cm above to 2 cm below (true cardia) → extended gastrectomy / esophagectomy'], ['Type III', 'Centre 2–5 cm BELOW (subcardial) → total gastrectomy + distal esophagectomy']]); },
+    hiatalTypes: function () { return ladder('Hiatal hernia types', [['I Sliding', 'GE junction migrates ABOVE the diaphragm (≈ 90%) – reflux'], ['II Rolling', 'Para-esophageal: GEJ stays in place, fundus herniates – risk of volvulus / strangulation'], ['III Mixed', 'Sliding + rolling'], ['IV Complex', 'Other organs (colon, spleen, omentum) in the sac']]); },
+    achalasiaStages: function () { return ladder('Achalasia – radiological stages', [['I', 'Moderate dilatation (< 4 cm), conical "bird\'s beak"'], ['II', 'Dilatation 4–6 cm, fluid level'], ['III', '> 6 cm, elongated'], ['IV', 'Sigmoid / "sock-like" mega-esophagus']]); },
+    borrmann: function () { return ladder('Borrmann – advanced gastric cancer (macroscopic)', [['I', 'Polypoid / fungating, well circumscribed'], ['II', 'Ulcerated with sharp, raised margins'], ['III', 'Ulcerated, infiltrating margins'], ['IV', 'Diffusely infiltrating – linitis plastica ("leather bottle")']]); },
+    lauren: function () { return ladder('Laurén – gastric adenocarcinoma', [['Intestinal', 'Elderly men, H. pylori → atrophy → metaplasia; glands; haematogenous spread (liver)'], ['Diffuse', 'Younger, signet-ring cells, E-cadherin (CDH1); lymphatic / peritoneal spread; worse prognosis']]); },
+    gastricSurg: function () { return ladder('Gastric resections & reconstructions', [['Billroth I', 'Distal gastrectomy + gastro-duodenal anastomosis'], ['Billroth II', 'Distal gastrectomy + gastro-jejunal anastomosis (afferent loop)'], ['Roux-en-Y', 'Total gastrectomy: esophago-jejunal anastomosis on a Y loop'], ['D2', 'Perigastric (D1) + nodes along left gastric, common hepatic, splenic arteries, coeliac trunk']]); },
+    dumping: function () { return ladder('Post-gastrectomy syndromes', [['Early dumping', '15–30 min after meals: hyperosmolar fluid shift → palpitations, sweating, diarrhoea'], ['Late dumping', '2–3 h: reactive hypoglycaemia'], ['Afferent loop', 'Bilious vomiting relieving pain (Billroth II)'], ['Alkaline reflux', 'Bile gastritis – burning pain, bilious vomiting'], ['Deficits', 'Iron, B12 (intrinsic factor), calcium, osteoporosis']]); },
+    meckel: function () { return ladder('Meckel\'s diverticulum – rule of 2', [['2%', 'of the population'], ['2 feet', '(60 cm) from the ileocaecal valve, antimesenteric border'], ['2 inch', 'long (5 cm)'], ['2 tissues', 'Ectopic gastric and pancreatic mucosa'], ['< 2 y', 'Usual age of complications; M:F = 2:1'], ['Cx', 'Bleeding (child), obstruction (adult), diverticulitis, Littré hernia']]); },
+    crohnUc: function () { return ladder('Crohn vs ulcerative colitis', [['Site', 'Crohn: mouth → anus, terminal ileum, skip lesions | UC: rectum + continuous proximal'], ['Wall', 'Crohn: transmural, granulomas, fistulas | UC: mucosa only, crypt abscesses'], ['Look', 'Crohn: cobblestone, string sign | UC: pseudopolyps, lead-pipe colon'], ['Smoking', 'Worsens Crohn | protective in UC'], ['Surgery', 'Crohn: bowel-sparing, recurs | UC: proctocolectomy = cure']]); },
+    shortBowel: function () { return ladder('Short bowel – prognosis', [['< 200 cm', 'Definition (adult small bowel ≈ 3–7 m)'], ['Colon +', 'Colon in continuity → better absorption of water & energy'], ['ICV', 'Loss of ileocaecal valve → bacterial overgrowth, faster transit'], ['Ileum', 'Ileal loss → B12 + bile salt malabsorption, diarrhoea, gallstones, oxalate stones'], ['Phases', 'Hypersecretion (TPN) → adaptation (1–2 y) → maintenance']]); },
+    dukes: function () { return ladder('Colorectal cancer staging (TNM / Dukes / Astler-Coller)', [['Stage I', 'T1–T2 N0 (Dukes A) – surgery alone'], ['Stage II', 'T3–T4 N0 (Dukes B) – surgery ± chemo if high risk'], ['Stage III', 'Any T N+ (Dukes C) – surgery + adjuvant chemo (FOLFOX)'], ['Stage IV', 'M1 (Dukes D) – systemic therapy ± resection of liver / lung metastases']]); },
+    amsterdam: function () { return ladder('Lynch syndrome – Amsterdam II ("3-2-1")', [['3', '≥ 3 relatives with Lynch cancer (CRC, endometrium, small bowel, ureter / renal pelvis)'], ['1st degree', 'One is a 1st-degree relative of the other two'], ['2', '≥ 2 successive generations affected'], ['1', '≥ 1 diagnosed before 50 years'], ['FAP', 'Familial adenomatous polyposis excluded']]); },
+    polypRisk: function () { return ladder('Adenoma – risk of malignancy', [['Tubular', 'Lowest risk (≈ 5%)'], ['Tubulo-villous', 'Intermediate (≈ 20%)'], ['Villous', 'Highest (≈ 40%); hypokalaemia, mucus'], ['Size', '< 1 cm ≈ 1% · 1–2 cm ≈ 10% · > 2 cm ≈ 40%'], ['Sessile', 'More dangerous than pedunculated']]); },
+    parks: function () { return ladder('Parks classification – anal fistula', [['Inter-sphincteric', 'Most common (≈ 70%) – fistulotomy'], ['Trans-sphincteric', 'Crosses internal + external sphincter – seton if high'], ['Supra-sphincteric', 'Loops above the puborectalis – seton, flap'], ['Extra-sphincteric', 'From rectum through levators, outside sphincters – often iatrogenic / Crohn']]); },
+    goodsall: function () { return ladder('Goodsall\'s rule', [['Anterior', 'External opening anterior to the transverse anal line → straight radial tract'], ['Posterior', 'Posterior opening → curved tract to the posterior midline crypt'], ['> 3 cm', 'Openings > 3 cm from the verge usually curve to posterior midline']]); },
+    rectalLevels: function () { return ladder('Rectal cancer – choice of operation', [['Upper', '10–15 cm: anterior resection + partial mesorectal excision'], ['Middle', '5–10 cm: low anterior resection + TME ± protective ileostomy'], ['Low', '< 5 cm: neoadjuvant CRT → ultra-low / intersphincteric resection or APR (Miles)'], ['Early T1', 'Selected: transanal local excision (TEM / TAMIS)']]); },
+    tokyo: function () { return ladder('Tokyo Guidelines – acute cholecystitis severity', [['Grade I', 'Mild: healthy patient, no organ dysfunction → early lap cholecystectomy'], ['Grade II', 'Moderate: WBC > 18 000, palpable mass, > 72 h, local complications → early LC in experienced centre or drainage'], ['Grade III', 'Severe: organ dysfunction (cardiovascular, neuro, respiratory, renal, hepatic, haematologic) → percutaneous cholecystostomy, then delayed LC']]); },
+    strasberg: function () { return ladder('Strasberg – bile duct injury', [['A', 'Leak from cystic duct / Luschka ducts'], ['B', 'Occlusion of an aberrant right hepatic duct'], ['C', 'Transection without ligation of aberrant right duct'], ['D', 'Lateral injury of a major duct'], ['E1–E5', 'Circumferential injury of CHD (Bismuth 1–5) → Roux-en-Y hepatico-jejunostomy']]); },
+    bismuth: function () { return ladder('Bismuth-Corlette – hilar cholangiocarcinoma (Klatskin)', [['I', 'Below the confluence'], ['II', 'Reaches the confluence'], ['IIIa', 'Extends into the right hepatic duct'], ['IIIb', 'Extends into the left hepatic duct'], ['IV', 'Both hepatic ducts / multifocal']]); },
+    todani: function () { return ladder('Todani – choledochal cysts', [['I', 'Fusiform / cystic dilatation of the CBD (≈ 80%)'], ['II', 'Supraduodenal diverticulum of the CBD'], ['III', 'Choledochocele (intraduodenal)'], ['IV', 'Multiple: intra + extrahepatic (IVa) or extrahepatic only (IVb)'], ['V', 'Intrahepatic only = Caroli disease']]); },
+    charcot: function () { return ladder('Cholangitis – from triad to pentad', [['Charcot', 'RUQ pain + fever with chills + jaundice'], ['Reynolds', 'Charcot + shock + mental confusion = suppurative cholangitis'], ['Action', 'Antibiotics + biliary decompression (ERCP) within 24–48 h; urgent if Reynolds']]); },
+    jaundiceTypes: function () { return ladder('Jaundice – three types', [['Pre-hepatic', 'Haemolysis: unconjugated ↑, no bilirubinuria, ↑ urobilinogen'], ['Hepatic', 'Hepatitis / cirrhosis: mixed, transaminases ≫ ALP'], ['Post-hepatic', 'Obstruction: conjugated ↑, dark urine, pale stools, pruritus, ALP / GGT ↑, dilated ducts on US']]); },
+    childPugh: function () { return ladder('Child-Pugh score (5–15 points)', [['Criteria', 'Bilirubin · albumin · INR · ascites · encephalopathy (1–3 points each)'], ['A 5–6', 'Well compensated – resection possible'], ['B 7–9', 'Significant compromise – limited resection'], ['C 10–15', 'Decompensated – no resection; transplant']]); },
+    bclc: function () { return ladder('BCLC – hepatocellular carcinoma', [['0 very early', 'Single < 2 cm, Child A, PS 0 → resection / ablation'], ['A early', 'Single or ≤ 3 nodules ≤ 3 cm → resection, transplant, ablation'], ['B interm.', 'Multinodular, PS 0 → TACE'], ['C advanced', 'Portal invasion, N1, M1, PS 1–2 → systemic (atezolizumab-bevacizumab, sorafenib)'], ['D terminal', 'Child C, PS > 2 → best supportive care']]); },
+    milan: function () { return ladder('Milan criteria – transplant for HCC', [['1 nodule', '≤ 5 cm'], ['≤ 3 nodules', 'Each ≤ 3 cm'], ['No', 'Macrovascular invasion, no extrahepatic spread'], ['Result', '5-year survival ≈ 70%, similar to non-cancer transplants']]); },
+    liverLesions: function () { return ladder('Liver lesions – imaging signatures', [['Haemangioma', 'Peripheral nodular enhancement, centripetal fill-in – NO biopsy'], ['FNH', 'Central stellate scar, arterial enhancement, isodense late – observe'], ['Adenoma', 'Young woman on OCP, bleeding risk – stop OCP, resect if > 5 cm / man'], ['HCC', 'Cirrhosis, arterial wash-in + portal wash-out, AFP'], ['Hydatid', 'Daughter cysts, membranes, calcified wall – serology']]); },
+    portalHtn: function () { return ladder('Portal hypertension – sites of porto-systemic collaterals', [['Esophagus', 'Left gastric → azygos: esophageal varices (bleeding)'], ['Umbilicus', 'Paraumbilical veins: caput medusae'], ['Rectum', 'Superior → middle / inferior rectal: anorectal varices'], ['Retroperit.', 'Retzius veins'], ['Treat bleed', 'Vasoactive + antibiotics + banding ≤ 12 h → balloon / TIPS']]); },
+    atlanta: function () { return ladder('Revised Atlanta – acute pancreatitis severity', [['Mild', 'No organ failure, no local complications'], ['Moderate', 'Transient organ failure (< 48 h) and / or local complications'], ['Severe', 'Persistent organ failure > 48 h (Marshall score ≥ 2)'], ['Collections', '< 4 wk: APFC / ANC · > 4 wk: pseudocyst / walled-off necrosis']]); },
+    balthazar: function () { return ladder('Balthazar CT grade (+ necrosis = CTSI)', [['A', 'Normal pancreas (0)'], ['B', 'Focal / diffuse enlargement (1)'], ['C', 'Peripancreatic inflammation (2)'], ['D', 'Single fluid collection (3)'], ['E', '≥ 2 collections and / or gas (4)'], ['Necrosis', '< 30% = 2 · 30–50% = 4 · > 50% = 6; CTSI ≥ 7 = severe']]); },
+    pancreasResect: function () { return ladder('Pancreatic cancer – resectability', [['Resectable', 'No arterial contact, SMV / PV ≤ 180° without deformation → Whipple / distal pancreatectomy'], ['Borderline', 'SMV / PV > 180° or reconstructable, GDA / short CHA contact → neoadjuvant'], ['Locally adv.', 'SMA / coeliac > 180° → chemo (FOLFIRINOX)'], ['Metastatic', 'Liver, peritoneum → palliation (stent, bypass, chemo, coeliac block)']]); },
+    pnet: function () { return ladder('Pancreatic neuroendocrine tumours', [['Insulinoma', 'Whipple triad (hypoglycaemia, symptoms, relief by glucose); benign 90% → enucleation'], ['Gastrinoma', 'Zollinger-Ellison: refractory ulcers, diarrhoea; gastrinoma triangle; MEN-1'], ['Glucagonoma', 'Diabetes, necrolytic migratory erythema, weight loss'], ['VIPoma', 'WDHA: watery diarrhoea, hypokalaemia, achlorhydria'], ['Somatostatin.', 'Diabetes, gallstones, steatorrhoea']]); },
+    aastSpleen: function () { return ladder('AAST splenic injury grades', [['I', 'Subcapsular haematoma < 10% surface, laceration < 1 cm deep'], ['II', 'Haematoma 10–50%, laceration 1–3 cm'], ['III', 'Haematoma > 50% or expanding, laceration > 3 cm or trabecular vessels'], ['IV', 'Hilar / segmental vessels → > 25% devascularisation'], ['V', 'Shattered spleen or hilar devascularisation']]); },
+    opsi: function () { return ladder('Splenectomy – prevention of OPSI', [['Vaccines', 'Pneumococcus, meningococcus, Haemophilus influenzae b – ≥ 2 weeks before elective surgery (or 2 weeks after emergency)'], ['Antibiotics', 'Prophylaxis (children, immunosuppressed); "standby" amoxicillin'], ['Education', 'Fever = emergency; medical alert card'], ['Blood', 'Howell-Jolly bodies, thrombocytosis (thromboprophylaxis)']]); },
+    alvarado: function () { return ladder('Alvarado score (MANTRELS)', [['M', 'Migration of pain to RIF (1)'], ['A', 'Anorexia (1)'], ['N', 'Nausea / vomiting (1)'], ['T', 'Tenderness in RIF (2)'], ['R', 'Rebound (1)'], ['E', 'Elevated temperature ≥ 37.3 °C (1)'], ['L', 'Leukocytosis > 10 000 (2) · S: Shift to the left (1)'], ['Total', '≤ 4 unlikely · 5–6 observe / imaging · ≥ 7 surgery']]); },
+    appForms: function () { return ladder('Appendicitis – evolution', [['Catarrhal', 'Congestive, mucosa only'], ['Phlegmonous', 'Suppurative, fibrin, all layers'], ['Gangrenous', 'Necrosis of the wall'], ['Perforated', 'Localised abscess or generalised peritonitis'], ['Plastron', 'Mass walled off by omentum / loops → antibiotics, appendectomy at 6–8 weeks']]); },
+    blatchford: function () { return ladder('Upper GI bleeding – risk scores', [['Blatchford', 'Pre-endoscopy: urea, Hb, SBP, pulse, melena, syncope, liver / cardiac disease; 0 = outpatient'], ['Rockall', 'Age, shock, comorbidity + endoscopic diagnosis & stigmata → rebleeding / mortality'], ['Forrest', 'Endoscopic stigmata → need for endoscopic therapy (Ia–IIb)']]); },
+    lgibFlow: function () { return flow('Lower GI bleeding – algorithm', [['Haematochezia', 'e'], ['Resuscitate, exclude upper source (NGT / endoscopy if unstable)', 'a'], ['Stable?', 'q', 'NO → CT angiography → embolisation'], ['Colonoscopy after bowel prep (24 h)', 'a', 'Haemostasis: clips, injection, coagulation'], ['Persistent / recurrent bleeding', 'q'], ['Segmental colectomy if site known; subtotal if unknown', 'e']]); },
+    obstrLevels: function () { return ladder('Obstruction – clinical by level', [['High SB', 'Early, abundant bilious vomiting; little distension'], ['Low SB', 'Colicky periumbilical pain, central distension, later faeculent vomiting'], ['Colon', 'Marked distension, late vomiting, early cessation of stool & gas; caecum > 12 cm → perforation'], ['Strangul.', 'Continuous pain, fever, tachycardia, peritonism, lactate ↑']]); },
+    obstrCauses: function () { return ladder('Mechanical obstruction – causes', [['Lumen', 'Gallstone ileus, bezoar, foreign body, faecal impaction, intussusception'], ['Wall', 'Tumours, Crohn stricture, intramural haematoma, radiation, atresia'], ['Outside', 'Adhesions (most frequent), hernias, volvulus, carcinomatosis, bands'], ['Functional', 'Paralytic ileus (post-op, electrolytes), Ogilvie pseudo-obstruction']]); },
+    peritClass: function () { return ladder('Peritonitis – classification', [['Primary', 'Spontaneous bacterial (cirrhotic ascites, children) – monomicrobial → antibiotics, no surgery'], ['Secondary', 'Perforation, anastomotic leak, trauma – polymicrobial → SOURCE CONTROL'], ['Tertiary', 'Persistent after adequate treatment, ICU, resistant flora / fungi'], ['Localised', 'Abscess → percutaneous drainage']]); },
+    mannheim: function () { return ladder('Peritonitis – severity markers', [['MPI', 'Mannheim index: age > 50, female, organ failure, cancer, > 24 h, colonic origin, diffuse, exudate'], ['qSOFA', 'RR ≥ 22, altered mentation, SBP ≤ 100'], ['Lactate', '> 2 mmol/L = hypoperfusion; > 4 = septic shock risk']]); },
+    aastLiver: function () { return ladder('AAST liver injury grades', [['I', 'Haematoma < 10% surface, laceration < 1 cm'], ['II', 'Haematoma 10–50%, laceration 1–3 cm, < 10 cm long'], ['III', 'Haematoma > 50% / ruptured, laceration > 3 cm'], ['IV', 'Disruption 25–75% of a lobe'], ['V', '> 75% of a lobe or juxtahepatic venous injury (IVC, hepatic veins)']]); },
+    lethalTriad: function () { return ladder('Damage control surgery', [['Triad', 'Hypothermia + acidosis + coagulopathy'], ['Step 1', 'Abbreviated laparotomy: control bleeding (packing) & contamination, temporary closure'], ['Step 2', 'ICU: rewarm, correct coagulopathy & acidosis (24–48 h)'], ['Step 3', 'Planned re-look: definitive repair, anastomoses, closure']]); },
+    ruleNines: function () { return ladder('Rule of nines (adult %TBSA)', [['Head', '9%'], ['Each arm', '9%'], ['Trunk', 'Anterior 18% + posterior 18%'], ['Each leg', '18%'], ['Perineum', '1%'], ['Parkland', '4 mL × kg × %TBSA Ringer: ½ in first 8 h, ½ in next 16 h']]); },
+    bmi: function () { return ladder('Bariatric procedures', [['Sleeve', 'Restrictive: 80% gastrectomy on a bougie; ghrelin ↓; risk: leak at His angle, GERD'], ['RYGB', 'Restrictive + malabsorptive: 30 mL pouch, 150 cm alimentary limb; dumping, internal hernia, marginal ulcer'], ['Band', 'Adjustable gastric band – largely abandoned'], ['BPD-DS', 'Most malabsorptive – super-obese; deficiencies']]); },
+    laparoCx: function () { return ladder('Laparoscopy – complications', [['Access', 'Veress / trocar: vascular (aorta, iliac), bowel injury'], ['Gas', 'CO2 embolism, subcutaneous emphysema, pneumothorax, hypercapnia, shoulder pain'], ['Haemo.', 'Reduced venous return, ↑ afterload – caution in cardiac patients'], ['Late', 'Port-site hernia (≥ 10 mm), port metastases']]); },
+    rejection: function () { return ladder('Graft rejection', [['Hyperacute', 'Minutes – preformed antibodies (ABO, HLA) → graft removal'], ['Acute', 'Days–months – T cells → steroid pulses, ↑ immunosuppression'], ['Chronic', 'Months–years – vascular / fibrosis, irreversible'], ['GVHD', 'Donor lymphocytes attack the host (small bowel, liver Tx)']]); },
     johnson: function () { return stomachJohnson(); },
     couinaud: function () { return couinaud(); },
     quadrants: function () { return quadrants(); },
@@ -411,9 +502,9 @@ function save(doc) {
 function isClaude() { return !!(window.claude && typeof window.claude.use === 'function'); }
 function boot() {
     applyTheme();
-    Promise.all([getJSON('data/core.json'), getJSON('data/summary.json')]).then(function (r) {
+    Promise.all([getJSON('data/core.json')]).then(function (r) {
         APP.core = r[0];
-        APP.summary = r[1];
+        APP.summary = [];
         APP.qById = {};
         APP.core.questions.forEach(function (q) { APP.qById[q.id] = q; });
         APP.pById = {};
@@ -481,7 +572,7 @@ function bootWeb() {
             if (user) {
                 S.user = user;
                 STORE = firebaseStore(fb, user);
-                loadState().then(function () { renderShell(); route(); });
+                loadState().then(function () { saveProfile(user); renderShell(); route(); });
             }
             else if (!S.guest) {
                 S.user = null;
@@ -495,7 +586,7 @@ function bootWeb() {
 function showLogin() {
     $('#shell').className = 'hidden';
     $('#login').className = '';
-    $('#login').innerHTML = "<div class=\"login-card\">\n    <div class=\"logo\">\u271A</div><h1>General Surgery</h1><p class=\"muted\">Lessons \u00B7 MCQs from old exams \u00B7 OSCE clinical cases</p>\n    ".concat(APP.fbReady ? "<form id=\"emailF\" class=\"left\">\n      <div class=\"tabs2\"><a href=\"#\" class=\"".concat(LOGIN_MODE === 'in' ? 'on' : '', "\" data-act=\"lmode\" data-id=\"in\">Sign in</a><a href=\"#\" class=\"").concat(LOGIN_MODE === 'up' ? 'on' : '', "\" data-act=\"lmode\" data-id=\"up\">Create account</a></div>\n      <input id=\"lEmail\" class=\"inp\" type=\"email\" placeholder=\"E-mail\" autocomplete=\"email\" autocapitalize=\"off\" required>\n      ").concat(LOGIN_MODE !== 'reset' ? "<input id=\"lPass\" class=\"inp\" type=\"password\" placeholder=\"Password".concat(LOGIN_MODE === 'up' ? ' (min. 6 characters)' : '', "\" autocomplete=\"").concat(LOGIN_MODE === 'up' ? 'new-password' : 'current-password', "\" required>") : '', "\n      ").concat(LOGIN_MODE === 'up' ? '<input id="lPass2" class="inp" type="password" placeholder="Repeat password" autocomplete="new-password" required>' : '', "\n      <div id=\"lErr\" class=\"small lerr\"></div>\n      <button class=\"btn primary wide\" type=\"submit\">").concat(LOGIN_MODE === 'up' ? 'Create my account' : LOGIN_MODE === 'reset' ? 'Send reset e-mail' : 'Sign in', "</button>\n      <p class=\"small center\">").concat(LOGIN_MODE === 'reset' ? '<a href="#" data-act="lmode" data-id="in">Back to sign in</a>' : '<a href="#" data-act="lmode" data-id="reset">Forgot password?</a>', "</p></form>\n    <p class=\"small muted\">Your progress, grades and mistakes are saved to your account and follow you on every device.</p>\n    <div class=\"or\"><span>or</span></div>\n    <button class=\"btn wide\" data-act=\"google\">Continue with Google</button>") : '<p class="small muted">Accounts are not configured yet on this copy of the site.</p>', "\n    <div class=\"or\"><span>or</span></div>\n    <button class=\"btn wide\" data-act=\"guest\">Continue as guest</button>\n    <p class=\"small muted\">Guest mode: everything works, but nothing is saved when you close the page.</p></div>");
+    $('#login').innerHTML = "<div class=\"login-card\">\n    <div class=\"logo\">\u271A</div><h1>General Surgery</h1><p class=\"muted\">Lessons \u00B7 MCQs from old exams \u00B7 OSCE clinical cases</p>\n    ".concat(APP.fbReady ? "<form id=\"emailF\" class=\"left\">\n      <div class=\"tabs2\"><a href=\"#\" class=\"".concat(LOGIN_MODE === 'in' ? 'on' : '', "\" data-act=\"lmode\" data-id=\"in\">Sign in</a><a href=\"#\" class=\"").concat(LOGIN_MODE === 'up' ? 'on' : '', "\" data-act=\"lmode\" data-id=\"up\">Create account</a></div>\n      <input id=\"lEmail\" class=\"inp\" type=\"email\" placeholder=\"E-mail\" autocomplete=\"email\" autocapitalize=\"off\" required>\n      ").concat(LOGIN_MODE !== 'reset' ? "<input id=\"lPass\" class=\"inp\" type=\"password\" placeholder=\"Password".concat(LOGIN_MODE === 'up' ? ' (min. 6 characters)' : '', "\" autocomplete=\"").concat(LOGIN_MODE === 'up' ? 'new-password' : 'current-password', "\" required>") : '', "\n      ").concat(LOGIN_MODE === 'up' ? '<input id="lPass2" class="inp" type="password" placeholder="Repeat password" autocomplete="new-password" required>' : '', "\n      <div id=\"lErr\" class=\"small lerr\"></div>\n      <button class=\"btn primary wide\" type=\"submit\">").concat(LOGIN_MODE === 'up' ? 'Create my account' : LOGIN_MODE === 'reset' ? 'Send reset e-mail' : 'Sign in', "</button>\n      <p class=\"small center\">").concat(LOGIN_MODE === 'reset' ? '<a href="#" data-act="lmode" data-id="in">Back to sign in</a>' : '<a href="#" data-act="lmode" data-id="reset">Forgot password?</a>', "</p></form>\n    <p class=\"small muted\">Your progress, grades and mistakes are saved to your account and follow you on every device. The site creator can see your progress and results to help the group.</p>\n    <div class=\"or\"><span>or</span></div>\n    <button class=\"btn wide\" data-act=\"google\">Continue with Google</button>") : '<p class="small muted">Accounts are not configured yet on this copy of the site.</p>', "\n    <div class=\"or\"><span>or</span></div>\n    <button class=\"btn wide\" data-act=\"guest\">Continue as guest</button>\n    <p class=\"small muted\">Guest mode: everything works, but nothing is saved when you close the page.</p></div>");
 }
 var LOGIN_MODE = 'in';
 var AUTH_ERR = { 'auth/email-already-in-use': 'An account already exists with this e-mail – use "Sign in".', 'auth/invalid-email': 'This e-mail address is not valid.',
@@ -569,13 +660,85 @@ function toggleTheme() {
     }
     catch (e) { }
 }
+/* ---------------- admin (site creator) ---------------- */
+var ADMIN_EMAIL = 'nathanaeldalbis@gmail.com';
+function isAdmin() { return S.mode === 'web' && S.user && (S.user.email || '').toLowerCase() === ADMIN_EMAIL; }
+function saveProfile(user) {
+    var p = { t: 'profile', id: 'profile', uid: user.uid, email: user.email || '', name: user.displayName || '', lastSeen: Date.now(), created: (S.profile && S.profile.created) || Date.now() };
+    S.profile = p;
+    try {
+        STORE.put('profile', p);
+    }
+    catch (e) { }
+}
+var ADM = { data: null, loading: false, err: null, sel: null };
+function adminLoad() {
+    if (ADM.loading)
+        return;
+    ADM.loading = true;
+    ADM.err = null;
+    window.firebase.firestore().collectionGroup('items').get().then(function (snap) {
+        var users = {};
+        snap.forEach(function (d) { var uid = d.ref.parent.parent ? d.ref.parent.parent.id : '?'; (users[uid] = users[uid] || { uid: uid, docs: [] }).docs.push(d.data()); });
+        ADM.data = Object.keys(users).map(function (k) { return adminSummary(users[k]); });
+        ADM.loading = false;
+        if (VIEW.name === 'admin')
+            render();
+    }).catch(function (e) { ADM.loading = false; ADM.err = (e && (e.code || e.message)) || 'error'; if (VIEW.name === 'admin')
+        render(); });
+}
+function withState(docs, fn) {
+    var keep = { a: S.attempts, j: S.jury };
+    S.attempts = docs.filter(function (d) { return d.t === 'attempt'; }).sort(function (a, b) { return a.date - b.date; });
+    S.jury = docs.filter(function (d) { return d.t === 'jury'; }).sort(function (a, b) { return a.date - b.date; });
+    try {
+        return fn();
+    }
+    finally {
+        S.attempts = keep.a;
+        S.jury = keep.j;
+    }
+}
+function adminSummary(u) {
+    var prof = u.docs.filter(function (d) { return d.t === 'profile'; })[0] || {};
+    return withState(u.docs, function () {
+        var st = lectureStats();
+        var ids = Object.keys(st);
+        var done = ids.reduce(function (n, k) { return n + st[k].done; }, 0);
+        var sum = ids.reduce(function (n, k) { return n + st[k].sum; }, 0);
+        var sets = S.attempts.map(function (a) { return ({ label: a.label, kind: a.kind, date: a.date, pct: attemptFinal(a) }); }).filter(function (x) { return x.pct != null; });
+        var jury = S.jury.map(function (j) { return ({ label: j.label, date: j.date, s: j.score10 }); });
+        var weak = ids.filter(function (k) { return st[k].done >= 3; }).sort(function (a, b) { return st[a].pct - st[b].pct; }).slice(0, 3);
+        var lastAct = Math.max.apply(Math, __spreadArray(__spreadArray([prof.lastSeen || 0], S.attempts.map(function (a) { return a.date || 0; }), false), S.jury.map(function (j) { return j.date || 0; }), false));
+        return { uid: u.uid, email: prof.email || '', name: prof.name || '', lastSeen: lastAct || null, done: done, total: APP.core.questions.length,
+            pct: done ? 100 * sum / done : null, st: st, sets: sets, jury: jury, juryAvg: jury.length ? jury.reduce(function (a, j) { return a + j.s; }, 0) / jury.length : null, weak: weak };
+    });
+}
+function vAdmin() {
+    if (!isAdmin())
+        return "<div class=\"card\"><p>This page is only for the site creator.</p></div>";
+    if (!ADM.data && !ADM.err) {
+        adminLoad();
+        return "<div class=\"page-h\"><h1>Students \u2013 progress & results</h1></div><div class=\"card\"><p class=\"muted\">Loading every account\u2026</p></div>";
+    }
+    if (ADM.err)
+        return "<div class=\"page-h\"><h1>Students \u2013 progress & results</h1></div><div class=\"card\"><p class=\"lerr\">Could not read the accounts (".concat(h(ADM.err), "). Check that the admin rule is published in Firestore \u2192 Rules.</p><button class=\"btn\" data-act=\"admReload\">Retry</button></div>");
+    var L = APP.core.lectures;
+    var list = ADM.data.slice().sort(function (a, b) { return (b.lastSeen || 0) - (a.lastSeen || 0); });
+    var u = ADM.sel && ADM.data.filter(function (x) { return x.uid === ADM.sel; })[0];
+    var who = function (x) { return x.email ? h(x.email) + (x.name ? " <span class=\"muted small\">".concat(h(x.name), "</span>") : '') : "<span class=\"muted small\">account ".concat(h(x.uid.slice(0, 8)), "\u2026 (not signed in since the update)</span>"); };
+    var detail = '';
+    if (u)
+        detail = "<div class=\"card\"><h3>".concat(who(u), "</h3>\n    <table class=\"tbl\"><tr><th>Lecture</th><th>Answered</th><th>Grade</th></tr>").concat(L.filter(function (l) { return u.st[l.id] && u.st[l.id].total; }).map(function (l) { return "<tr><td>".concat(h(l.title), "</td><td>").concat(u.st[l.id].done, "/").concat(u.st[l.id].total, "</td><td>").concat(gradeBadge(u.st[l.id].pct), "</td></tr>"); }).join(''), "</table>\n    <h4>Sets (").concat(u.sets.length, ")</h4>").concat(u.sets.length ? "<table class=\"tbl\"><tr><th>Date</th><th>Set</th><th>Grade</th></tr>".concat(u.sets.slice().reverse().map(function (x) { return "<tr><td>".concat(fmtDate(x.date), "</td><td>").concat(h(x.label), "</td><td>").concat(gradeBadge(x.pct), "</td></tr>"); }).join(''), "</table>") : '<p class="muted">No finished set.</p>', "\n    <h4>Clinical cases (").concat(u.jury.length, ")</h4>").concat(u.jury.length ? "<table class=\"tbl\"><tr><th>Date</th><th>Case</th><th>Grade</th></tr>".concat(u.jury.slice().reverse().map(function (j) { return "<tr><td>".concat(fmtDate(j.date), "</td><td>").concat(h(j.label), "</td><td>").concat(gradeBadge(j.s * 10), " <span class=\"muted small\">").concat(j.s.toFixed(1), "/10</span></td></tr>"); }).join(''), "</table>") : '<p class="muted">No case yet.</p>', "</div>");
+    return "<div class=\"page-h\"><h1>Students \u2013 progress & results</h1><p class=\"muted\">".concat(list.length, " account").concat(list.length === 1 ? '' : 's', " \u00B7 guests are not tracked. <a href=\"#\" data-act=\"admReload\">Refresh</a></p></div>").concat(detail, "\n  <div class=\"card\"><table class=\"tbl\"><tr><th>Student</th><th>Last activity</th><th>MCQs answered</th><th>Average</th><th>Sets</th><th>Cases</th><th>Weakest lectures</th></tr>\n  ").concat(list.map(function (x) { return "<tr><td><a href=\"#\" data-act=\"admSel\" data-id=\"".concat(h(x.uid), "\">").concat(who(x), "</a></td><td>").concat(x.lastSeen ? fmtDate(x.lastSeen) : '–', "</td><td>").concat(x.done, "/").concat(x.total, " <span class=\"muted small\">(").concat(Math.round(100 * x.done / x.total), "%)</span></td><td>").concat(gradeBadge(x.pct), "</td><td>").concat(x.sets.length).concat(x.sets.length ? ' · last ' + gradeBadge(x.sets[x.sets.length - 1].pct) : '', "</td><td>").concat(x.jury.length).concat(x.juryAvg != null ? ' · ' + x.juryAvg.toFixed(1) + '/10' : '', "</td><td class=\"small\">").concat(x.weak.map(function (k) { return h(APP.lById[k] ? APP.lById[k].title : k); }).join(', ') || '–', "</td></tr>"); }).join(''), "</table></div>");
+}
 /* ---------------- shell & routing ---------------- */
 var NAV = [['dash', 'Dashboard', '◉'], ['lessons', 'Lessons', '▤'], ['gallery', 'Mind maps & drawings', '✎'], ['flash', 'Flashcards', '❏'], ['practice', 'Lecture MCQs', '✓'],
     ['mock', 'Mock exam', '◷'], ['final', 'Final test', '★'], ['papers', 'Past papers', '▦'], ['cases', 'Clinical cases', '✚'], ['mistakes', 'My mistakes', '↺']];
 function renderShell() {
     $('#login').className = 'hidden';
     $('#shell').className = '';
-    $('#nav').innerHTML = NAV.map(function (n) { return "<a href=\"#".concat(n[0], "\" class=\"nav-a").concat(VIEW.name === n[0] ? ' on' : '', "\" data-nav=\"").concat(n[0], "\"><span class=\"ni\">").concat(n[2], "</span>").concat(n[1], "</a>"); }).join('') +
+    $('#nav').innerHTML = (isAdmin() ? NAV.concat([['admin', 'Students (admin)', '♛']]) : NAV).map(function (n) { return "<a href=\"#".concat(n[0], "\" class=\"nav-a").concat(VIEW.name === n[0] ? ' on' : '', "\" data-nav=\"").concat(n[0], "\"><span class=\"ni\">").concat(n[2], "</span>").concat(n[1], "</a>"); }).join('') +
         "<div class=\"nav-foot\"><div class=\"save-pill ".concat(STORE ? STORE.mode : '', "\">").concat(h(STORE ? STORE.label : ''), "</div>\n    <button class=\"btn sm\" data-act=\"theme\">\u25D0 Light / dark</button>").concat(S.mode === 'web' ? '<button class="btn sm" data-act="logout">' + (S.guest ? 'Exit guest mode' : 'Sign out') + '</button>' : '', "</div>");
     $('#tutorBtn').style.display = AI ? '' : 'none';
 }
@@ -589,7 +752,7 @@ function go(name, arg) { VIEW = { name: name, arg: arg }; if (location.hash !== 
 } render(); }
 function route() {
     var n = (location.hash || '#dash').slice(1);
-    var known = NAV.some(function (x) { return x[0] === n; }) || n === 'run' || n === 'review' || n === 'lesson' || n === 'case' || n === 'help';
+    var known = NAV.some(function (x) { return x[0] === n; }) || n === 'run' || n === 'review' || n === 'lesson' || n === 'case' || n === 'help' || (n === 'admin' && isAdmin());
     VIEW = { name: known && n !== 'run' && n !== 'review' && n !== 'case' && n !== 'lesson' ? n : 'dash', arg: null };
     render();
 }
@@ -598,10 +761,11 @@ function render() {
         return;
     document.querySelectorAll('.nav-a').forEach(function (a) { return a.className = 'nav-a' + (a.getAttribute('data-nav') === VIEW.name ? ' on' : ''); });
     $('#side').className = '';
-    var fn = { dash: vDash, lessons: vLessons, lesson: vLesson, gallery: vGallery, flash: vFlash, practice: vPractice, run: vRun, review: vReview, mock: vMock, final: vFinal, papers: vPapers, cases: vCases, case: vCase, mistakes: vMistakes, help: vHelp }[VIEW.name] || vDash;
+    var fn = { dash: vDash, lessons: vLessons, lesson: vLesson, gallery: vGallery, flash: vFlash, practice: vPractice, run: vRun, review: vReview, mock: vMock, final: vFinal, papers: vPapers, cases: vCases, case: vCase, mistakes: vMistakes, help: vHelp, admin: vAdmin }[VIEW.name] || vDash;
     $('#main').innerHTML = fn(VIEW.arg);
     $('#main').scrollTop = 0;
     window.scrollTo(0, 0);
+    document.querySelectorAll('#main img[data-src]').forEach(function (im) { var v = im.getAttribute('data-src'); im.src = v.indexOf('data:') === 0 ? v : 'data/img/' + v; im.removeAttribute('data-src'); });
     if (TUTOR.open)
         renderTutor();
 }
@@ -632,18 +796,68 @@ function vLessons() {
 }
 function pathSheet(p, open) {
     var sec = function (t, arr) { return arr && arr.length ? "<h4>".concat(t, "</h4><ul>").concat(arr.map(function (x) { return "<li>".concat(h(x), "</li>"); }).join(''), "</ul>") : ''; };
-    return "<details class=\"sheet\" ".concat(open ? 'open' : '', " id=\"sh-").concat(p.id, "\"><summary>").concat(h(p.n), "</summary><p class=\"def\">").concat(h(p.def), "</p>\n  ").concat(sec('Symptoms & clinical signs', p.sx)).concat(sec('Physical examination', p.ex)).concat(sec('Laboratory', p.lab)).concat(sec('Imaging & other investigations', p.img)).concat(sec('Treatment', p.tx)).concat(sec('Complications', p.cx)).concat(sec('Classifications & key facts', p.oth), "</details>");
+    return "<details class=\"sheet\" ".concat(open ? 'open' : '', " id=\"sh-").concat(p.id, "\"><summary>").concat(h(p.n), "</summary><p class=\"def\">").concat(h(p.def), "</p>\n  ").concat(sec('Symptoms & clinical signs', p.sx)).concat(sec('Physical examination', p.ex)).concat(sec('Laboratory', p.lab)).concat(sec('Imaging & other investigations', p.img)).concat(sec('Treatment', p.tx)).concat(sec('Complications', p.cx)).concat(sec('Classifications & key facts', p.oth), "<details class=\"pm\"><summary>Mind map</summary><div class=\"svgwrap\">").concat(pathMap(p), "</div></details></details>");
+}
+var LTAB = 'overview';
+function ensureCourse(id) {
+    APP.topic = APP.topic || {};
+    if (APP.topic[id] || APP.topic[id + '_l'])
+        return;
+    APP.topic[id + '_l'] = 1;
+    getJSON('data/t/' + id + '.json').then(function (d) { APP.topic[id] = d; delete APP.topic[id + '_l']; if (VIEW.name === 'lesson')
+        render(); })
+        .catch(function () { delete APP.topic[id + '_l']; APP.topic[id + '_e'] = 1; if (VIEW.name === 'lesson')
+        render(); });
+}
+function proseBlock(htmlStr, toc, prefix, idPrefix) {
+    var k = 0;
+    var items = [];
+    var body = htmlStr.replace(/<h([23])( id="[^"]*")?>([\s\S]*?)<\/h\1>/g, function (m, lv, idAttr, inner) {
+        var id = idPrefix + (k++);
+        var txt = inner.replace(/<[^>]+>/g, '').trim();
+        if (txt.length > 2 && txt.length < 120)
+            items.push([lv, id, txt]);
+        return "<h".concat(lv, " id=\"").concat(id, "\">").concat(inner, "</h").concat(lv, ">");
+    });
+    var tocHtml = items.length > 1 ? "<div class=\"toc\"><b>Contents</b><ol>".concat(items.map(function (it) { return "<li class=\"".concat(it[0] === '3' ? 'sub' : '', "\"><a href=\"#\" data-act=\"scrollTo\" data-id=\"").concat(it[1], "\">").concat(h(it[2]), "</a></li>"); }).join(''), "</ol></div>") : '';
+    return tocHtml + "<div class=\"prose course\">".concat(body, "</div>");
 }
 function vLesson(id) {
     var l = APP.lById[id];
     if (!l)
         return vLessons();
     var ps = lecturePaths(id);
-    var sums = APP.summary.filter(function (s) { return s.topic === id; });
-    return "<div class=\"page-h\"><a href=\"#\" data-act=\"nav\" data-id=\"lessons\" class=\"back\">\u2190 Lessons</a><h1>".concat(h(l.title), "</h1>\n  <div class=\"row\"><button class=\"btn primary\" data-act=\"startLecture\" data-id=\"").concat(id, "\">Practise MCQs</button> <button class=\"btn\" data-act=\"flashLecture\" data-id=\"").concat(id, "\">Flashcards</button> ").concat(AI ? "<button class=\"btn\" data-act=\"tutorAsk\" data-q=\"Give me the 5 key points of the lecture ".concat(h(l.title), "\">Ask the tutor</button>") : '', "</div></div>\n  <div class=\"card\"><h3>Mind map</h3><div class=\"svgwrap\">").concat(mindMap(l, ps), "</div></div>\n  ").concat(l.draw.length ? "<div class=\"card\"><h3>Drawings</h3>".concat(l.draw.map(function (d) { return "<div class=\"svgwrap\">".concat(drawing(d), "</div>"); }).join(''), "</div>") : '', "\n  <div class=\"card\"><h3>Key facts</h3><ul class=\"key\">").concat(l.key.map(function (k) { return "<li>".concat(h(k), "</li>"); }).join(''), "</ul></div>\n  <div class=\"card\"><h3>Pathologies</h3>").concat(ps.map(function (p, i) { return pathSheet(p, i === 0); }).join(''), "</div>\n  <div class=\"card trap\"><h3>\u26A0 Exam traps (from old exams)</h3><ul>").concat(l.traps.map(function (t) { return "<li>".concat(h(t), "</li>"); }).join(''), "</ul></div>\n  <div class=\"card\"><h3>Glossary</h3><dl class=\"gloss\">").concat(l.gloss.map(function (g) { return "<dt>".concat(h(g[0]), "</dt><dd>").concat(h(g[1]), "</dd>"); }).join(''), "</dl></div>\n  ").concat(sums.length ? "<div class=\"card\"><details><summary><b>Full course summary (your PDF) \u2013 ".concat(sums.map(function (s) { return h(s.title); }).join(', '), "</b></summary><div class=\"prose sumtext\">").concat(sums.map(function (s) { return "<h2>Lecture ".concat(s.n, ": ").concat(h(s.title), "</h2>").concat(s.html); }).join(''), "</div></details></div>") : '');
+    var tabs = [['overview', 'Overview'], ['sheets', 'Pathologies (' + ps.length + ')'], ['course', 'Full course'], ['book', 'Textbook'], ['visuals', 'Mind maps & schemas']];
+    if (LTAB === 'course' || LTAB === 'book')
+        ensureCourse(id);
+    var TD = APP.topic && APP.topic[id];
+    var body = '';
+    if (LTAB === 'overview') {
+        body = "<div class=\"card\"><h3>Mind map of the lecture</h3><div class=\"svgwrap\">".concat(mindMap(l, ps), "</div></div>\n    <div class=\"card\"><h3>Key facts</h3><ul class=\"key\">").concat(l.key.map(function (k) { return "<li>".concat(h(k), "</li>"); }).join(''), "</ul></div>\n    <div class=\"card trap\"><h3>\u26A0 Exam traps (from old exams)</h3><ul>").concat(l.traps.map(function (t) { return "<li>".concat(h(t), "</li>"); }).join(''), "</ul></div>\n    <div class=\"card\"><h3>Glossary</h3><dl class=\"gloss\">").concat(l.gloss.map(function (g) { return "<dt>".concat(h(g[0]), "</dt><dd>").concat(h(g[1]), "</dd>"); }).join(''), "</dl></div>\n    <div class=\"card\"><h3>Go deeper</h3><p class=\"muted\">The exam asks for detail: read the <a href=\"#\" data-act=\"ltab\" data-id=\"course\">full course</a>, then the <a href=\"#\" data-act=\"ltab\" data-id=\"book\">textbook chapter</a>, and revise with the <a href=\"#\" data-act=\"ltab\" data-id=\"visuals\">schemas</a>.</p></div>");
+    }
+    else if (LTAB === 'sheets') {
+        body = "<div class=\"card\"><p class=\"muted small\">Each sheet: definition, signs, examination, investigations, treatment, complications \u2013 with its own mind map.</p>".concat(ps.map(function (p, i) { return pathSheet(p, i === 0); }).join(''), "</div>");
+    }
+    else if (LTAB === 'course' || LTAB === 'book') {
+        if (!TD)
+            body = "<div class=\"card\"><p class=\"muted\">".concat(APP.topic && APP.topic[id + '_e'] ? 'Could not load the course – check your connection and reopen the tab.' : 'Loading the full course…', "</p></div>");
+        else if (LTAB === 'course') {
+            var cs = TD.course;
+            body = cs.length ? cs.map(function (c) { return "<div class=\"card\"><h2 class=\"ch\">Lecture ".concat(c.n, " \u2013 ").concat(h(c.title), "</h2><p class=\"muted small\">From your course summary (all text, tables and figures).</p>").concat(proseBlock(c.html, c.toc, 'S', 'S' + c.n + '-'), "</div>"); }).join('')
+                : "<div class=\"card\"><p class=\"muted\">This topic has no separate lecture in the course summary \u2013 see the Textbook tab.</p></div>";
+        }
+        else {
+            var b = TD.book;
+            body = b ? "<div class=\"card\"><h2 class=\"ch\">Textbook \u2013 ".concat(h(l.title), "</h2><p class=\"muted small\">Surgery for Students (pages ").concat(b.pages[0], "\u2013").concat(b.pages[1], "), complete chapter.</p>").concat(proseBlock(b.html, b.toc, 'B', 'B-'), "</div>") : "<div class=\"card\"><p class=\"muted\">No textbook chapter for this topic.</p></div>";
+        }
+    }
+    else {
+        body = "".concat(l.draw.length ? "<div class=\"card\"><h3>Classifications & algorithms</h3>".concat(l.draw.map(function (d) { return "<div class=\"svgwrap\">".concat(drawing(d), "</div>"); }).join(''), "</div>") : '', "\n    <div class=\"card\"><h3>Mind map of every pathology</h3>").concat(ps.map(function (p) { return "<h4>".concat(h(p.n), "</h4><div class=\"svgwrap\">").concat(pathMap(p), "</div>"); }).join(''), "</div>");
+    }
+    return "<div class=\"page-h\"><a href=\"#\" data-act=\"nav\" data-id=\"lessons\" class=\"back\">\u2190 Lessons</a><h1>".concat(h(l.title), "</h1>\n  <div class=\"row\"><button class=\"btn primary\" data-act=\"startLecture\" data-id=\"").concat(id, "\">Practise MCQs</button> <button class=\"btn\" data-act=\"flashLecture\" data-id=\"").concat(id, "\">Flashcards</button> ").concat(AI ? "<button class=\"btn\" data-act=\"tutorAsk\" data-q=\"Give me the 5 key points of the lecture ".concat(h(l.title), "\">Ask the tutor</button>") : '', "</div>\n  <div class=\"tabs\">").concat(tabs.map(function (t) { return "<a href=\"#\" class=\"tab".concat(LTAB === t[0] ? ' on' : '', "\" data-act=\"ltab\" data-id=\"").concat(t[0], "\">").concat(t[1], "</a>"); }).join(''), "</div></div>").concat(body);
 }
 function vGallery() {
-    return "<div class=\"page-h\"><h1>Mind maps & drawings</h1></div>".concat(APP.core.lectures.map(function (l) { return "<div class=\"card\"><h3>".concat(h(l.title), "</h3><div class=\"svgwrap\">").concat(mindMap(l, lecturePaths(l.id)), "</div>").concat(l.draw.map(function (d) { return "<div class=\"svgwrap\">".concat(drawing(d), "</div>"); }).join(''), "</div>"); }).join(''));
+    return "<div class=\"page-h\"><h1>Mind maps & schemas</h1><p class=\"muted\">".concat(APP.core.lectures.reduce(function (n, l) { return n + l.draw.length; }, 0), " classifications/algorithms and ").concat(APP.core.paths.length, " pathology mind maps.</p></div>").concat(APP.core.lectures.map(function (l) { return "<div class=\"card\"><details><summary><b>".concat(h(l.title), "</b> <span class=\"muted small\">").concat(l.draw.length, " schemas \u00B7 ").concat(lecturePaths(l.id).length, " mind maps</span></summary><div class=\"svgwrap\">").concat(mindMap(l, lecturePaths(l.id)), "</div>").concat(l.draw.map(function (d) { return "<div class=\"svgwrap\">".concat(drawing(d), "</div>"); }).join('')).concat(lecturePaths(l.id).map(function (p) { return "<h4>".concat(h(p.n), "</h4><div class=\"svgwrap\">").concat(pathMap(p), "</div>"); }).join(''), "</details></div>"); }).join(''));
 }
 /* ---------------- Flashcards ---------------- */
 var FC = null;
@@ -1002,9 +1216,31 @@ document.addEventListener('click', function (ev) {
             go(id);
             break;
         case 'openLesson':
+            LTAB = 'overview';
             go('lesson', id);
             break;
+        case 'ltab':
+            LTAB = id;
+            render();
+            break;
+        case 'admSel':
+            ADM.sel = ADM.sel === id ? null : id;
+            render();
+            break;
+        case 'admReload':
+            ADM.data = null;
+            ADM.err = null;
+            render();
+            break;
+        case 'scrollTo':
+            {
+                var t = document.getElementById(id);
+                if (t)
+                    t.scrollIntoView();
+            }
+            break;
         case 'openRef':
+            LTAB = 'sheets';
             go('lesson', el.getAttribute('data-t'));
             setTimeout(function () { var s = document.getElementById('sh-' + id); if (s) {
                 s.open = true;
