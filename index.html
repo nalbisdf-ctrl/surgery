@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>General Surgery – Study Platform</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--ink:#1d2430;--muted:#667085;--line:#e3e7ee;--pri:#0f6e6e;--pri2:#e3f2f1;--ok:#1a7f37;--okbg:#e6f4ea;--no:#b42318;--nobg:#fdecea;--warn:#a15c00;--warnbg:#fff4e0;--hl:#fff8d6;--c0:#d9eef6;--c1:#e5e2f7;--c2:#e2f3e5;--c3:#fbe7d9;--c4:#f6e1ea;--c5:#eef0d8}
+[data-theme=dark]{--bg:#12161c;--card:#1b212a;--ink:#e6e9ef;--muted:#98a2b3;--line:#2c3440;--pri:#4fc3b8;--pri2:#1f3533;--ok:#5bd178;--okbg:#17301f;--no:#ff8a80;--nobg:#3a1c1a;--warn:#ffb347;--warnbg:#3a2c12;--hl:#3a3518;--c0:#1d3440;--c1:#2a2744;--c2:#1f3524;--c3:#3d2c1e;--c4:#3a2330;--c5:#33361f}
+*{box-sizing:border-box}html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-text-size-adjust:100%}
+a{color:var(--pri)}h1{font-size:24px;margin:0 0 4px}h2{font-size:19px}h3{font-size:16px;margin:0 0 8px}.hidden{display:none!important}
+.muted{color:var(--muted)}.small{font-size:13px}.center{text-align:center}.left{text-align:left}.right{float:right}.grow{-webkit-box-flex:1;-webkit-flex:1;flex:1}
+#top{display:none;position:-webkit-sticky;position:sticky;top:0;z-index:20;background:var(--card);border-bottom:1px solid var(--line);padding:10px 14px}
+#shell{display:-webkit-box;display:-webkit-flex;display:flex;min-height:100vh}
+#side{width:240px;-webkit-flex-shrink:0;flex-shrink:0;background:var(--card);border-right:1px solid var(--line);padding:16px 10px;position:-webkit-sticky;position:sticky;top:0;height:100vh;overflow:auto}
+.brand{font-weight:700;font-size:17px;margin:0 8px 14px}.brand span{color:var(--pri)}
+.nav-a{display:block;padding:8px 10px;border-radius:8px;color:var(--ink);text-decoration:none;margin-bottom:2px}.nav-a:hover{background:var(--pri2)}.nav-a.on{background:var(--pri);color:#fff}.ni{display:inline-block;width:22px}
+.nav-foot{margin-top:16px}.nav-foot .btn{display:block;width:100%;margin-top:6px}
+#main{-webkit-box-flex:1;-webkit-flex:1;flex:1;padding:22px;max-width:1100px;min-width:0}
+.page-h{margin-bottom:14px}.page-h .back{display:inline-block;margin-bottom:6px;text-decoration:none}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+.grid4,.grid2,.cards{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-flex-wrap:wrap;flex-wrap:wrap;margin:0 -7px}
+.grid4>.card{width:calc(25% - 14px);margin:0 7px 14px}.grid2>.card{width:calc(50% - 14px);margin:0 7px 14px}
+.cards>.card{width:calc(33.33% - 14px);margin:0 7px 14px}
+.lc{text-decoration:none;color:var(--ink);display:block;position:relative}.lc b{display:block;margin:4px 0}.lc .grade{position:absolute;top:12px;right:12px}
+.lic{display:inline-block;min-width:32px;height:32px;line-height:32px;text-align:center;border-radius:8px;background:var(--pri2);color:var(--pri);font-weight:700;font-size:13px}
+.stat .k{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}.stat .v{font-size:30px;font-weight:700;margin:4px 0}
+.bar{height:8px;background:var(--line);border-radius:6px;overflow:hidden;margin:6px 0}.bar i{display:block;height:100%;background:var(--pri)}
+.btn{display:inline-block;padding:8px 14px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;cursor:pointer;margin:2px 0;-webkit-appearance:none}
+.btn:hover{border-color:var(--pri)}.btn.primary{background:var(--pri);border-color:var(--pri);color:#fff}.btn.sm{padding:4px 10px;font-size:13px}.btn[disabled]{opacity:.45;cursor:default}.btn.wide{display:block;width:100%;padding:12px}.btn.finish{border-color:var(--pri);color:var(--pri);font-weight:600}
+.row{margin:8px 0}.row .btn{margin-right:6px}.runbar{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-flex-wrap:wrap;flex-wrap:wrap;-webkit-align-items:center;align-items:center}
+.inp,.ta{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit;margin-top:6px}
+.tbl{width:100%;border-collapse:collapse;font-size:14px}.tbl td,.tbl th{padding:6px 4px;border-bottom:1px solid var(--line);text-align:left}
+.grade{display:inline-block;min-width:34px;padding:2px 7px;border-radius:8px;font-weight:700;text-align:center;font-size:13px;background:var(--line)}
+.grade.big{font-size:30px;min-width:70px;padding:6px 12px;border-radius:14px}
+.g-Ap,.g-A{background:#1a7f37;color:#fff}.g-B{background:#2f9e6e;color:#fff}.g-C{background:#7aa83a;color:#fff}.g-D{background:#c79a1c;color:#fff}.g-E{background:#d97a1c;color:#fff}.g-F{background:#c23b2e;color:#fff}.grade.none{color:var(--muted)}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px;background:var(--line);letter-spacing:.03em;margin-left:4px}.tag.ok{background:var(--okbg);color:var(--ok)}.tag.no{background:var(--nobg);color:var(--no)}.tag.warn{background:var(--warnbg);color:var(--warn)}.tag.teach{background:var(--pri2);color:var(--pri)}
+.save-pill{display:inline-block;font-size:12px;padding:4px 10px;border-radius:20px;background:var(--line);color:var(--muted)}.save-pill.claude,.save-pill.firebase{background:var(--okbg);color:var(--ok)}.save-pill.guest{background:var(--warnbg);color:var(--warn)}
+.page-h .save-pill{display:inline-block;margin:4px 0 0}
+.rev-row{padding:8px 0;border-bottom:1px solid var(--line);overflow:hidden}.rev-row:last-child{border:0}
+.key li{margin-bottom:4px}.trap{border-color:var(--warn);background:var(--warnbg)}
+.sheet{border:1px solid var(--line);border-radius:10px;margin-bottom:8px;padding:0 12px}.sheet summary,.mist summary,details summary{cursor:pointer;padding:10px 0;font-weight:600}.sheet h4{margin:10px 0 4px;color:var(--pri);font-size:14px}.sheet ul{margin:0 0 6px;padding-left:20px}.def{font-style:italic}
+.gloss dt{font-weight:700;float:left;clear:left;width:190px}.gloss dd{margin:0 0 6px 200px}
+.svgwrap{overflow-x:auto;margin:6px 0}.svgwrap svg{width:100%;min-width:560px;height:auto;display:block}
+.mm-root{fill:var(--pri)}.mm-root-t{fill:#fff;font-weight:700;font-size:15px}.mm-edge,.edge{stroke:var(--muted);stroke-width:1.5;fill:none}.mm-node{stroke:var(--line)}.c0{fill:var(--c0)}.c1{fill:var(--c1)}.c2{fill:var(--c2)}.c3{fill:var(--c3)}.c4{fill:var(--c4)}.c5{fill:var(--c5)}
+.mm-node-t{fill:var(--ink);font-weight:600;font-size:13px}.mm-leaf{fill:var(--card);stroke:var(--line)}.mm-leaf-t{fill:var(--ink);font-size:12.5px}
+.dr-title{fill:var(--ink);font-weight:700;font-size:15px}.box{fill:var(--card);stroke:var(--line)}.box.hl{fill:var(--hl)}.box-t,.lbl{fill:var(--ink);font-size:13px}.lbl.sm{font-size:12px}.lbl.b{font-weight:700}
+.lv{stroke:none}.lv0{fill:#2f9e6e}.lv1{fill:#7aa83a}.lv2{fill:#c79a1c}.lv3{fill:#d97a1c}.lv4{fill:#c23b2e}.lv5{fill:#7d3c98}.lv-t{fill:#fff;font-weight:700;font-size:14px}
+.fq{fill:var(--hl);stroke:var(--warn)}.fa{fill:var(--card);stroke:var(--pri)}.fe{fill:var(--pri2);stroke:var(--pri)}.fside{fill:var(--c1);stroke:var(--line)}.f-t{fill:var(--ink);font-size:13px}.f-t.sm{font-size:12px}.arrowhead{fill:var(--muted)}
+.organ{fill:var(--c4);stroke:var(--muted);stroke-width:1.5}.pin{stroke:#fff;stroke-width:2}.p1{fill:#c23b2e}.p2{fill:#7d3c98}.p3{fill:#d97a1c}.p4{fill:#0f6e6e}.p5{fill:#c79a1c}
+.dash{stroke:var(--no);stroke-width:2;stroke-dasharray:6 4}.dash2{stroke:var(--pri);stroke-width:2;stroke-dasharray:3 4}.dash3{stroke:var(--muted);stroke-dasharray:2 4}
+.seg{fill:var(--card);stroke:var(--pri);stroke-width:2}.segI{stroke-dasharray:3 3}.seg-t{fill:var(--ink);font-weight:700;font-size:13px}
+.diaph{stroke:var(--warn);stroke-width:4}.eso{fill:var(--c0);stroke:var(--muted)}.stom{fill:var(--c4);stroke:var(--muted)}.gej{fill:var(--no)}
+.dots{margin:0 0 10px;line-height:18px}.dots i{display:inline-block;width:14px;height:14px;border-radius:4px;background:var(--line);margin:0 3px 3px 0;cursor:pointer}.dots i.a{background:#8fb8b5}.dots i.ok{background:var(--ok)}.dots i.half{background:#d97a1c}.dots i.no{background:var(--no)}.dots i.cur{outline:2px solid var(--ink)}
+.qmeta{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-flex-wrap:wrap;flex-wrap:wrap;-webkit-justify-content:space-between;justify-content:space-between;margin-bottom:6px;font-size:13px}
+.qt{font-size:17px;line-height:1.4}.stem{background:var(--bg);border-radius:10px;padding:10px 12px;font-size:14px}
+.opt{display:-webkit-box;display:-webkit-flex;display:flex;border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:8px;cursor:pointer;background:var(--card)}
+.opt:hover{border-color:var(--pri)}.opt.tick{border-color:var(--pri);background:var(--pri2)}.opt.good{border-color:var(--ok);background:var(--okbg)}.opt.bad{border-color:var(--no);background:var(--nobg)}.opt.miss{border-color:var(--warn);background:var(--warnbg)}.opt.neutral{opacity:.85;cursor:default}
+.ol{font-weight:700;width:28px;-webkit-flex-shrink:0;flex-shrink:0}.ot{-webkit-box-flex:1;-webkit-flex:1;flex:1}
+.vd{display:block;font-size:12px;font-weight:700;margin-top:3px}.vd.ok{color:var(--ok)}.vd.no{color:var(--no)}.ex{display:block;font-size:13px;color:var(--muted);margin-top:3px}
+.note{background:var(--warnbg);border-radius:10px;padding:9px 12px;font-size:14px;margin-top:6px}.note.hint{background:var(--pri2)}
+.result h2{margin:8px 0}.recap{background:var(--pri2);border-radius:10px;padding:10px 12px;margin:8px 0;font-size:14px}.recap ul{margin:4px 0;padding-left:18px}
+.tgood{color:var(--ok);font-weight:600}.checks label{display:inline-block;width:calc(50% - 6px);padding:6px 0}
+.flash{position:relative;min-height:260px;cursor:pointer;margin-bottom:12px}.flash .face{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;min-height:260px}.flash .back{display:none}.flash.flip .front{display:none}.flash.flip .back{display:block}.flash .front{text-align:center;padding-top:70px}
+.teacher{border-left:4px solid var(--pri);background:var(--bg);padding:10px 14px;border-radius:8px;margin-top:12px;font-size:14px}
+.jury{border:1px solid var(--ok);background:var(--okbg);border-radius:12px;padding:12px 14px;margin-top:12px}.jury ul{margin:2px 0 8px;padding-left:20px}.jhead .grade{margin-right:6px}.jfb{font-style:italic}
+.selfas{margin-top:10px}
+#tutorBtn{position:fixed;right:18px;bottom:18px;z-index:30;border-radius:30px;padding:12px 18px;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+#tutor{display:none;position:fixed;right:18px;bottom:76px;width:360px;max-width:calc(100% - 24px);height:480px;max-height:calc(100% - 100px);background:var(--card);border:1px solid var(--line);border-radius:16px;z-index:31;box-shadow:0 8px 30px rgba(0,0,0,.22);-webkit-box-orient:vertical;-webkit-flex-direction:column;flex-direction:column}
+#tutor.open{display:-webkit-box;display:-webkit-flex;display:flex}.tut-h{padding:10px 12px;border-bottom:1px solid var(--line);overflow:hidden}.tut-h .btn{float:right}.tut-q{padding:6px 10px}.tut-q .btn{margin-right:4px}
+.tut-m{-webkit-box-flex:1;-webkit-flex:1;flex:1;overflow:auto;padding:8px 12px}.msg{padding:8px 10px;border-radius:10px;margin-bottom:8px;white-space:pre-wrap;font-size:14px}.msg.user{background:var(--pri2);margin-left:30px}.msg.assistant{background:var(--bg);margin-right:20px}
+.tut-f{display:-webkit-box;display:-webkit-flex;display:flex;padding:8px;border-top:1px solid var(--line)}.tut-f .inp{margin:0 6px 0 0}
+#login{min-height:100vh;display:-webkit-box;display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center;padding:20px}
+.login-card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:30px;max-width:400px;width:100%;text-align:center}.logo{font-size:40px;color:var(--pri)}.or{margin:18px 0;color:var(--muted);border-top:1px solid var(--line);height:0}.or span{position:relative;top:-11px;background:var(--card);padding:0 10px}
+#toast{position:fixed;left:50%;bottom:24px;-webkit-transform:translateX(-50%);transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;opacity:0;pointer-events:none;-webkit-transition:opacity .2s;transition:opacity .2s;z-index:50;max-width:90%}#toast.show{opacity:1}
+.prose p{margin:6px 0}.sumtext h2{color:var(--pri);margin-top:18px}.sumtext h3{margin-top:14px}.sumtext ul{padding-left:20px;margin:4px 0}.sumtext h4{margin:10px 0 4px;color:var(--pri)}
+@media (max-width:900px){.grid4>.card{width:calc(50% - 14px)}.cards>.card{width:calc(50% - 14px)}}
+@media (max-width:760px){#top{display:block}#side{position:fixed;left:-260px;top:0;z-index:40;-webkit-transition:left .2s;transition:left .2s;box-shadow:0 0 30px rgba(0,0,0,.25)}#side.open{left:0}
+#main{padding:14px}.grid2>.card,.cards>.card{width:calc(100% - 14px)}.grid4>.card{width:calc(50% - 14px)}.checks label{width:100%}.gloss dt{float:none;width:auto}.gloss dd{margin-left:0}.page-h .save-pill{float:none;margin-top:6px}}
+</style>
+</head>
+<body>
+<div id="login" class="hidden"></div>
+<div id="shell" class="hidden">
+  <aside id="side"><div class="brand">✚ General <span>Surgery</span></div><nav id="nav"></nav></aside>
+  <div style="-webkit-box-flex:1;-webkit-flex:1;flex:1;min-width:0">
+    <div id="top"><button class="btn sm" data-act="menu">☰ Menu</button> <b>General Surgery</b></div>
+    <main id="main"><div class="card">Loading…</div></main>
+  </div>
+</div>
+<button id="tutorBtn" class="btn primary" data-act="tutorOpen" style="display:none">💬 Ask the tutor</button>
+<div id="tutor"></div>
+<div id="toast"></div>
+<script>"use strict";
+if (window.NodeList && !NodeList.prototype.forEach)
+    NodeList.prototype.forEach = Array.prototype.forEach;
+/* SVG drawings & mind maps — all generated, colours from CSS variables */
+var SVGNS = 'http://www.w3.org/2000/svg';
+function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+function wrapText(text, maxChars) {
+    var words = String(text).split(/\s+/);
+    var lines = [];
+    var cur = '';
+    words.forEach(function (w) { if ((cur + ' ' + w).trim().length > maxChars && cur) {
+        lines.push(cur);
+        cur = w;
+    }
+    else
+        cur = (cur + ' ' + w).trim(); });
+    if (cur)
+        lines.push(cur);
+    return lines;
+}
+function tspans(lines, x, y, lh) { return lines.map(function (l, i) { return "<tspan x=\"".concat(x, "\" y=\"").concat(y + i * lh, "\">").concat(esc(l), "</tspan>"); }).join(''); }
+/* ---------- Mind map: root → pathologies → 3 leaves ---------- */
+function mindMap(lecture, paths) {
+    var rows = paths.map(function (p) { return ({ name: p.n, leaves: (lecture.mm && lecture.mm[p.n]) || [] }); });
+    var W = 760, LH = 15, PAD = 8;
+    var y = 16;
+    var blocks = [];
+    rows.forEach(function (r) {
+        var nameLines = wrapText(r.name, 24);
+        var leafBoxes = r.leaves.map(function (l) { return wrapText(l, 30); });
+        var leafH = leafBoxes.map(function (lb) { return lb.length * LH + PAD * 2; });
+        var leavesTotal = leafH.reduce(function (a, b) { return a + b + 6; }, 0) - 6;
+        var nameH = nameLines.length * LH + PAD * 2;
+        var h = Math.max(nameH, leavesTotal, 30);
+        blocks.push({ r: r, nameLines: nameLines, leafBoxes: leafBoxes, leafH: leafH, y: y, h: h, nameH: nameH });
+        y += h + 18;
+    });
+    var H = Math.max(y, 120);
+    var rootLines = wrapText(lecture.title, 16);
+    var rootH = rootLines.length * 17 + 20, rootY = H / 2 - rootH / 2;
+    var s = "<svg viewBox=\"0 0 ".concat(W, " ").concat(H, "\" class=\"mm\" role=\"img\" aria-label=\"Mind map ").concat(esc(lecture.title), "\" xmlns=\"").concat(SVGNS, "\">");
+    s += "<rect x=\"8\" y=\"".concat(rootY, "\" width=\"150\" height=\"").concat(rootH, "\" rx=\"12\" class=\"mm-root\"/>");
+    s += "<text class=\"mm-root-t\" text-anchor=\"middle\">".concat(tspans(rootLines, 83, rootY + 24, 17), "</text>");
+    blocks.forEach(function (b, i) {
+        var ny = b.y + (b.h - b.nameH) / 2, cy = ny + b.nameH / 2;
+        s += "<path d=\"M158 ".concat(H / 2, " C 190 ").concat(H / 2, ", 190 ").concat(cy, ", 220 ").concat(cy, "\" class=\"mm-edge\"/>");
+        s += "<rect x=\"220\" y=\"".concat(ny, "\" width=\"210\" height=\"").concat(b.nameH, "\" rx=\"9\" class=\"mm-node c").concat(i % 6, "\"/>");
+        s += "<text class=\"mm-node-t\">".concat(tspans(b.nameLines, 232, ny + PAD + 11, LH), "</text>");
+        var ly = b.y + (b.h - (b.leafH.reduce(function (a, c) { return a + c + 6; }, 0) - 6)) / 2;
+        b.leafBoxes.forEach(function (lb, j) {
+            var lh = b.leafH[j], lcy = ly + lh / 2;
+            s += "<path d=\"M430 ".concat(cy, " C 455 ").concat(cy, ", 455 ").concat(lcy, ", 480 ").concat(lcy, "\" class=\"mm-edge\"/>");
+            s += "<rect x=\"480\" y=\"".concat(ly, "\" width=\"270\" height=\"").concat(lh, "\" rx=\"7\" class=\"mm-leaf\"/>");
+            s += "<text class=\"mm-leaf-t\">".concat(tspans(lb, 491, ly + PAD + 11, LH), "</text>");
+            ly += lh + 6;
+        });
+    });
+    return s + '</svg>';
+}
+/* ---------- generic helpers ---------- */
+function ladder(title, items) {
+    var W = 640, rowH = 46;
+    var H = 40 + items.length * (rowH + 8);
+    var s = "<svg viewBox=\"0 0 ".concat(W, " ").concat(H, "\" class=\"dr\" xmlns=\"").concat(SVGNS, "\"><text x=\"12\" y=\"24\" class=\"dr-title\">").concat(esc(title), "</text>");
+    items.forEach(function (it, i) {
+        var y = 38 + i * (rowH + 8);
+        var lines = wrapText(it[1], 62);
+        s += "<rect x=\"12\" y=\"".concat(y, "\" width=\"96\" height=\"").concat(rowH, "\" rx=\"8\" class=\"lv lv").concat(Math.min(i, 5), "\"/><text x=\"60\" y=\"").concat(y + 28, "\" text-anchor=\"middle\" class=\"lv-t\">").concat(esc(it[0]), "</text>");
+        s += "<rect x=\"116\" y=\"".concat(y, "\" width=\"").concat(W - 128, "\" height=\"").concat(rowH, "\" rx=\"8\" class=\"box\"/><text class=\"box-t\">").concat(tspans(lines, 128, y + (lines.length > 1 ? 19 : 28), 16), "</text>");
+    });
+    return s + '</svg>';
+}
+function flow(title, steps) {
+    var W = 640, bw = 330, x = (W - bw) / 2;
+    var y = 40;
+    var s = '';
+    var parts = [];
+    steps.forEach(function (st, i) {
+        var lines = wrapText(st[0], 40);
+        var h = lines.length * 16 + 18;
+        parts.push({ st: st, lines: lines, y: y, h: h });
+        y += h + (st[2] ? 30 : 26);
+    });
+    var H = y + 10;
+    s += "<svg viewBox=\"0 0 ".concat(W, " ").concat(H, "\" class=\"dr\" xmlns=\"").concat(SVGNS, "\"><defs><marker id=\"ar\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"7\" markerHeight=\"7\" orient=\"auto\"><path d=\"M0 0L10 5L0 10z\" class=\"arrowhead\"/></marker></defs>");
+    s += "<text x=\"12\" y=\"24\" class=\"dr-title\">".concat(esc(title), "</text>");
+    parts.forEach(function (p, i) {
+        var cls = p.st[1] === 'q' ? 'fq' : p.st[1] === 'e' ? 'fe' : 'fa';
+        s += "<rect x=\"".concat(x, "\" y=\"").concat(p.y, "\" width=\"").concat(bw, "\" height=\"").concat(p.h, "\" rx=\"").concat(p.st[1] === 'q' ? 4 : 10, "\" class=\"").concat(cls, "\"/>");
+        s += "<text text-anchor=\"middle\" class=\"f-t\">".concat(tspans(p.lines, W / 2, p.y + 22, 16), "</text>");
+        if (p.st[2]) { // side branch
+            var bl = wrapText(p.st[2], 18);
+            var bh = bl.length * 15 + 14;
+            var by = p.y + p.h / 2 - bh / 2;
+            s += "<line x1=\"".concat(x + bw, "\" y1=\"").concat(p.y + p.h / 2, "\" x2=\"").concat(x + bw + 22, "\" y2=\"").concat(p.y + p.h / 2, "\" class=\"edge\" marker-end=\"url(#ar)\"/>");
+            s += "<rect x=\"".concat(x + bw + 24, "\" y=\"").concat(by, "\" width=\"").concat(W - (x + bw + 24) - 6, "\" height=\"").concat(bh, "\" rx=\"8\" class=\"fside\"/>");
+            s += "<text text-anchor=\"middle\" class=\"f-t sm\">".concat(tspans(bl, x + bw + 24 + (W - (x + bw + 24) - 6) / 2, by + 19, 15), "</text>");
+        }
+        if (i < parts.length - 1)
+            s += "<line x1=\"".concat(W / 2, "\" y1=\"").concat(p.y + p.h, "\" x2=\"").concat(W / 2, "\" y2=\"").concat(parts[i + 1].y - 2, "\" class=\"edge\" marker-end=\"url(#ar)\"/>");
+    });
+    return s + '</svg>';
+}
+/* ---------- hand drawings ---------- */
+function stomachJohnson() {
+    return "<svg viewBox=\"0 0 640 340\" class=\"dr\" xmlns=\"".concat(SVGNS, "\"><g transform=\"translate(0,14)\"><text x=\"12\" y=\"10\" class=\"dr-title\">Johnson classification of gastric ulcer</text>\n  <path d=\"M250 60 C 245 110, 230 150, 250 200 C 275 260, 360 280, 430 250 C 470 232, 490 210, 505 205 L 540 205 L 540 232 L 505 232 C 470 245, 450 290, 360 300 C 250 308, 175 250, 180 170 C 185 110, 205 70, 215 55 Z\" class=\"organ\"/>\n  <path d=\"M215 55 L 205 30 L 240 30 L 250 60\" class=\"organ\"/>\n  <text x=\"160\" y=\"40\" class=\"lbl\">esophagus</text><text x=\"545\" y=\"222\" class=\"lbl\">duodenum</text>\n  <circle cx=\"262\" cy=\"95\" r=\"10\" class=\"pin p4\"/><text x=\"282\" y=\"99\" class=\"lbl\">IV \u2013 juxtacardial (high lesser curvature)</text>\n  <circle cx=\"265\" cy=\"175\" r=\"10\" class=\"pin p1\"/><text x=\"285\" y=\"179\" class=\"lbl\">I \u2013 lesser curvature (most frequent)</text>\n  <circle cx=\"485\" cy=\"222\" r=\"10\" class=\"pin p3\"/><text x=\"430\" y=\"275\" class=\"lbl\">III \u2013 prepyloric</text>\n  <circle cx=\"520\" cy=\"218\" r=\"8\" class=\"pin p2\"/><circle cx=\"330\" cy=\"215\" r=\"8\" class=\"pin p2\"/><text x=\"300\" y=\"250\" class=\"lbl\">II \u2013 gastric + duodenal ulcer</text>\n  <circle cx=\"220\" cy=\"240\" r=\"8\" class=\"pin p5\"/><text x=\"30\" y=\"290\" class=\"lbl\">V \u2013 anywhere (NSAIDs/aspirin)</text>\n  </g></svg>");
+}
+function couinaud() {
+    var segs = [['VIII', 300, 95], ['VII', 175, 115], ['IV', 395, 120], ['II', 520, 105], ['V', 320, 200], ['VI', 205, 215], ['III', 485, 190], ['I', 410, 205]];
+    var s = "<svg viewBox=\"0 0 640 320\" class=\"dr\" xmlns=\"".concat(SVGNS, "\"><text x=\"12\" y=\"24\" class=\"dr-title\">Couinaud segments (anterior view)</text>\n  <path d=\"M110 150 C 110 70, 250 50, 380 60 C 480 62, 600 70, 610 105 C 615 130, 540 170, 470 215 C 420 250, 330 275, 230 270 C 150 265, 110 215, 110 150 Z\" class=\"organ\"/>\n  <line x1=\"355\" y1=\"58\" x2=\"345\" y2=\"272\" class=\"dash\"/><text x=\"300\" y=\"300\" class=\"lbl\">Cantlie line (GB fossa \u2192 IVC): surgical R/L</text>\n  <line x1=\"455\" y1=\"62\" x2=\"440\" y2=\"232\" class=\"dash2\"/><text x=\"452\" y=\"252\" class=\"lbl\">falciform lig. (anatomical)</text>\n  <line x1=\"120\" y1=\"160\" x2=\"345\" y2=\"160\" class=\"dash3\"/>");
+    segs.forEach(function (g) { s += "<circle cx=\"".concat(g[1], "\" cy=\"").concat(g[2], "\" r=\"18\" class=\"seg ").concat(g[0] === 'I' ? 'segI' : '', "\"/><text x=\"").concat(g[1], "\" y=\"").concat(g[2] + 5, "\" text-anchor=\"middle\" class=\"seg-t\">").concat(g[0], "</text>"); });
+    return s + "<text x=\"380\" y=\"235\" class=\"lbl sm\">I = caudate (posterior)</text></svg>";
+}
+function quadrants() {
+    var cells = [['RUQ', 'Cholecystitis, cholangitis, hepatitis, pancreatitis'], ['Epigastrium', 'Ulcer, perforation, pancreatitis, MI'], ['LUQ', 'Splenic injury, pancreatitis, gastric'],
+        ['R flank', 'Renal colic, pyelonephritis'], ['Umbilical', 'Early appendicitis, obstruction, mesenteric ischaemia'], ['L flank', 'Renal colic, diverticulitis'],
+        ['RLQ (RIF)', 'Appendicitis, Crohn, ovarian, ectopic'], ['Hypogastrium', 'Cystitis, retention, PID'], ['LLQ (LIF)', 'Sigmoid diverticulitis, ovarian cyst, ectopic']];
+    var s = "<svg viewBox=\"0 0 640 400\" class=\"dr\" xmlns=\"".concat(SVGNS, "\"><text x=\"12\" y=\"24\" class=\"dr-title\">Acute abdomen \u2013 pain topography</text>");
+    cells.forEach(function (c, i) {
+        var x = 20 + (i % 3) * 203, y = 40 + Math.floor(i / 3) * 118;
+        s += "<rect x=\"".concat(x, "\" y=\"").concat(y, "\" width=\"196\" height=\"110\" rx=\"10\" class=\"box ").concat(i === 6 || i === 0 || i === 8 ? 'hl' : '', "\"/>");
+        s += "<text x=\"".concat(x + 10, "\" y=\"").concat(y + 22, "\" class=\"lbl b\">").concat(esc(c[0]), "</text><text class=\"lbl sm\">").concat(tspans(wrapText(c[1], 26), x + 10, y + 44, 16), "</text>");
+    });
+    return s + '</svg>';
+}
+function hiatal() {
+    var one = function (x, title, gejAbove, roll) { return "<g transform=\"translate(".concat(x, ",40)\">\n    <text x=\"90\" y=\"0\" text-anchor=\"middle\" class=\"lbl b\">").concat(title, "</text>\n    <line x1=\"0\" y1=\"150\" x2=\"180\" y2=\"150\" class=\"diaph\"/><text x=\"182\" y=\"146\" class=\"lbl sm\">diaphragm</text>\n    <rect x=\"80\" y=\"10\" width=\"20\" height=\"").concat(gejAbove ? 80 : 125, "\" class=\"eso\"/>\n    ").concat(gejAbove ? '<path d="M70 90 C 40 110, 40 140, 70 150 L 110 150 C 140 140, 140 110, 110 90 Z" class="stom"/><circle cx="90" cy="90" r="6" class="gej"/>' : '<circle cx="90" cy="155" r="6" class="gej"/>', "\n    ").concat(roll ? '<path d="M100 150 C 150 140, 160 90, 130 80 C 110 75, 100 110, 100 150" class="stom"/>' : '', "\n    <path d=\"M60 155 C 30 200, 60 260, 120 250 C 160 240, 160 190, 130 160 Z\" class=\"stom\"/>\n    <text x=\"90\" y=\"290\" text-anchor=\"middle\" class=\"lbl sm\">").concat(gejAbove ? 'GEJ ABOVE diaphragm' : 'GEJ stays BELOW', "</text></g>"); };
+    return "<svg viewBox=\"0 0 640 360\" class=\"dr\" xmlns=\"".concat(SVGNS, "\"><text x=\"12\" y=\"24\" class=\"dr-title\">Hiatal hernia types (\u25CF = gastro-esophageal junction)</text>").concat(one(40, 'Type I – sliding', true, false)).concat(one(360, 'Type II – rolling (para-esophageal)', false, true), "</svg>");
+}
+var DRAW = {
+    johnson: function () { return stomachJohnson(); },
+    couinaud: function () { return couinaud(); },
+    quadrants: function () { return quadrants(); },
+    hiatal: function () { return hiatal(); },
+    forrest: function () { return ladder('Forrest classification (bleeding ulcer)', [['Ia', 'Spurting arterial jet – active'], ['Ib', 'Oozing – continuous slow bleeding'], ['IIa', 'Non-bleeding visible vessel'], ['IIb', 'Adherent clot'], ['IIc', 'Flat black (haematin) spot'], ['III', 'Clean ulcer base – lowest risk']]); },
+    hinchey: function () { return ladder('Hinchey classification (complicated diverticulitis)', [['I', 'Pericolic or mesenteric abscess'], ['II', 'Walled-off pelvic / distant abscess'], ['III', 'Generalised PURULENT peritonitis'], ['IV', 'Generalised FAECAL peritonitis']]); },
+    gharbi: function () { return ladder('Gharbi US classification – hydatid cyst', [['I', 'Pure fluid (anechoic) cyst'], ['II', 'Detached floating membrane ("water lily")'], ['III', 'Multivesicular – daughter cysts (honeycomb)'], ['IV', 'Heterogeneous, solid-looking'], ['V', 'Calcified wall – inactive']]); },
+    hemGrades: function () { return ladder('Goligher grades – internal haemorrhoids', [['I', 'Bleed, no prolapse → diet, banding'], ['II', 'Prolapse, reduce spontaneously → banding'], ['III', 'Manual reduction → Longo / hemorrhoidectomy'], ['IV', 'Irreducible → hemorrhoidectomy (Milligan-Morgan)']]); },
+    ransonCard: function () { return ladder('Ranson criteria (non-biliary)', [['Admission', 'Age >55 · WBC >16 000 · glucose >200 mg/dL · LDH >350 · AST >250'], ['48 h', 'Hct ↓ >10% · BUN ↑ >5 · Ca <8 mg/dL · PaO2 <60 mmHg · base deficit >4 · fluids >6 L'], ['Not in it', 'Amylase / lipase level!']]); },
+    burns: function () { return ladder('Burn depth', [['1st', 'Epidermis – erythema, painful, no blisters'], ['2A', 'Superficial dermis – clear blisters, pink, VERY painful'], ['2B', 'Deep dermis – pale, less pain, slow refill'], ['3rd', 'Full thickness – white/leathery, painless']]); },
+    esoDysphagia: function () { return flow('Dysphagia – first steps', [['Dysphagia', 'e'], ['Endoscopy + biopsy (always)', 'a', 'Cancer? → staging CT, EUS, PET'], ['Normal mucosa?', 'q'], ['Barium swallow', 'a', 'Bird\'s beak → achalasia; pouch → diverticulum'], ['Manometry', 'a', 'Achalasia / motility disorder']]); },
+    jaundiceFlow: function () { return flow('Jaundice work-up', [['Jaundice', 'e'], ['Bilirubin: conjugated or not?', 'q', 'Unconjugated → haemolysis (prehepatic)'], ['Transaminases ≫ ALP?', 'q', 'Yes → hepatocellular'], ['Cholestasis (ALP, GGT ↑) → US', 'a'], ['Dilated ducts?', 'q', 'No → intrahepatic cholestasis'], ['MRCP / EUS → ERCP or PTC', 'a', 'Stones → ERCP; tumour → CT staging']]); },
+    ugibFlow: function () { return flow('Upper GI bleeding – algorithm', [['Haematemesis / melena', 'e'], ['Resuscitate: O2, 2 large IV lines, Ringer, blood, catheter', 'a'], ['IV PPI, risk score (Blatchford)', 'a'], ['Endoscopy (<24 h; <12 h if unstable)', 'a', 'Forrest Ia/Ib/IIa → endoscopic hemostasis'], ['Re-bleeding?', 'q', 'Repeat endoscopy / embolisation'], ['Failure or massive bleeding → SURGERY', 'e']]); },
+    traumaFlow: function () { return flow('Blunt abdominal trauma (ATLS)', [['ABCDE + eFAST', 'e'], ['Haemodynamically stable?', 'q', 'NO + FAST+ → laparotomy (damage control)'], ['Contrast CT', 'a'], ['Solid organ injury', 'a', 'Non-operative ± angioembolisation'], ['Hollow viscus / peritonitis → laparotomy', 'e']]); },
+    stepUp: function () { return flow('Infected necrosis – step-up approach', [['Suspected infected necrosis (gas, sepsis)', 'e'], ['Antibiotics', 'a'], ['Percutaneous or endoscopic drainage', 'a'], ['Not improving?', 'q'], ['Minimally invasive / surgical necrosectomy (≥4 weeks)', 'e']]); },
+    obstrXray: function () { return ladder('Plain X-ray: small bowel vs colon', [['Small', 'Central levels, wider than high, valvulae conniventes (full width)'], ['Colon', 'Peripheral, higher than wide, haustra (partial)'], ['Volvulus', 'Coffee-bean / bent inner tube (sigmoid)'], ['Perforation', 'Free air under the diaphragm']]); },
+    periton: function () { return flow('Secondary peritonitis – management', [['Peritonitis signs + free air', 'e'], ['Resuscitation, IV antibiotics, NGT, catheter', 'a'], ['Surgery: SOURCE CONTROL', 'a', 'Suture / resection / stoma'], ['Lavage + drainage', 'a'], ['Abscess later?', 'q', 'Percutaneous drainage']]); },
+    appSigns: function () { return ladder('Appendicitis – signs', [['McBurney', 'Point tenderness 1/3 ASIS → umbilicus'], ['Blumberg', 'Rebound tenderness'], ['Rovsing', 'LIF pressure → RIF pain'], ['Psoas', 'Retrocaecal: pain on hip extension'], ['Obturator', 'Pelvic: pain on internal rotation'], ['Mendel', 'Percussion pain RIF ("bell")']]); },
+    ischemia: function () { return flow('Acute mesenteric ischaemia', [['Pain ≫ signs, AF / cardioversion', 'e'], ['Lactate, CT angiography', 'a'], ['Heparin + resuscitation', 'a'], ['Laparotomy: revascularise (embolectomy)', 'a', 'Resect necrotic loops'], ['Second look at 24–48 h', 'e']]); },
+    colonSide: function () { return ladder('Colon cancer – right vs left', [['Right', 'Anaemia, fatigue, palpable mass, fever – late obstruction'], ['Left', 'Bowel habit change, pencil stools, rectorrhagia, obstruction'], ['Surgery', 'Right hemicolectomy · left hemicolectomy · sigmoidectomy']]); }
+};
+function drawing(id) { try {
+    return DRAW[id] ? DRAW[id]() : '';
+}
+catch (e) {
+    return '';
+} }
+/* General Surgery Study Platform — runs as a Claude artifact (Claude account storage + AI)
+   and as a standalone web app (Google sign-in via Firebase, or guest). */
+var APP = { core: null, summary: null };
+var S = { attempts: [], jury: [], meta: {}, fc: {}, user: null, mode: 'loading' };
+var STORE = null, AI = null, DICT = null;
+var VIEW = { name: 'dash', arg: null };
+var RUN = null; // current MCQ set
+var CASE = null; // current clinical case session
+var TUTOR = { open: false, msgs: [], busy: false };
+/* ---------------- utils ---------------- */
+function $(sel, root) { return (root || document).querySelector(sel); }
+function h(s) { return esc(s); }
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i];
+    a[i] = a[j];
+    a[j] = t;
+} return a; }
+function getJSON(url) {
+    return new Promise(function (res, rej) {
+        var x = new XMLHttpRequest();
+        x.open('GET', url, true);
+        x.onreadystatechange = function () { if (x.readyState === 4) {
+            if (x.status >= 200 && x.status < 300 || (x.status === 0 && x.responseText)) {
+                try {
+                    res(JSON.parse(x.responseText));
+                }
+                catch (e) {
+                    rej(e);
+                }
+            }
+            else
+                rej(new Error('HTTP ' + x.status));
+        } };
+        x.send();
+    });
+}
+function fmtDate(ts) { var d = new Date(ts); return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) + ' ' + d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }); }
+function toast(msg) { var t = $('#toast'); t.textContent = msg; t.className = 'show'; clearTimeout(toast._t); toast._t = setTimeout(function () { t.className = ''; }, 2600); }
+/* ---------------- grading ---------------- */
+var PASS = 45;
+function letter(pct) {
+    if (pct == null || isNaN(pct))
+        return '–';
+    if (pct >= 95)
+        return 'A+';
+    if (pct >= 85)
+        return 'A';
+    if (pct >= 75)
+        return 'B';
+    if (pct >= 65)
+        return 'C';
+    if (pct >= 55)
+        return 'D';
+    if (pct >= PASS)
+        return 'E';
+    return 'F';
+}
+function passed(pct) { return pct != null && pct >= PASS; }
+function gradeBadge(pct, big) {
+    if (pct == null)
+        return "<span class=\"grade none".concat(big ? ' big' : '', "\">\u2013</span>");
+    var L = letter(pct);
+    return "<span class=\"grade g-".concat(L.replace('+', 'p')).concat(big ? ' big' : '', "\" title=\"").concat(Math.round(pct), "%\">").concat(L, "</span>");
+}
+function passTag(pct) { return pct == null ? '' : passed(pct) ? '<span class="tag ok">PASSED</span>' : '<span class="tag no">NOT PASSED</span>'; }
+function Q(id) { return APP.qById[id]; }
+function mistakes(q, ticks) {
+    var fp = 0, fn = 0;
+    q.o.forEach(function (o) { var t = ticks.indexOf(o.l) >= 0; if (t && !o.c)
+        fp++; if (!t && o.c)
+        fn++; });
+    return { fp: fp, fn: fn, n: fp + fn };
+}
+function qScore(q, ticks) {
+    if (!ticks)
+        return 0;
+    var m = mistakes(q, ticks);
+    if (m.n === 0)
+        return 1;
+    if (q.single)
+        return 0;
+    return m.n === 1 ? 0.5 : 0;
+}
+function attemptPct(a) {
+    var items = a.items.filter(function (it) { return it.a && it.a.length; });
+    if (!items.length)
+        return null;
+    return 100 * items.reduce(function (s, it) { return s + (Q(it.q) ? qScore(Q(it.q), it.a) : 0); }, 0) / items.length;
+}
+function attemptFinal(a) {
+    var m = attemptPct(a);
+    if (a.kind === 'mock' && a.caseScore != null)
+        return 0.75 * m + 0.25 * a.caseScore * 10;
+    return m;
+}
+function lastAnswers() {
+    var map = {};
+    S.attempts.slice().sort(function (a, b) { return a.date - b.date; }).forEach(function (a) { return a.items.forEach(function (it) { if (it.a && it.a.length)
+        map[it.q] = { a: it.a, date: a.date }; }); });
+    return map;
+}
+function lectureStats() {
+    var last = lastAnswers();
+    var st = {};
+    APP.core.lectures.forEach(function (l) { st[l.id] = { total: 0, done: 0, sum: 0, old: 0 }; });
+    APP.core.questions.forEach(function (q) {
+        var s = st[q.topic];
+        if (!s)
+            return;
+        s.total++;
+        if (q.src !== 'new')
+            s.old++;
+        if (last[q.id]) {
+            s.done++;
+            s.sum += qScore(q, last[q.id].a);
+        }
+    });
+    Object.keys(st).forEach(function (k) { var s = st[k]; s.pct = s.done ? 100 * s.sum / s.done : null; });
+    return st;
+}
+/* ---------------- storage adapters ---------------- */
+function memoryStore(label, mode) {
+    var docs = {};
+    return { mode: mode, label: label, list: function () { return Promise.resolve(Object.keys(docs).map(function (k) { return docs[k]; })); }, put: function (id, d) { docs[id] = d; return Promise.resolve(); } };
+}
+function claudeStore(db, id) {
+    var col = db.collection('data/users/' + id);
+    return {
+        mode: 'claude', label: 'Saved to your Claude account',
+        list: function () { return col.get().then(function (snap) { return snap.docs.filter(function (d) { return d.exists; }).map(function (d) { return d.data(); }); }); },
+        put: function (docId, data) { return col.doc(docId).set(JSON.parse(JSON.stringify(data))); }
+    };
+}
+function firebaseStore(fb, user) {
+    var col = fb.firestore().collection('users').doc(user.uid).collection('items');
+    return {
+        mode: 'firebase', label: 'Saved to your Google account (' + (user.email || user.displayName || 'signed in') + ')',
+        list: function () { return col.get().then(function (snap) { var out = []; snap.forEach(function (d) { return out.push(d.data()); }); return out; }); },
+        put: function (docId, data) { return col.doc(docId).set(JSON.parse(JSON.stringify(data))); }
+    };
+}
+function loadState() {
+    return STORE.list().then(function (docs) {
+        S.attempts = docs.filter(function (d) { return d.t === 'attempt'; }).sort(function (a, b) { return a.date - b.date; });
+        S.jury = docs.filter(function (d) { return d.t === 'jury'; }).sort(function (a, b) { return a.date - b.date; });
+        S.meta = docs.filter(function (d) { return d.t === 'meta'; })[0] || { t: 'meta', id: 'meta' };
+        S.fc = docs.filter(function (d) { return d.t === 'fc'; })[0] || { t: 'fc', id: 'fc', known: {} };
+    }).catch(function (e) { console.warn(e); toast('Could not load your saved progress – working offline for now.'); });
+}
+function save(doc) {
+    if (!STORE)
+        return Promise.resolve();
+    return STORE.put(doc.id, doc).catch(function (e) { console.warn(e); toast(e && e.code === 'quota_exceeded' ? 'Storage is full – some progress was not saved.' : 'Could not save just now – your answers stay on screen.'); });
+}
+/* ---------------- boot ---------------- */
+function isClaude() { return !!(window.claude && typeof window.claude.use === 'function'); }
+function boot() {
+    applyTheme();
+    Promise.all([getJSON('data/core.json'), getJSON('data/summary.json')]).then(function (r) {
+        APP.core = r[0];
+        APP.summary = r[1];
+        APP.qById = {};
+        APP.core.questions.forEach(function (q) { APP.qById[q.id] = q; });
+        APP.pById = {};
+        APP.core.paths.forEach(function (p) { APP.pById[p.id] = p; });
+        APP.lById = {};
+        APP.core.lectures.forEach(function (l) { APP.lById[l.id] = l; });
+        APP.oldFreq = {};
+        APP.core.questions.forEach(function (q) { if (q.src === 'old')
+            APP.oldFreq[q.topic] = (APP.oldFreq[q.topic] || 0) + 1 + (q.also ? q.also.length : 0); });
+        var waited = 0;
+        var decide = function () {
+            if (isClaude())
+                return bootClaude();
+            if (waited < 1500 && /claude|anthropic/.test(location.hostname + document.referrer)) {
+                waited += 100;
+                return setTimeout(decide, 100);
+            }
+            loadScripts(['firebase-config.js', 'https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js', 'https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js', 'https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js'], bootWeb);
+        };
+        decide();
+    }).catch(function (e) { $('#app').innerHTML = "<div class=\"card\"><h2>Could not load the course data</h2><p>".concat(h(e.message), "</p><p>Please reload the page.</p></div>"); });
+}
+function loadScripts(list, done) {
+    if (!list.length) {
+        done();
+        return;
+    }
+    var s = document.createElement('script');
+    s.src = list[0];
+    s.onload = s.onerror = function () { return loadScripts(list.slice(1), done); };
+    document.head.appendChild(s);
+}
+function bootClaude() {
+    S.mode = 'claude';
+    STORE = memoryStore('Progress kept for this visit only (sign in to Claude to save)', 'local');
+    renderShell();
+    route();
+    Promise.all([window.claude.use('db'), window.claude.use('user'), window.claude.use('sample'), window.claude.use('dictation')]).then(function (r) {
+        var db = r[0], user = r[1];
+        AI = r[2];
+        DICT = r[3];
+        if (db && user) {
+            return user.id().then(function (id) {
+                if (id) {
+                    STORE = claudeStore(db, id);
+                    return loadState();
+                }
+            });
+        }
+    }).catch(function (e) { return console.warn(e); }).then(function () { renderShell(); route(); });
+}
+function bootWeb() {
+    S.mode = 'web';
+    var cfg = window.FIREBASE_CONFIG;
+    var fb = window.firebase;
+    var ready = !!(fb && cfg && cfg.apiKey && cfg.apiKey.indexOf('PASTE') < 0);
+    APP.fbReady = ready;
+    if (ready) {
+        try {
+            fb.initializeApp(cfg);
+        }
+        catch (e) { }
+        fb.auth().getRedirectResult().catch(function (e) { return toast('Sign-in failed: ' + (e.message || e.code)); });
+        fb.auth().onAuthStateChanged(function (user) {
+            if (user) {
+                S.user = user;
+                STORE = firebaseStore(fb, user);
+                loadState().then(function () { renderShell(); route(); });
+            }
+            else if (!S.guest) {
+                S.user = null;
+                showLogin();
+            }
+        });
+    }
+    else
+        showLogin();
+}
+function showLogin() {
+    $('#shell').className = 'hidden';
+    $('#login').className = '';
+    $('#login').innerHTML = "<div class=\"login-card\">\n    <div class=\"logo\">\u271A</div><h1>General Surgery</h1><p class=\"muted\">Lessons \u00B7 MCQs from old exams \u00B7 OSCE clinical cases</p>\n    <button class=\"btn primary wide\" data-act=\"google\" ".concat(APP.fbReady ? '' : 'disabled', ">Continue with Google</button>\n    <p class=\"small muted\">").concat(APP.fbReady ? 'Your progress, grades and mistakes are saved to your account and follow you on every device.' : 'Google sign-in is not configured yet on this copy of the site.', "</p>\n    <div class=\"or\"><span>or</span></div>\n    <button class=\"btn wide\" data-act=\"guest\">Continue as guest</button>\n    <p class=\"small muted\">Guest mode: everything works, but nothing is saved when you close the page.</p></div>");
+}
+function startGuest() {
+    S.guest = true;
+    STORE = memoryStore('Guest mode – progress is not saved', 'guest');
+    $('#login').className = 'hidden';
+    renderShell();
+    route();
+}
+function googleLogin() {
+    var fb = window.firebase;
+    var p = new fb.auth.GoogleAuthProvider();
+    var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    (isIOS ? fb.auth().signInWithRedirect(p) : fb.auth().signInWithPopup(p).catch(function () { return fb.auth().signInWithRedirect(p); })).catch(function (e) { return toast('Sign-in failed: ' + (e.message || e.code)); });
+}
+function logout() {
+    if (S.mode === 'web' && S.user && window.firebase)
+        window.firebase.auth().signOut();
+    S.guest = false;
+    S.user = null;
+    S.attempts = [];
+    S.jury = [];
+    S.meta = {};
+    S.fc = { known: {} };
+    showLogin();
+}
+/* ---------------- theme ---------------- */
+function applyTheme() {
+    var t = null;
+    try {
+        t = localStorage.getItem('gs-theme');
+    }
+    catch (e) { }
+    if (!t)
+        t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', t);
+}
+function toggleTheme() {
+    var t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', t);
+    try {
+        localStorage.setItem('gs-theme', t);
+    }
+    catch (e) { }
+}
+/* ---------------- shell & routing ---------------- */
+var NAV = [['dash', 'Dashboard', '◉'], ['lessons', 'Lessons', '▤'], ['gallery', 'Mind maps & drawings', '✎'], ['flash', 'Flashcards', '❏'], ['practice', 'Lecture MCQs', '✓'],
+    ['mock', 'Mock exam', '◷'], ['final', 'Final test', '★'], ['papers', 'Past papers', '▦'], ['cases', 'Clinical cases', '✚'], ['mistakes', 'My mistakes', '↺']];
+function renderShell() {
+    $('#login').className = 'hidden';
+    $('#shell').className = '';
+    $('#nav').innerHTML = NAV.map(function (n) { return "<a href=\"#".concat(n[0], "\" class=\"nav-a").concat(VIEW.name === n[0] ? ' on' : '', "\" data-nav=\"").concat(n[0], "\"><span class=\"ni\">").concat(n[2], "</span>").concat(n[1], "</a>"); }).join('') +
+        "<div class=\"nav-foot\"><div class=\"save-pill ".concat(STORE ? STORE.mode : '', "\">").concat(h(STORE ? STORE.label : ''), "</div>\n    <button class=\"btn sm\" data-act=\"theme\">\u25D0 Light / dark</button>").concat(S.mode === 'web' ? '<button class="btn sm" data-act="logout">' + (S.guest ? 'Exit guest mode' : 'Sign out') + '</button>' : '', "</div>");
+    $('#tutorBtn').style.display = AI ? '' : 'none';
+}
+function go(name, arg) { VIEW = { name: name, arg: arg }; if (location.hash !== '#' + name) {
+    try {
+        history.replaceState(null, '', '#' + name);
+    }
+    catch (e) {
+        location.hash = name;
+    }
+} render(); }
+function route() {
+    var n = (location.hash || '#dash').slice(1);
+    var known = NAV.some(function (x) { return x[0] === n; }) || n === 'run' || n === 'review' || n === 'lesson' || n === 'case' || n === 'help';
+    VIEW = { name: known && n !== 'run' && n !== 'review' && n !== 'case' && n !== 'lesson' ? n : 'dash', arg: null };
+    render();
+}
+function render() {
+    if (!APP.core || $('#shell').className === 'hidden')
+        return;
+    document.querySelectorAll('.nav-a').forEach(function (a) { return a.className = 'nav-a' + (a.getAttribute('data-nav') === VIEW.name ? ' on' : ''); });
+    $('#side').className = '';
+    var fn = { dash: vDash, lessons: vLessons, lesson: vLesson, gallery: vGallery, flash: vFlash, practice: vPractice, run: vRun, review: vReview, mock: vMock, final: vFinal, papers: vPapers, cases: vCases, case: vCase, mistakes: vMistakes, help: vHelp }[VIEW.name] || vDash;
+    $('#main').innerHTML = fn(VIEW.arg);
+    $('#main').scrollTop = 0;
+    window.scrollTo(0, 0);
+    if (TUTOR.open)
+        renderTutor();
+}
+/* ---------------- Dashboard ---------------- */
+function vDash() {
+    var st = lectureStats();
+    var L = APP.core.lectures;
+    var total = APP.core.questions.length, done = Object.keys(lastAnswers()).length;
+    var exam = S.meta.examDate;
+    var days = null;
+    if (exam)
+        days = Math.ceil((new Date(exam + 'T08:00:00').getTime() - Date.now()) / 86400000);
+    var sets = S.attempts.map(function (a) { return ({ a: a, pct: attemptFinal(a) }); }).filter(function (x) { return x.pct != null; });
+    var best = sets.length ? sets.reduce(function (m, x) { return x.pct > m.pct ? x : m; }) : null;
+    var allDone = Object.keys(st).filter(function (k) { return st[k].done; });
+    var overall = allDone.length ? allDone.reduce(function (s, k) { return s + st[k].sum; }, 0) / allDone.reduce(function (s, k) { return s + st[k].done; }, 0) * 100 : null;
+    var review = L.map(function (l) { var s = st[l.id]; var freq = APP.oldFreq[l.id] || 0; var weak = s.pct == null ? 60 : (100 - s.pct); return { l: l, s: s, prio: freq * (weak + 10) }; }).filter(function (x) { return x.s.total; }).sort(function (a, b) { return b.prio - a.prio; }).slice(0, 5);
+    return "<div class=\"page-h\"><h1>Dashboard</h1><span class=\"save-pill ".concat(STORE.mode, "\">").concat(STORE.mode === 'claude' || STORE.mode === 'firebase' ? '✓ ' : '').concat(h(STORE.label), "</span></div>\n  <div class=\"grid4\">\n    <div class=\"card stat\"><div class=\"k\">Exam</div>").concat(days != null ? "<div class=\"v\">".concat(days >= 0 ? days : 0, "</div><div class=\"muted\">day").concat(days === 1 ? '' : 's', " left \u00B7 ").concat(h(exam), "</div>") : '<div class="muted">Set your exam date</div>', "\n      <input type=\"date\" id=\"examDate\" value=\"").concat(h(exam || ''), "\" data-change=\"examDate\" class=\"inp\"></div>\n    <div class=\"card stat\"><div class=\"k\">Progress</div><div class=\"v\">").concat(Math.round(100 * done / total), "%</div><div class=\"bar\"><i style=\"width:").concat(100 * done / total, "%\"></i></div><div class=\"muted\">").concat(done, " / ").concat(total, " questions tried</div></div>\n    <div class=\"card stat\"><div class=\"k\">Current grade</div><div class=\"v\">").concat(gradeBadge(overall, true), "</div><div class=\"muted\">").concat(overall == null ? 'Answer some questions' : Math.round(overall) + '% · ' + (passed(overall) ? 'on track to pass' : 'keep going – pass mark 45%'), "</div></div>\n    <div class=\"card stat\"><div class=\"k\">Best set</div><div class=\"v\">").concat(best ? gradeBadge(best.pct, true) : '–', "</div><div class=\"muted\">").concat(best ? h(best.a.label) : 'No set finished yet', "</div></div>\n  </div>\n  <div class=\"grid2\">\n    <div class=\"card\"><h3>What to review first</h3><p class=\"muted small\">Lectures the old exams ask most, weighted by how you are doing.</p>\n      ").concat(review.map(function (x) { return "<div class=\"rev-row\"><b>".concat(h(x.l.title), "</b> <span class=\"muted small\">").concat(APP.oldFreq[x.l.id] || 0, " old-exam Qs</span> ").concat(gradeBadge(x.s.pct), "\n      <span class=\"right\"><button class=\"btn sm\" data-act=\"openLesson\" data-id=\"").concat(x.l.id, "\">Lesson</button> <button class=\"btn sm primary\" data-act=\"startLecture\" data-id=\"").concat(x.l.id, "\">MCQs</button></span></div>"); }).join(''), "</div>\n    <div class=\"card\"><h3>Grade per lecture</h3><table class=\"tbl\"><tr><th>Lecture</th><th>Tried</th><th>Grade</th></tr>\n      ").concat(L.filter(function (l) { return st[l.id].total; }).map(function (l) { return "<tr><td><a href=\"#\" data-act=\"openLesson\" data-id=\"".concat(l.id, "\">").concat(h(l.title), "</a></td><td>").concat(st[l.id].done, "/").concat(st[l.id].total, "</td><td>").concat(gradeBadge(st[l.id].pct), "</td></tr>"); }).join(''), "</table></div>\n  </div>\n  <div class=\"grid2\">\n    <div class=\"card\"><h3>My grades</h3>").concat(sets.length ? "<table class=\"tbl\"><tr><th>Date</th><th>Set</th><th>Grade</th><th></th></tr>".concat(sets.slice().reverse().slice(0, 25).map(function (x) { return "<tr><td>".concat(fmtDate(x.a.date), "</td><td><a href=\"#\" data-act=\"openReview\" data-id=\"").concat(x.a.id, "\">").concat(h(x.a.label), "</a></td><td>").concat(gradeBadge(x.pct), "</td><td>").concat(passTag(x.pct), "</td></tr>"); }).join(''), "</table>") : '<p class="muted">Your finished sets will appear here.</p>', "</div>\n    <div class=\"card\"><h3>Clinical cases \u2013 jury</h3>").concat(S.jury.length ? "<table class=\"tbl\"><tr><th>Date</th><th>Case</th><th>Grade</th></tr>".concat(S.jury.slice().reverse().slice(0, 15).map(function (j) { return "<tr><td>".concat(fmtDate(j.date), "</td><td>").concat(h(j.label), "</td><td>").concat(gradeBadge(j.score10 * 10), " <span class=\"muted small\">").concat(j.score10.toFixed(1), "/10</span></td></tr>"); }).join(''), "</table>") : '<p class="muted">Practise a clinical case to see your jury grades here.</p>', "\n    <p class=\"small muted\">Grades: F &lt;45% \u00B7 E 45\u201354 \u00B7 D 55\u201364 \u00B7 C 65\u201374 \u00B7 B 75\u201384 \u00B7 A 85\u201394 \u00B7 A+ \u226595. Pass = E or better. <a href=\"#\" data-act=\"help\">How grading works</a></p></div>\n  </div>");
+}
+function vHelp() {
+    return "<div class=\"page-h\"><h1>How grading works</h1></div><div class=\"card prose\">\n  <p><b>Each question:</b> all propositions judged right = full point. Questions marked \u2605 have exactly one answer: one tick only, all-or-nothing. On multiple-answer questions, one mistake (a wrong tick or a missed true answer) gives half a point; two or more give zero.</p>\n  <p><b>Each set:</b> the percentage of points becomes a letter: <b>F</b> &lt;45% (not passed) \u00B7 <b>E</b> 45\u201354 \u00B7 <b>D</b> 55\u201364 \u00B7 <b>C</b> 65\u201374 \u00B7 <b>B</b> 75\u201384 \u00B7 <b>A</b> 85\u201394 \u00B7 <b>A+</b> \u226595. E or better = PASSED.</p>\n  <p><b>Mock exam:</b> 75% MCQs + 25% clinical case, and both parts must reach 45%.</p>\n  <p>Your ticked answers are stored, not just the scores, so every grade is recalculated from them.</p></div>";
+}
+/* ---------------- Lessons ---------------- */
+function lecturePaths(id) { return APP.core.paths.filter(function (p) { return p.t === id; }); }
+function vLessons() {
+    var st = lectureStats();
+    return "<div class=\"page-h\"><h1>Lessons</h1><p class=\"muted\">Condensed lessons (~12 min each): key facts, classifications, first-line treatments, exam traps and glossary.</p></div>\n  <div class=\"cards\">".concat(APP.core.lectures.map(function (l) { return "<a href=\"#\" class=\"card lc\" data-act=\"openLesson\" data-id=\"".concat(l.id, "\"><span class=\"lic\">").concat(h(l.icon), "</span><b>").concat(h(l.title), "</b><span class=\"muted small\">").concat(lecturePaths(l.id).length, " topics \u00B7 ").concat(st[l.id].total, " MCQs</span>").concat(gradeBadge(st[l.id].pct), "</a>"); }).join(''), "</div>");
+}
+function pathSheet(p, open) {
+    var sec = function (t, arr) { return arr && arr.length ? "<h4>".concat(t, "</h4><ul>").concat(arr.map(function (x) { return "<li>".concat(h(x), "</li>"); }).join(''), "</ul>") : ''; };
+    return "<details class=\"sheet\" ".concat(open ? 'open' : '', " id=\"sh-").concat(p.id, "\"><summary>").concat(h(p.n), "</summary><p class=\"def\">").concat(h(p.def), "</p>\n  ").concat(sec('Symptoms & clinical signs', p.sx)).concat(sec('Physical examination', p.ex)).concat(sec('Laboratory', p.lab)).concat(sec('Imaging & other investigations', p.img)).concat(sec('Treatment', p.tx)).concat(sec('Complications', p.cx)).concat(sec('Classifications & key facts', p.oth), "</details>");
+}
+function vLesson(id) {
+    var l = APP.lById[id];
+    if (!l)
+        return vLessons();
+    var ps = lecturePaths(id);
+    var sums = APP.summary.filter(function (s) { return s.topic === id; });
+    return "<div class=\"page-h\"><a href=\"#\" data-act=\"nav\" data-id=\"lessons\" class=\"back\">\u2190 Lessons</a><h1>".concat(h(l.title), "</h1>\n  <div class=\"row\"><button class=\"btn primary\" data-act=\"startLecture\" data-id=\"").concat(id, "\">Practise MCQs</button> <button class=\"btn\" data-act=\"flashLecture\" data-id=\"").concat(id, "\">Flashcards</button> ").concat(AI ? "<button class=\"btn\" data-act=\"tutorAsk\" data-q=\"Give me the 5 key points of the lecture ".concat(h(l.title), "\">Ask the tutor</button>") : '', "</div></div>\n  <div class=\"card\"><h3>Mind map</h3><div class=\"svgwrap\">").concat(mindMap(l, ps), "</div></div>\n  ").concat(l.draw.length ? "<div class=\"card\"><h3>Drawings</h3>".concat(l.draw.map(function (d) { return "<div class=\"svgwrap\">".concat(drawing(d), "</div>"); }).join(''), "</div>") : '', "\n  <div class=\"card\"><h3>Key facts</h3><ul class=\"key\">").concat(l.key.map(function (k) { return "<li>".concat(h(k), "</li>"); }).join(''), "</ul></div>\n  <div class=\"card\"><h3>Pathologies</h3>").concat(ps.map(function (p, i) { return pathSheet(p, i === 0); }).join(''), "</div>\n  <div class=\"card trap\"><h3>\u26A0 Exam traps (from old exams)</h3><ul>").concat(l.traps.map(function (t) { return "<li>".concat(h(t), "</li>"); }).join(''), "</ul></div>\n  <div class=\"card\"><h3>Glossary</h3><dl class=\"gloss\">").concat(l.gloss.map(function (g) { return "<dt>".concat(h(g[0]), "</dt><dd>").concat(h(g[1]), "</dd>"); }).join(''), "</dl></div>\n  ").concat(sums.length ? "<div class=\"card\"><details><summary><b>Full course summary (your PDF) \u2013 ".concat(sums.map(function (s) { return h(s.title); }).join(', '), "</b></summary><div class=\"prose sumtext\">").concat(sums.map(function (s) { return "<h2>Lecture ".concat(s.n, ": ").concat(h(s.title), "</h2>").concat(s.html); }).join(''), "</div></details></div>") : '');
+}
+function vGallery() {
+    return "<div class=\"page-h\"><h1>Mind maps & drawings</h1></div>".concat(APP.core.lectures.map(function (l) { return "<div class=\"card\"><h3>".concat(h(l.title), "</h3><div class=\"svgwrap\">").concat(mindMap(l, lecturePaths(l.id)), "</div>").concat(l.draw.map(function (d) { return "<div class=\"svgwrap\">".concat(drawing(d), "</div>"); }).join(''), "</div>"); }).join(''));
+}
+/* ---------------- Flashcards ---------------- */
+var FC = null;
+var FIELDS = [['sx', 'Symptoms & clinical signs'], ['ex', 'Physical examination'], ['lab', 'Laboratory'], ['img', 'Imaging / investigations'], ['tx', 'Treatment (surgical & medical)'], ['cx', 'Complications'], ['oth', 'Classifications & key facts']];
+function buildDeck(topic) {
+    var cards = [];
+    APP.core.paths.filter(function (p) { return !topic || p.t === topic; }).forEach(function (p) {
+        cards.push({ k: p.id + '_def', front: p.n, sub: 'Definition / mechanism', back: [p.def] });
+        FIELDS.forEach(function (f) { if (p[f[0]] && p[f[0]].length)
+            cards.push({ k: p.id + '_' + f[0], front: p.n, sub: f[1], back: p[f[0]] }); });
+    });
+    return cards;
+}
+function vFlash(arg) {
+    if (!FC || arg === 'pick') {
+        return "<div class=\"page-h\"><h1>Flashcards</h1><p class=\"muted\">For each pathology: signs & symptoms, examination, labs, imaging, treatment, complications, classifications.</p></div>\n    <div class=\"cards\"><a href=\"#\" class=\"card lc\" data-act=\"flashLecture\" data-id=\"\"><b>All lectures</b><span class=\"muted small\">".concat(buildDeck().length, " cards</span></a>\n    ").concat(APP.core.lectures.map(function (l) { var d = buildDeck(l.id); var k = d.filter(function (c) { return S.fc.known && S.fc.known[c.k]; }).length; return "<a href=\"#\" class=\"card lc\" data-act=\"flashLecture\" data-id=\"".concat(l.id, "\"><b>").concat(h(l.title), "</b><span class=\"muted small\">").concat(k, "/").concat(d.length, " known</span></a>"); }).join(''), "</div>");
+    }
+    var c = FC.cards[FC.i];
+    if (!c)
+        return "<div class=\"card center\"><h2>Deck finished \uD83C\uDF89</h2><p>".concat(FC.cards.length, " cards reviewed.</p><button class=\"btn primary\" data-act=\"flashLecture\" data-id=\"").concat(FC.topic, "\">Again (unknown first)</button> <button class=\"btn\" data-act=\"flashPick\">Other deck</button></div>");
+    return "<div class=\"page-h\"><a href=\"#\" data-act=\"flashPick\" class=\"back\">\u2190 Decks</a><h1>Flashcards</h1><span class=\"muted\">".concat(FC.i + 1, " / ").concat(FC.cards.length, "</span></div>\n  <div class=\"flash ").concat(FC.flip ? 'flip' : '', "\" data-act=\"flip\"><div class=\"face front\"><div class=\"muted small\">").concat(h(c.sub), "</div><h2>").concat(h(c.front), "</h2><p class=\"muted small\">Tap to reveal</p></div>\n  <div class=\"face back\"><div class=\"muted small\">").concat(h(c.front), " \u00B7 ").concat(h(c.sub), "</div><ul>").concat(c.back.map(function (b) { return "<li>".concat(h(b), "</li>"); }).join(''), "</ul></div></div>\n  <div class=\"row center\"><button class=\"btn\" data-act=\"fcAgain\">Again</button> <button class=\"btn primary\" data-act=\"fcKnow\">I knew it</button></div>");
+}
+function startFlash(topic) {
+    var deck = buildDeck(topic || null);
+    var known = (S.fc && S.fc.known) || {};
+    var cards = shuffle(deck.filter(function (c) { return !known[c.k]; })).concat(shuffle(deck.filter(function (c) { return known[c.k]; })));
+    FC = { topic: topic || '', cards: cards, i: 0, flip: false };
+    go('flash');
+}
+/* ---------------- MCQ sets ---------------- */
+function vPractice() {
+    var st = lectureStats();
+    return "<div class=\"page-h\"><h1>Lecture MCQs</h1><p class=\"muted\">Each answer is checked immediately with corrections. 5 propositions A\u2013E, several can be true; \u2605 = exactly one answer.</p></div>\n  <div class=\"cards\">".concat(APP.core.lectures.filter(function (l) { return st[l.id].total; }).map(function (l) { return "<a href=\"#\" class=\"card lc\" data-act=\"startLecture\" data-id=\"".concat(l.id, "\"><b>").concat(h(l.title), "</b><span class=\"muted small\">").concat(st[l.id].total, " questions \u00B7 ").concat(st[l.id].old, " from old exams</span>").concat(gradeBadge(st[l.id].pct), "</a>"); }).join(''), "</div>");
+}
+function startSet(opts) {
+    if (!opts.qs.length) {
+        toast('No questions available for this selection.');
+        return;
+    }
+    RUN = { id: 'a' + Date.now(), kind: opts.kind, label: opts.label, mode: opts.mode, topics: opts.topics || [], qs: opts.qs, i: 0, ans: {}, checked: {}, hint: {}, start: Date.now() };
+    go('run');
+}
+function startLecture(id) { var l = APP.lById[id]; var qs = APP.core.questions.filter(function (q) { return q.topic === id; }); startSet({ kind: 'lecture', label: 'Lecture: ' + l.title, qs: shuffle(qs).map(function (q) { return q.id; }), mode: 'practice', topics: [id] }); }
+function qHTML(q, i, n, mode) {
+    var ticks = RUN.ans[q.id] || [];
+    var checked = mode === 'practice' && RUN.checked[q.id];
+    var optHTML = q.o.map(function (o) {
+        var t = ticks.indexOf(o.l) >= 0;
+        var cls = 'opt' + (t ? ' tick' : '');
+        var verdict = '';
+        if (checked) {
+            if (o.c && t) {
+                cls += ' good';
+                verdict = '<span class="vd ok">✓ correct</span>';
+            }
+            else if (o.c && !t) {
+                cls += ' miss';
+                verdict = '<span class="vd no">you missed it: it IS an answer</span>';
+            }
+            else if (!o.c && t) {
+                cls += ' bad';
+                verdict = '<span class="vd no">you ticked it but it is NOT an answer</span>';
+            }
+            else
+                cls += ' neutral';
+        }
+        return "<div class=\"".concat(cls, "\" ").concat(checked ? '' : "data-act=\"tick\" data-l=\"".concat(o.l, "\""), "><span class=\"ol\">").concat(o.l, "</span><span class=\"ot\">").concat(h(o.t)).concat(verdict).concat(checked && o.e ? "<span class=\"ex\">".concat(o.c ? 'True' : 'False', " \u2013 ").concat(h(o.e), "</span>") : '', "</span></div>");
+    }).join('');
+    return "<div class=\"card qcard\"><div class=\"qmeta\"><span>Question ".concat(i + 1, " / ").concat(n, "</span><span class=\"muted small\">").concat(h(q.exam)).concat(q.also && q.also.length ? ' · also in ' + q.also.length + ' other paper(s)' : '', "</span>").concat(q.flag ? '<span class="tag warn">debatable key</span>' : '', "</div>\n  ").concat(q.stem ? "<p class=\"stem\">".concat(h(q.stem), "</p>") : '', "<h3 class=\"qt\">").concat(q.single ? '★ ' : '').concat(h(q.q), "</h3><div class=\"opts\">").concat(optHTML, "</div>\n  ").concat(checked && q.note ? "<div class=\"note\">\u2139 ".concat(h(q.note), "</div>") : '', "\n  ").concat(RUN.hint[q.id] ? "<div class=\"note hint\">\uD83D\uDCA1 ".concat(h(RUN.hint[q.id]), "</div>") : '', "</div>");
+}
+function vRun() {
+    if (!RUN)
+        return vDash();
+    var q = Q(RUN.qs[RUN.i]);
+    var n = RUN.qs.length;
+    var answered = Object.keys(RUN.ans).filter(function (k) { return RUN.ans[k].length; }).length;
+    var checked = RUN.checked[q.id];
+    return "<div class=\"page-h\"><h1>".concat(h(RUN.label), "</h1><span class=\"muted\">").concat(RUN.mode === 'practice' ? 'Practice – immediate correction' : 'Exam mode – corrected at the end', " \u00B7 ").concat(answered, "/").concat(n, " answered</span></div>\n  <div class=\"dots\">").concat(RUN.qs.map(function (id, k) { var a = RUN.ans[id] && RUN.ans[id].length; var c = a ? 'a' : ''; if (RUN.mode === 'practice' && RUN.checked[id])
+        c = qScore(Q(id), RUN.ans[id]) === 1 ? 'ok' : qScore(Q(id), RUN.ans[id]) > 0 ? 'half' : 'no'; return "<i class=\"".concat(c).concat(k === RUN.i ? ' cur' : '', "\" data-act=\"jump\" data-i=\"").concat(k, "\"></i>"); }).join(''), "</div>\n  ").concat(qHTML(q, RUN.i, n, RUN.mode), "\n  <div class=\"row runbar\"><button class=\"btn\" data-act=\"prev\" ").concat(RUN.i === 0 ? 'disabled' : '', ">\u2190 Previous</button>\n  ").concat(RUN.mode === 'practice' && !checked ? "<button class=\"btn primary\" data-act=\"check\">Check answer</button>" : '', "\n  ").concat(AI && !checked ? "<button class=\"btn\" data-act=\"qhint\">Hint from tutor</button>" : '', "\n  ").concat(AI && checked ? "<button class=\"btn\" data-act=\"tutorAsk\" data-q=\"Explain this question to me again in simple words, with a mnemonic.\">Explain more</button>" : '', "\n  <button class=\"btn\" data-act=\"next\" ").concat(RUN.i === n - 1 ? 'disabled' : '', ">Next \u2192</button>\n  <span class=\"grow\"></span><button class=\"btn finish\" data-act=\"finish\">Finish & see my grade</button></div>");
+}
+function finishRun() {
+    var items = RUN.qs.map(function (id) { return ({ q: id, a: RUN.ans[id] || [] }); });
+    var att = { t: 'attempt', id: RUN.id, date: Date.now(), kind: RUN.kind, label: RUN.label, mode: RUN.mode, topics: RUN.topics, items: items };
+    if (!items.some(function (it) { return it.a.length; })) {
+        toast('Answer at least one question first.');
+        return;
+    }
+    if (RUN.kind === 'mock' && RUN.caseId) {
+        att.caseId = RUN.caseId;
+    }
+    S.attempts.push(att);
+    save(att);
+    var finished = RUN;
+    RUN = null;
+    if (finished.kind === 'mock' && finished.caseId) {
+        startCase(finished.caseId, { mockAttempt: att.id });
+        return;
+    }
+    go('review', att.id);
+}
+function vReview(attId) {
+    var a = S.attempts.filter(function (x) { return x.id === attId; })[0];
+    if (!a)
+        return vDash();
+    var pct = attemptPct(a);
+    var fin = attemptFinal(a);
+    var fp = 0, fn = 0;
+    var wrong = [];
+    a.items.forEach(function (it) { var q = Q(it.q); if (!q || !it.a.length)
+        return; var m = mistakes(q, it.a); fp += m.fp; fn += m.fn; if (m.n)
+        wrong.push({ q: q, it: it, m: m }); });
+    var answered = a.items.filter(function (it) { return it.a.length; }).length;
+    var style = 'Balanced – keep it up.';
+    if (fp > fn * 1.5 && fp >= 3)
+        style = 'You tend to tick too much: before ticking, ask "am I sure this is in the course?"';
+    else if (fn > fp * 1.5 && fn >= 3)
+        style = 'You tend to be too cautious: when the statement matches the lesson, tick it.';
+    var hist = function (qid) { return S.attempts.filter(function (x) { return x.id !== a.id; }).map(function (x) { var it = x.items.filter(function (y) { return y.q === qid && y.a.length; })[0]; return it ? { d: x.date, s: qScore(Q(qid), it.a), a: it.a } : null; }).filter(Boolean); };
+    var caseInfo = a.kind === 'mock' && a.caseScore != null ? "<p>MCQ part ".concat(gradeBadge(pct), " ").concat(Math.round(pct), "% \u00B7 Clinical case ").concat(gradeBadge(a.caseScore * 10), " ").concat(a.caseScore.toFixed(1), "/10 \u2192 final = 75% MCQ + 25% case.\n    ").concat(passed(pct) && passed(a.caseScore * 10) ? '' : '<br><span class="muted">Both parts must reach 45% to pass.</span>', "</p>") : '';
+    var passAll = a.kind === 'mock' && a.caseScore != null ? passed(pct) && passed(a.caseScore * 10) && passed(fin) : passed(fin);
+    return "<div class=\"page-h\"><h1>Your result</h1></div>\n  <div class=\"card center result\"><div>".concat(gradeBadge(fin, true), "</div><h2>").concat(Math.round(fin), "% \u00B7 ").concat(passAll ? '<span class="tag ok">PASSED</span>' : '<span class="tag no">NOT PASSED</span>', "</h2>\n  <p class=\"muted\">").concat(h(a.label), " \u00B7 ").concat(answered, "/").concat(a.items.length, " answered \u00B7 ").concat(wrong.length, " with mistakes</p>").concat(caseInfo, "\n  <p><b>Your style:</b> ").concat(fp, " wrong tick(s), ").concat(fn, " missed answer(s). ").concat(h(style), "</p>\n  <div class=\"row center\"><button class=\"btn primary\" data-act=\"redoWrong\" data-id=\"").concat(a.id, "\" ").concat(wrong.length ? '' : 'disabled', ">Redo my mistakes</button> <button class=\"btn\" data-act=\"nav\" data-id=\"dash\">Dashboard</button></div></div>\n  <h2>Personal review</h2>\n  ").concat(wrong.length ? wrong.map(function (w) {
+        var hs = hist(w.q.id);
+        return "<div class=\"card qcard\"><div class=\"qmeta\"><span>".concat(h(APP.lById[w.q.topic] ? APP.lById[w.q.topic].title : ''), "</span><span class=\"muted small\">").concat(h(w.q.exam), "</span>").concat(w.q.flag ? '<span class="tag warn">debatable key</span>' : '', "</div>\n    ").concat(w.q.stem ? "<p class=\"stem\">".concat(h(w.q.stem), "</p>") : '', "<h3 class=\"qt\">").concat(h(w.q.q), "</h3>\n    <p class=\"small\">You ticked <b>").concat(w.it.a.join(', ') || '—', "</b> \u00B7 key <b>").concat(w.q.o.filter(function (o) { return o.c; }).map(function (o) { return o.l; }).join(', '), "</b></p>\n    <div class=\"opts\">").concat(w.q.o.map(function (o) { var t = w.it.a.indexOf(o.l) >= 0; var v = o.c && t ? '<span class="vd ok">✓ correct</span>' : o.c ? '<span class="vd no">you missed it: it IS an answer</span>' : t ? '<span class="vd no">you ticked it but it is NOT an answer</span>' : '<span class="vd muted">correctly left out</span>'; return "<div class=\"opt ".concat(o.c && t ? 'good' : o.c ? 'miss' : t ? 'bad' : 'neutral', "\"><span class=\"ol\">").concat(o.l, "</span><span class=\"ot\">").concat(h(o.t)).concat(v, "<span class=\"ex\">").concat(o.c ? 'True' : 'False', " \u2013 ").concat(h(o.e), "</span></span></div>"); }).join(''), "</div>\n    ").concat(w.q.note ? "<div class=\"note\">\u2139 ".concat(h(w.q.note), "</div>") : '', "\n    ").concat(hs.length ? "<p class=\"small muted\">Your history on this question: ".concat(hs.map(function (x) { return "".concat(fmtDate(x.d), " ").concat(x.s === 1 ? '✓' : x.s > 0 ? '½' : '✗'); }).join(' · '), "</p>") : '<p class="small muted">First attempt at this question.</p>', "\n    ").concat(w.q.ref ? "<button class=\"btn sm\" data-act=\"openRef\" data-id=\"".concat(w.q.ref, "\" data-t=\"").concat(w.q.topic, "\">Lesson recap</button>") : '', "</div>");
+    }).join('') : '<div class="card"><p>No mistakes – excellent work! 🎉</p></div>');
+}
+/* ---------------- Mock / Final / Papers ---------------- */
+function weightedPick(pool, n) {
+    var maxF = Math.max.apply(null, Object.keys(APP.oldFreq).map(function (k) { return APP.oldFreq[k]; }).concat([1]));
+    var items = pool.map(function (q) { return ({ q: q, w: 1 + 2 * (APP.oldFreq[q.topic] || 0) / maxF + (q.src === 'old' ? 1 : 0) + (q.also ? q.also.length * 0.5 : 0) }); });
+    var out = [];
+    while (out.length < n && items.length) {
+        var tot = items.reduce(function (s, x) { return s + x.w; }, 0);
+        var r = Math.random() * tot;
+        var k = 0;
+        while (r > items[k].w) {
+            r -= items[k].w;
+            k++;
+        }
+        out.push(items[k].q.id);
+        items.splice(k, 1);
+    }
+    return out;
+}
+function vMock() {
+    var st = lectureStats();
+    return "<div class=\"page-h\"><h1>Mock exam</h1><p class=\"muted\">20 random questions weighted toward what old exams ask most \u00B7 no timer \u00B7 corrected at the end \u00B7 then a clinical case from the same lectures".concat(AI ? ' graded by the AI jury' : ' (self-assessed against the teacher\'s answer)', ". Final = 75% MCQ + 25% case.</p></div>\n  <div class=\"card\"><div class=\"row\"><button class=\"btn\" data-act=\"mockAll\">All lectures</button> <button class=\"btn\" data-act=\"mockWeak\">My weakest lectures</button></div>\n  <div class=\"checks\">").concat(APP.core.lectures.filter(function (l) { return st[l.id].total; }).map(function (l) { return "<label><input type=\"checkbox\" class=\"mockchk\" value=\"".concat(l.id, "\"> ").concat(h(l.title), " ").concat(gradeBadge(st[l.id].pct), "</label>"); }).join(''), "</div>\n  <button class=\"btn primary\" data-act=\"mockStart\">Start mock exam</button></div>");
+}
+function startMock(topics) {
+    if (!topics.length) {
+        toast('Pick at least one lecture.');
+        return;
+    }
+    var pool = APP.core.questions.filter(function (q) { return topics.indexOf(q.topic) >= 0; });
+    var cases = APP.core.cases.filter(function (c) { return topics.indexOf(c.topic) >= 0; });
+    var c = (cases.length ? shuffle(cases) : shuffle(APP.core.cases))[0];
+    startSet({ kind: 'mock', label: 'Mock exam (' + (topics.length > 6 ? 'all lectures' : topics.map(function (t) { return APP.lById[t].title; }).join(', ')) + ')', qs: weightedPick(pool, Math.min(20, pool.length)), mode: 'exam', topics: topics });
+    RUN.caseId = c.id;
+}
+function vFinal() {
+    return "<div class=\"page-h\"><h1>Final test</h1><p class=\"muted\">40 questions, half from old exams, half new / OSCE-book questions \u00B7 no timer \u00B7 corrected at the end.</p></div>\n  <div class=\"card center\"><button class=\"btn primary\" data-act=\"finalStart\">Start the final test</button></div>";
+}
+function startFinal() {
+    var old = shuffle(APP.core.questions.filter(function (q) { return q.src === 'old'; })).slice(0, 20).map(function (q) { return q.id; });
+    var other = shuffle(APP.core.questions.filter(function (q) { return q.src !== 'old'; })).slice(0, 20).map(function (q) { return q.id; });
+    startSet({ kind: 'final', label: 'Final test (40 Q)', qs: shuffle(old.concat(other)), mode: 'exam' });
+}
+function papers() { var m = {}; APP.core.questions.filter(function (q) { return q.src !== 'new'; }).forEach(function (q) { (m[q.exam] = m[q.exam] || []).push(q.id); }); return m; }
+function vPapers() {
+    var P = papers();
+    return "<div class=\"page-h\"><h1>Past papers</h1><p class=\"muted\">Each old exam as a paper. Exam mode = corrected at the end; practice mode = immediate correction.</p></div>\n  ".concat(Object.keys(P).map(function (k) { return "<div class=\"card rev-row\"><b>".concat(h(k), "</b> <span class=\"muted small\">").concat(P[k].length, " questions</span><span class=\"right\"><button class=\"btn sm\" data-act=\"paper\" data-id=\"").concat(h(k), "\" data-m=\"practice\">Practice</button> <button class=\"btn sm primary\" data-act=\"paper\" data-id=\"").concat(h(k), "\" data-m=\"exam\">Exam mode</button></span></div>"); }).join(''));
+}
+/* ---------------- Mistakes ---------------- */
+function vMistakes() {
+    var last = lastAnswers();
+    var by = {};
+    Object.keys(last).forEach(function (id) { var q = Q(id); if (!q)
+        return; if (qScore(q, last[id].a) < 1)
+        (by[q.topic] = by[q.topic] || []).push({ q: q, a: last[id].a }); });
+    var ks = Object.keys(by);
+    if (!ks.length)
+        return "<div class=\"page-h\"><h1>My mistakes</h1></div><div class=\"card\"><p>No open mistakes. Questions you get wrong will gather here, grouped by lecture.</p></div>";
+    return "<div class=\"page-h\"><h1>My mistakes</h1><p class=\"muted\">Your latest answer was not fully right on these questions.</p></div>\n  ".concat(ks.map(function (t) {
+        var l = APP.lById[t];
+        var list = by[t];
+        return "<div class=\"card\"><div class=\"rev-row\"><h3>".concat(h(l ? l.title : t), "</h3><span class=\"right\"><button class=\"btn sm primary\" data-act=\"redoTopic\" data-id=\"").concat(t, "\">Redo these (").concat(list.length, ")</button></span></div>\n    ").concat(list.map(function (x) { return "<details class=\"mist\"><summary>".concat(h(x.q.q), "</summary><p class=\"small\">You ticked <b>").concat(x.a.join(', '), "</b> \u00B7 key <b>").concat(x.q.o.filter(function (o) { return o.c; }).map(function (o) { return o.l; }).join(', '), "</b></p>\n      <ul class=\"small\">").concat(x.q.o.map(function (o) { return "<li class=\"".concat(o.c ? 'tgood' : '', "\">").concat(o.l, ". ").concat(h(o.t), " \u2013 <i>").concat(h(o.e), "</i></li>"); }).join(''), "</ul>").concat(recap(x.q), "</details>"); }).join(''), "\n    <details><summary>Mind map \u2013 ").concat(h(l ? l.title : ''), "</summary><div class=\"svgwrap\">").concat(l ? mindMap(l, lecturePaths(t)) : '', "</div></details></div>");
+    }).join(''));
+}
+function recap(q) {
+    var p = q.ref && APP.pById[q.ref];
+    if (!p)
+        return '';
+    var keyWords = {};
+    q.o.filter(function (o) { return o.c; }).forEach(function (o) { return (o.t + ' ' + q.q).toLowerCase().replace(/[^a-z0-9 ]/g, ' ').split(/\s+/).forEach(function (w) { if (w.length > 4)
+        keyWords[w] = 1; }); });
+    var lines = [];
+    FIELDS.concat([['def', 'Definition']]).forEach(function (f) { var arr = f[0] === 'def' ? [p.def] : (p[f[0]] || []); arr.forEach(function (x) { var s = Object.keys(keyWords).filter(function (w) { return x.toLowerCase().indexOf(w) >= 0; }).length; if (s)
+        lines.push({ x: x, s: s, f: f[1] }); }); });
+    lines.sort(function (a, b) { return b.s - a.s; });
+    return "<div class=\"recap\"><b>Lesson recap \u2013 ".concat(h(p.n), "</b><ul>").concat(lines.slice(0, 4).map(function (l) { return "<li><span class=\"muted small\">".concat(h(l.f), ":</span> ").concat(h(l.x), "</li>"); }).join('') || "<li>".concat(h(p.def), "</li>"), "</ul><a href=\"#\" data-act=\"openRef\" data-id=\"").concat(p.id, "\" data-t=\"").concat(p.t, "\">Open the full lesson \u2192</a></div>");
+}
+/* ---------------- Clinical cases & jury ---------------- */
+function vCases() {
+    var best = {};
+    S.jury.forEach(function (j) { best[j.caseId] = Math.max(best[j.caseId] || 0, j.score10); });
+    return "<div class=\"page-h\"><h1>Clinical cases (oral / OSCE)</h1><p class=\"muted\">Teacher's cases from the OSCE book. Answer step by step: diagnosis \u2192 arguments \u2192 tests \u2192 treatment. ".concat(AI ? 'The AI jury gives friendly, constructive feedback.' : 'Compare your answer with the teacher\'s answer and assess yourself.', "</p></div>\n  <div class=\"cards\">").concat(APP.core.cases.map(function (c) { return "<a href=\"#\" class=\"card lc\" data-act=\"openCase\" data-id=\"".concat(c.id, "\"><span class=\"tag teach\">Teacher's case</span><b>").concat(h(c.title), "</b><span class=\"muted small\">").concat(h(APP.lById[c.topic] ? APP.lById[c.topic].title : ''), "</span>").concat(best[c.id] != null ? gradeBadge(best[c.id] * 10) : '', "</a>"); }).join(''), "</div>");
+}
+function startCase(id, opts) {
+    var c = APP.core.cases.filter(function (x) { return x.id === id; })[0];
+    CASE = { c: c, i: 0, answers: {}, results: {}, hints: {}, busy: false, mockAttempt: opts && opts.mockAttempt, practice: false, shown: {} };
+    go('case');
+}
+function vCase() {
+    if (!CASE)
+        return vCases();
+    var c = CASE.c, st = c.steps[CASE.i];
+    if (!st)
+        return caseSummary();
+    var res = CASE.results[CASE.i];
+    var hints = CASE.hints[CASE.i] || 0;
+    var teacher = "<div class=\"teacher\"><b>Teacher's answer (word for word)</b>".concat(st.a.map(function (p) { return "<p>".concat(h(p), "</p>"); }).join(''), "</div>");
+    return "<div class=\"page-h\"><a href=\"#\" data-act=\"nav\" data-id=\"cases\" class=\"back\">\u2190 Cases</a><h1>".concat(h(c.title), "</h1><span class=\"tag teach\">Teacher's case</span>").concat(CASE.mockAttempt ? ' <span class="tag">Mock exam – case part</span>' : '', "</div>\n  <div class=\"card\"><p class=\"stem\">").concat(h(c.presentation), "</p></div>\n  <div class=\"dots\">").concat(c.steps.map(function (s, k) { return "<i class=\"".concat(CASE.results[k] ? 'ok' : '').concat(k === CASE.i ? ' cur' : '', "\" data-act=\"caseJump\" data-i=\"").concat(k, "\"></i>"); }).join(''), "</div>\n  <div class=\"card\"><div class=\"qmeta\"><span>Step ").concat(CASE.i + 1, " / ").concat(c.steps.length, "</span></div><h3>").concat(h(st.q), "</h3>\n   <textarea id=\"caseAns\" class=\"ta\" rows=\"6\" placeholder=\"Type your answer").concat(DICT ? ' or dictate it' : '', "\u2026\">").concat(h(CASE.answers[CASE.i] || ''), "</textarea>\n   <div class=\"row\">").concat(DICT ? '<button class="btn" data-act="dictate" id="micBtn">🎤 Dictate</button>' : '', "\n   <button class=\"btn\" data-act=\"caseHint\" ").concat(hints >= 2 || res ? 'disabled' : '', ">Hint (").concat(2 - hints, " left").concat(AI ? ', −1 pt each' : '', ")</button>\n   ").concat(AI ? "<button class=\"btn primary\" data-act=\"caseJudge\" ".concat(CASE.busy || res ? 'disabled' : '', ">").concat(CASE.busy ? 'The jury is reading…' : 'Submit to the jury', "</button>") : "<button class=\"btn primary\" data-act=\"caseShow\">Show teacher's answer</button>", "</div>\n   ").concat(hints ? "<div class=\"note hint\">\uD83D\uDCA1 ".concat(c.kp.slice(0, hints).map(h).join('<br>💡 '), "</div>") : '', "\n   ").concat(res ? juryHTML(res) : '', "\n   ").concat((res || CASE.shown[CASE.i]) ? teacher : '', "\n   ").concat(!AI && CASE.shown[CASE.i] && !res ? "<div class=\"selfas\"><b>How close was your answer?</b><div class=\"row\">".concat([[10, 'Spot on'], [8, 'Mostly there'], [6, 'Half of it'], [4, 'A few points'], [2, 'Just starting']].map(function (x) { return "<button class=\"btn sm\" data-act=\"selfScore\" data-s=\"".concat(x[0], "\">").concat(x[1], "</button>"); }).join(' '), "</div></div>") : '', "\n   <div class=\"row runbar\"><button class=\"btn\" data-act=\"casePrev\" ").concat(CASE.i === 0 ? 'disabled' : '', ">\u2190 Previous</button><span class=\"grow\"></span><button class=\"btn ").concat(res ? 'primary' : '', "\" data-act=\"caseNext\">").concat(CASE.i === c.steps.length - 1 ? 'Finish case' : 'Next step →', "</button></div></div>\n  ").concat(res || CASE.shown[CASE.i] ? "<div class=\"card\"><h3>Key points</h3><ul>".concat(c.kp.map(function (k) { return "<li>".concat(h(k), "</li>"); }).join(''), "</ul></div>") : '');
+}
+function juryHTML(r) {
+    return "<div class=\"jury\"><div class=\"jhead\">".concat(gradeBadge(r.score * 10), " <b>").concat(r.score.toFixed(1), "/10</b>").concat(r.hintCost ? " <span class=\"muted small\">(".concat(r.hintCost, " hint point").concat(r.hintCost > 1 ? 's' : '', " used)</span>") : '', "</div>\n  ").concat(r.feedback ? "<p class=\"jfb\">".concat(h(r.feedback), "</p>") : '', "\n  ").concat(r.good && r.good.length ? "<p><b>\uD83D\uDC4D What you got right</b></p><ul>".concat(r.good.map(function (x) { return "<li>".concat(h(x), "</li>"); }).join(''), "</ul>") : '', "\n  ").concat(r.missing && r.missing.length ? "<p><b>\u2795 To add next time</b></p><ul>".concat(r.missing.map(function (x) { return "<li>".concat(h(x), "</li>"); }).join(''), "</ul>") : '', "\n  ").concat(r.wrong && r.wrong.length ? "<p><b>\uD83D\uDD27 Small corrections</b></p><ul>".concat(r.wrong.map(function (x) { return "<li>".concat(h(x), "</li>"); }).join(''), "</ul>") : '', "\n  ").concat(r.followup ? "<p class=\"small\"><b>Follow-up question from the jury:</b> ".concat(h(r.followup), "</p>") : '', "</div>");
+}
+function judge() {
+    var ta = $('#caseAns');
+    var ans = (ta ? ta.value : '').trim();
+    CASE.answers[CASE.i] = ans;
+    if (!ans) {
+        toast('Write a few words first – even a rough idea is fine!');
+        return;
+    }
+    var c = CASE.c, st = c.steps[CASE.i];
+    CASE.busy = true;
+    render();
+    var prompt = "You are a kind, encouraging surgery examiner at an oral exam (OSCE) in Cluj-Napoca. The student has had bad experiences with harsh juries: be warm, supportive and calm. Always start with what the student did well, phrase gaps as \"to add next time\", never use words like \"wrong\", \"poor\", \"fail\", \"unacceptable\". Be fair: the score must reflect the content compared with the teacher's answer, but give partial credit generously for correct ideas expressed in other words.\nCASE: ".concat(c.presentation, "\nQUESTION: ").concat(st.q, "\nTEACHER'S ANSWER (reference): ").concat(st.a.join(' ').slice(0, 3500), "\nKEY POINTS: ").concat(c.kp.join('; '), "\nSTUDENT ANSWER: ").concat(ans, "\nReply with JSON only: {\"score\": number 0-10 (one decimal), \"good\": [short strings], \"missing\": [short strings, max 4], \"wrong\": [gentle corrections, max 3, may be empty], \"feedback\": \"2 warm encouraging sentences\", \"followup\": \"one friendly follow-up question\"}");
+    var call = AI.json ? AI.json(prompt, { modelTier: 'default' }) : AI(prompt).then(function (r) { return JSON.parse(r.text.replace(/^[^{]*/, '').replace(/[^}]*$/, '')); });
+    call.then(function (r) {
+        var hc = CASE.hints[CASE.i] || 0;
+        var score = Math.max(0, Math.min(10, Number(r.score) || 0));
+        CASE.results[CASE.i] = { score: Math.max(0, score - hc), raw: score, hintCost: hc, good: r.good || [], missing: r.missing || [], wrong: r.wrong || [], feedback: r.feedback || '', followup: r.followup || '' };
+    }).catch(function (e) { toast(e && e.code === 'rate_limited' ? 'The jury needs a short break – try again in a minute.' : 'The jury could not answer just now – please try again.'); })
+        .then(function () { CASE.busy = false; render(); });
+}
+function caseSummary() {
+    var c = CASE.c;
+    var rs = c.steps.map(function (s, k) { return CASE.results[k]; }).filter(Boolean);
+    var score10 = rs.length ? rs.reduce(function (s, r) { return s + r.score; }, 0) / c.steps.length : 0;
+    if (!CASE.saved && rs.length) {
+        CASE.saved = true;
+        var j = { t: 'jury', id: 'j' + Date.now(), date: Date.now(), caseId: c.id, label: c.title, score10: score10, steps: c.steps.map(function (s, k) { return ({ q: s.q, answer: CASE.answers[k] || '', r: CASE.results[k] || null }); }) };
+        S.jury.push(j);
+        save(j);
+        if (CASE.mockAttempt) {
+            var a = S.attempts.filter(function (x) { return x.id === CASE.mockAttempt; })[0];
+            if (a) {
+                a.caseScore = score10;
+                a.caseId = c.id;
+                save(a);
+            }
+        }
+    }
+    return "<div class=\"card center result\"><h2>Case finished</h2>".concat(rs.length ? "<div>".concat(gradeBadge(score10 * 10, true), "</div><p><b>").concat(score10.toFixed(1), "/10</b> ").concat(passTag(score10 * 10), "</p>") : '<p class="muted">No step was graded.</p>', "\n  <p>Diagnosis: <b>").concat(h(c.dx), "</b></p><p class=\"muted\">Every case you practise makes the real oral easier. Well done for doing it! \uD83C\uDF31</p>\n  <div class=\"row center\">").concat(CASE.mockAttempt ? "<button class=\"btn primary\" data-act=\"openReview\" data-id=\"".concat(CASE.mockAttempt, "\">See mock exam result</button>") : "<button class=\"btn primary\" data-act=\"openCase\" data-id=\"".concat(c.id, "\">Try again</button>"), " <button class=\"btn\" data-act=\"nav\" data-id=\"cases\">All cases</button></div>\n  ").concat(c.stations && c.stations.length ? "<div class=\"card left\"><h3>OSCE station checklists</h3>".concat(c.stations.map(function (s) { return "<details><summary>".concat(h(s.station), " \u2013 ").concat(h(s.scenario.slice(0, 120)), "\u2026</summary><p class=\"small\">").concat(h(s.scenario), "</p><ol>").concat(s.items.map(function (i) { return "<li>".concat(h(i), "</li>"); }).join(''), "</ol></details>"); }).join(''), "</div>") : '', "</div>");
+}
+/* ---------------- Tutor ---------------- */
+function tutorContext() {
+    if (VIEW.name === 'run' && RUN) {
+        var q = Q(RUN.qs[RUN.i]);
+        var checked_1 = RUN.mode === 'practice' && RUN.checked[q.id];
+        return "The student is on this MCQ (".concat(checked_1 ? 'already checked – you may explain the key' : 'NOT yet answered – give hints only, never reveal which letters are correct', "): ").concat(q.stem || '', " ").concat(q.q, " ").concat(q.o.map(function (o) { return o.l + '. ' + o.t + (checked_1 ? (o.c ? ' [TRUE: ' : ' [FALSE: ') + o.e + ']' : ''); }).join(' | '));
+    }
+    if (VIEW.name === 'lesson' && VIEW.arg) {
+        var l = APP.lById[VIEW.arg];
+        return "The student is reading the lesson \"".concat(l.title, "\". Key facts: ").concat(l.key.join('; '), ". Pathologies: ").concat(lecturePaths(l.id).map(function (p) { return p.n + ': ' + p.def; }).join(' || ').slice(0, 3000));
+    }
+    if (VIEW.name === 'case' && CASE) {
+        var st = CASE.c.steps[CASE.i];
+        return "The student is practising the clinical case \"".concat(CASE.c.title, "\": ").concat(CASE.c.presentation, ". Current step: ").concat(st ? st.q : 'summary', ". Do not give the full teacher answer before they submit; give guiding hints.");
+    }
+    return 'The student is on the ' + VIEW.name + ' page of a general surgery study platform (UMF Cluj, 4th year).';
+}
+function renderTutor() {
+    var p = $('#tutor');
+    p.className = 'open';
+    p.innerHTML = "<div class=\"tut-h\"><b>Ask the tutor</b><button class=\"btn sm\" data-act=\"tutorClose\">\u2715</button></div>\n  <div class=\"tut-q\"><button class=\"btn sm\" data-act=\"tutorAsk\" data-q=\"Give me the 5 key points for what I am looking at.\">5 key points</button><button class=\"btn sm\" data-act=\"tutorAsk\" data-q=\"Quiz me with one short question about this topic, then wait for my answer.\">Quiz me</button><button class=\"btn sm\" data-act=\"tutorAsk\" data-q=\"Give me a mnemonic to remember this.\">Mnemonic</button></div>\n  <div class=\"tut-m\" id=\"tutM\">".concat(TUTOR.msgs.map(function (m) { return "<div class=\"msg ".concat(m.role, "\">").concat(h(m.content), "</div>"); }).join('') || '<p class="muted small">Ask anything about the lecture or question you are on.</p>').concat(TUTOR.busy ? '<div class="msg assistant muted">…</div>' : '', "</div>\n  <form id=\"tutF\" class=\"tut-f\"><input id=\"tutIn\" class=\"inp\" placeholder=\"Your question\u2026\" autocomplete=\"off\"><button class=\"btn primary\">Send</button></form>");
+    var m = $('#tutM');
+    m.scrollTop = m.scrollHeight;
+}
+function tutorAsk(text) {
+    if (!AI || TUTOR.busy || !text)
+        return;
+    TUTOR.open = true;
+    TUTOR.msgs.push({ role: 'user', content: text });
+    TUTOR.busy = true;
+    renderTutor();
+    var sys = 'You are a friendly, encouraging general-surgery tutor for a 4th-year medical student at UMF Iuliu Hatieganu Cluj (exam in English). Be concise (max ~150 words), use bullet points, base yourself on standard surgical teaching. Context: ' + tutorContext();
+    var msgs = [{ role: 'user', content: sys + '\n\nStudent: ' + TUTOR.msgs[0].content }].concat(TUTOR.msgs.slice(1).map(function (m) { return ({ role: m.role, content: m.content }); }));
+    var idx = -1;
+    AI(msgs, { cache: false, onText: function (o) { if (idx < 0) {
+            TUTOR.msgs.push({ role: 'assistant', content: '' });
+            idx = TUTOR.msgs.length - 1;
+            TUTOR.busy = false;
+        } TUTOR.msgs[idx].content = o.text; renderTutor(); } })
+        .then(function (r) { if (idx < 0)
+        TUTOR.msgs.push({ role: 'assistant', content: r.text });
+    else
+        TUTOR.msgs[idx].content = r.text; })
+        .catch(function (e) { TUTOR.msgs.push({ role: 'assistant', content: e && e.code === 'rate_limited' ? 'I need a short break – try again in a minute.' : 'Sorry, I could not answer just now.' }); })
+        .then(function () { TUTOR.busy = false; renderTutor(); });
+}
+/* ---------------- events ---------------- */
+function closest(el, attr) { while (el && el !== document) {
+    if (el.getAttribute && el.getAttribute(attr) != null)
+        return el;
+    el = el.parentNode;
+} return null; }
+document.addEventListener('click', function (ev) {
+    var nav = closest(ev.target, 'data-nav');
+    if (nav) {
+        ev.preventDefault();
+        $('#side').className = '';
+        go(nav.getAttribute('data-nav'));
+        return;
+    }
+    var el = closest(ev.target, 'data-act');
+    if (!el)
+        return;
+    var act = el.getAttribute('data-act'), id = el.getAttribute('data-id');
+    if (el.tagName === 'A' || el.tagName === 'BUTTON')
+        ev.preventDefault();
+    switch (act) {
+        case 'google':
+            googleLogin();
+            break;
+        case 'guest':
+            startGuest();
+            break;
+        case 'logout':
+            logout();
+            break;
+        case 'theme':
+            toggleTheme();
+            break;
+        case 'menu':
+            $('#side').className = $('#side').className === 'open' ? '' : 'open';
+            break;
+        case 'help':
+            go('help');
+            break;
+        case 'nav':
+            go(id);
+            break;
+        case 'openLesson':
+            go('lesson', id);
+            break;
+        case 'openRef':
+            go('lesson', el.getAttribute('data-t'));
+            setTimeout(function () { var s = document.getElementById('sh-' + id); if (s) {
+                s.open = true;
+                s.scrollIntoView();
+            } }, 50);
+            break;
+        case 'startLecture':
+            startLecture(id);
+            break;
+        case 'flashLecture':
+            startFlash(id);
+            break;
+        case 'flashPick':
+            FC = null;
+            go('flash');
+            break;
+        case 'flip':
+            FC.flip = !FC.flip;
+            render();
+            break;
+        case 'fcKnow':
+        case 'fcAgain': {
+            var c = FC.cards[FC.i];
+            S.fc.known = S.fc.known || {};
+            if (act === 'fcKnow')
+                S.fc.known[c.k] = 1;
+            else
+                delete S.fc.known[c.k];
+            S.fc.t = 'fc';
+            S.fc.id = 'fc';
+            FC.i++;
+            FC.flip = false;
+            save(S.fc);
+            render();
+            break;
+        }
+        case 'tick': {
+            var q = Q(RUN.qs[RUN.i]);
+            var l_1 = el.getAttribute('data-l');
+            var a = (RUN.ans[q.id] || []).slice();
+            if (a.indexOf(l_1) >= 0)
+                a = a.filter(function (x) { return x !== l_1; });
+            else if (q.single)
+                a = [l_1];
+            else
+                a.push(l_1);
+            RUN.ans[q.id] = a.sort();
+            render();
+            break;
+        }
+        case 'check': {
+            var q = Q(RUN.qs[RUN.i]);
+            if (!(RUN.ans[q.id] || []).length) {
+                toast('Tick at least one proposition.');
+                break;
+            }
+            RUN.checked[q.id] = true;
+            render();
+            break;
+        }
+        case 'next':
+            RUN.i = Math.min(RUN.qs.length - 1, RUN.i + 1);
+            render();
+            break;
+        case 'prev':
+            RUN.i = Math.max(0, RUN.i - 1);
+            render();
+            break;
+        case 'jump':
+            RUN.i = +el.getAttribute('data-i');
+            render();
+            break;
+        case 'finish':
+            finishRun();
+            break;
+        case 'qhint': {
+            var q = Q(RUN.qs[RUN.i]);
+            tutorAsk('Give me a hint for this question without revealing the answer.');
+            break;
+        }
+        case 'openReview':
+            go('review', id);
+            break;
+        case 'redoWrong': {
+            var a = S.attempts.filter(function (x) { return x.id === id; })[0];
+            var ids = a.items.filter(function (it) { return it.a.length && qScore(Q(it.q), it.a) < 1; }).map(function (it) { return it.q; });
+            startSet({ kind: 'redo', label: 'Redo my mistakes', qs: shuffle(ids), mode: 'practice' });
+            break;
+        }
+        case 'redoTopic': {
+            var last_1 = lastAnswers();
+            var ids = APP.core.questions.filter(function (q) { return q.topic === id && last_1[q.id] && qScore(q, last_1[q.id].a) < 1; }).map(function (q) { return q.id; });
+            startSet({ kind: 'redo', label: 'Redo mistakes: ' + APP.lById[id].title, qs: shuffle(ids), mode: 'practice', topics: [id] });
+            break;
+        }
+        case 'mockAll':
+            document.querySelectorAll('.mockchk').forEach(function (c) { return c.checked = true; });
+            break;
+        case 'mockWeak': {
+            var st_1 = lectureStats();
+            var ord_1 = Object.keys(st_1).filter(function (k) { return st_1[k].total; }).sort(function (a, b) { return (st_1[a].pct == null ? 50 : st_1[a].pct) - (st_1[b].pct == null ? 50 : st_1[b].pct); }).slice(0, 4);
+            document.querySelectorAll('.mockchk').forEach(function (c) { return c.checked = ord_1.indexOf(c.value) >= 0; });
+            break;
+        }
+        case 'mockStart': {
+            var t_1 = [];
+            document.querySelectorAll('.mockchk').forEach(function (c) { if (c.checked)
+                t_1.push(c.value); });
+            startMock(t_1);
+            break;
+        }
+        case 'finalStart':
+            startFinal();
+            break;
+        case 'paper': {
+            var P = papers()[id];
+            startSet({ kind: 'paper', label: id, qs: P.slice(), mode: el.getAttribute('data-m') });
+            break;
+        }
+        case 'openCase':
+            startCase(id);
+            break;
+        case 'caseJump':
+            saveCaseText();
+            CASE.i = +el.getAttribute('data-i');
+            render();
+            break;
+        case 'casePrev':
+            saveCaseText();
+            CASE.i = Math.max(0, CASE.i - 1);
+            render();
+            break;
+        case 'caseNext':
+            saveCaseText();
+            CASE.i++;
+            render();
+            break;
+        case 'caseHint':
+            saveCaseText();
+            CASE.hints[CASE.i] = Math.min(2, (CASE.hints[CASE.i] || 0) + 1);
+            render();
+            break;
+        case 'caseJudge':
+            judge();
+            break;
+        case 'caseShow':
+            saveCaseText();
+            CASE.shown[CASE.i] = true;
+            render();
+            break;
+        case 'selfScore': {
+            var s = +el.getAttribute('data-s');
+            var hc = CASE.hints[CASE.i] || 0;
+            CASE.results[CASE.i] = { score: Math.max(0, s - hc * 0.5), raw: s, hintCost: 0, good: [], missing: [], wrong: [], feedback: 'Self-assessment saved – comparing with the teacher\'s answer is a great way to learn.', followup: '' };
+            render();
+            break;
+        }
+        case 'dictate':
+            dictate(el);
+            break;
+        case 'tutorOpen':
+            TUTOR.open = !TUTOR.open;
+            if (TUTOR.open)
+                renderTutor();
+            else
+                $('#tutor').className = '';
+            break;
+        case 'tutorClose':
+            TUTOR.open = false;
+            $('#tutor').className = '';
+            break;
+        case 'tutorAsk':
+            tutorAsk(el.getAttribute('data-q'));
+            break;
+    }
+});
+function saveCaseText() { var ta = $('#caseAns'); if (ta && CASE)
+    CASE.answers[CASE.i] = ta.value; }
+document.addEventListener('change', function (ev) {
+    if (ev.target && ev.target.getAttribute('data-change') === 'examDate') {
+        S.meta = S.meta || {};
+        S.meta.t = 'meta';
+        S.meta.id = 'meta';
+        S.meta.examDate = ev.target.value;
+        save(S.meta);
+        render();
+    }
+});
+document.addEventListener('submit', function (ev) { if (ev.target.id === 'tutF') {
+    ev.preventDefault();
+    var v = $('#tutIn').value.trim();
+    if (v)
+        tutorAsk(v);
+} });
+var dictOn = false;
+function dictate(btn) {
+    if (!DICT)
+        return;
+    if (dictOn) {
+        DICT.stop().catch(function () { });
+        return;
+    }
+    var p = DICT.start();
+    if (p && p.catch)
+        p.catch(function (e) { dictOn = false; if (e && e.code === 'not_granted') {
+            DICT = null;
+            render();
+        }
+        else
+            toast('Dictation is not available right now.'); });
+    if (!dictate._wired) {
+        dictate._wired = true;
+        DICT.onFinal(function (o) { var ta = $('#caseAns'); if (ta) {
+            ta.value = (ta.value ? ta.value + ' ' : '') + o.text;
+            if (CASE)
+                CASE.answers[CASE.i] = ta.value;
+        } });
+        DICT.onState(function (o) { dictOn = o.state === 'listening'; var b = $('#micBtn'); if (b)
+            b.textContent = dictOn ? '■ Stop' : '🎤 Dictate'; });
+    }
+}
+window.addEventListener('hashchange', function () { var n = location.hash.slice(1); if (n !== VIEW.name && NAV.some(function (x) { return x[0] === n; }))
+    go(n); });
+if (document.readyState === 'loading')
+    document.addEventListener('DOMContentLoaded', boot);
+else
+    boot();
+</script>
+</body>
+</html>

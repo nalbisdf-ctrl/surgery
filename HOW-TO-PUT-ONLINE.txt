@@ -1,0 +1,33 @@
+GENERAL SURGERY STUDY SITE – HOW TO PUT IT ONLINE (about 15 minutes, free)
+
+The site works in GUEST mode straight away. Steps 2–4 add "Continue with Google"
+(progress saved to the Google account, on any device).
+
+1) PUT IT ONLINE (gives you the link to send)
+   - Go to https://app.netlify.com/drop (create a free account if asked).
+   - Drag the whole "surgery-webapp" folder onto the page.
+   - You get a link like https://something.netlify.app  → rename it in
+     Site configuration → Change site name (e.g. surgery-study.netlify.app).
+   - Open it: "Continue as guest" already works.
+
+2) CREATE THE GOOGLE LOGIN (Firebase, free)
+   - Go to https://console.firebase.google.com → Add project → any name → (Analytics off) → Create.
+   - Build → Authentication → Get started → Sign-in method → Google → Enable → Save.
+   - Authentication → Settings → Authorized domains → Add domain →
+     paste your Netlify domain (e.g. surgery-study.netlify.app).
+   - Build → Firestore Database → Create database → Production mode → choose europe-west → Enable.
+   - Firestore → Rules tab → paste the content of "firestore.rules" → Publish.
+
+3) CONNECT THE SITE TO FIREBASE
+   - Project settings (gear icon) → General → "Your apps" → Web (</>) → register app (no hosting).
+   - Copy the values apiKey, authDomain, projectId, appId into "firebase-config.js"
+     (replace the PASTE_... texts, keep the quotes).
+
+4) RE-UPLOAD
+   - Netlify → your site → Deploys → drag the folder again.
+   - Done: "Continue with Google" now saves progress.
+
+Notes
+ - The AI jury and the "Ask the tutor" chat only exist in the Claude version (they need Claude).
+   In this web app, clinical cases are self-assessed against the teacher's answer.
+ - Works on older iPads (code is compiled for old Safari). Google sign-in uses a redirect on iPad.
