@@ -48,6 +48,9 @@ a{color:var(--pri)}h1{font-size:24px;margin:0 0 4px}h2{font-size:19px}h3{font-si
 .course figure{margin:12px 0;text-align:center}.course figure img{max-width:100%;height:auto;border-radius:8px;border:1px solid var(--line);background:#fff}.course .cap{font-size:13px;color:var(--muted);text-align:center;margin-top:-4px}
 .course table{border-collapse:collapse;width:100%;margin:10px 0;font-size:14px;display:block;overflow-x:auto}.course td,.course th{border:1px solid var(--line);padding:5px 7px;vertical-align:top}.course tr:first-child td{background:var(--pri2);font-weight:600}
 h2.ch{margin:0 0 4px;font-size:21px}details.pm{margin-top:8px}details.pm>summary{font-weight:600;color:var(--pri);cursor:pointer}
+.parts{display:flex;flex-wrap:wrap}.chip{display:inline-block;padding:6px 12px;margin:3px;border:1px solid var(--line);border-radius:20px;text-decoration:none;color:var(--ink);font-size:14px}.chip.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+.slide{border-top:1px solid var(--line);padding:10px 0}.slide h3{font-size:16px;margin:4px 0}.sn{color:var(--muted);font-size:12px;font-weight:400}ul.sl{margin:4px 0 6px 18px;padding:0}ul.sl li{margin:2px 0}ul.sl li.l1{margin-left:16px}ul.sl li.l2{margin-left:32px}ul.sl li.l3{margin-left:48px}.note{background:var(--bg);border-left:3px solid var(--pri2);padding:6px 10px;font-size:13.5px}
+.card.soon{opacity:.55}.nav-a.subj{border:1px dashed var(--line);margin-bottom:8px}
 .svgwrap{overflow-x:auto;margin:6px 0}.svgwrap svg{width:100%;min-width:560px;height:auto;display:block}
 .mm-root{fill:var(--pri)}.mm-root-t{fill:#fff;font-weight:700;font-size:15px}.mm-edge,.edge{stroke:var(--muted);stroke-width:1.5;fill:none}.mm-node{stroke:var(--line)}.c0{fill:var(--c0)}.c1{fill:var(--c1)}.c2{fill:var(--c2)}.c3{fill:var(--c3)}.c4{fill:var(--c4)}.c5{fill:var(--c5)}
 .mm-node-t{fill:var(--ink);font-weight:600;font-size:13px}.mm-leaf{fill:var(--card);stroke:var(--line)}.mm-leaf-t{fill:var(--ink);font-size:12.5px}
@@ -93,7 +96,7 @@ h2.ch{margin:0 0 4px;font-size:21px}details.pm{margin-top:8px}details.pm>summary
 <div id="shell" class="hidden">
   <aside id="side"><div class="brand">✚ General <span>Surgery</span></div><nav id="nav"></nav></aside>
   <div style="-webkit-box-flex:1;-webkit-flex:1;flex:1;min-width:0">
-    <div id="top"><button class="btn sm" data-act="menu">☰ Menu</button> <b>General Surgery</b></div>
+    <div id="top"><button class="btn sm" data-act="menu">☰ Menu</button> <b id="topTitle">General Surgery</b></div>
     <main id="main"><div class="card">Loading…</div></main>
   </div>
 </div>
@@ -171,8 +174,9 @@ function mindMap(lecture, paths) {
 /* ---------- Pathology mind map: centre + 6 branches (auto from the sheet) ---------- */
 function short(t, n) { t = String(t).replace(/\s*\([^)]{25,}\)/g, ''); return t.length > n ? t.slice(0, n - 1).replace(/\s+\S*$/, '') + '…' : t; }
 function pathMap(p) {
-    var br = [['Signs & symptoms', p.sx, 0], ['Examination', p.ex, 1], ['Investigations', (p.lab || []).concat(p.img || []), 2],
-        ['Treatment', p.tx, 3], ['Complications', p.cx, 4], ['Key facts', p.oth, 5]].filter(function (b) { return b[1] && b[1].length; });
+    var R = typeof APP !== 'undefined' && APP.subj === 'radiology';
+    var br = [[R ? 'Key points' : 'Signs & symptoms', p.sx, 0], [R ? 'Conventional radiology' : 'Examination', p.ex, 1], [R ? 'US / CT / MRI' : 'Investigations', (p.lab || []).concat(p.img || []), 2],
+        [R ? 'Method of choice' : 'Treatment', p.tx, 3], [R ? 'Pitfalls & DD' : 'Complications', p.cx, 4], ['Key facts', p.oth, 5]].filter(function (b) { return b[1] && b[1].length; });
     var left = br.filter(function (_, i) { return i % 2 === 0; }), right = br.filter(function (_, i) { return i % 2 === 1; });
     var W = 900, BW = 300, LH = 15;
     function col(list) { var y = 14; return list.map(function (b) { var items = b[1].slice(0, 6).map(function (t) { return wrapText('• ' + short(t, 110), 44); }); var h = 30 + items.reduce(function (a, l) { return a + l.length * LH + 3; }, 0) + 6; var o = { b: b, items: items, y: y, h: h }; y += h + 14; return o; }); }
@@ -265,6 +269,37 @@ function hiatal() {
     return "<svg viewBox=\"0 0 640 360\" class=\"dr\" xmlns=\"".concat(SVGNS, "\"><text x=\"12\" y=\"24\" class=\"dr-title\">Hiatal hernia types (\u25CF = gastro-esophageal junction)</text>").concat(one(40, 'Type I – sliding', true, false)).concat(one(360, 'Type II – rolling (para-esophageal)', false, true), "</svg>");
 }
 var DRAW = {
+    densityScale: function () { return ladder('Five radiographic densities (black → white)', [['Air', 'Transparency – lungs, bowel gas, pneumoperitoneum'], ['Fat', 'Dark grey – subcutaneous, perirenal fat'], ['Water', 'Soft tissue / fluid – muscle, organs, blood'], ['Bone', 'Opacity – calcium, cortex'], ['Metal', 'Strong opacity – contrast (barium, iodine), prostheses']]); },
+    contrastSafety: function () { return flow('Iodinated contrast – safety check', [['Contrast CT / urography requested', 'e'], ['Allergy history? Previous reaction?', 'q', 'Yes → premedication or US/MRI alternative'], ['eGFR?', 'q', '< 30 → contraindicated; 30–50 → relative, hydrate'], ['Metformin, thyroid disease, pregnancy?', 'q', 'Hyperthyroidism → thyrotoxicosis risk'], ['Inject non-ionic low-osmolar contrast + hydration', 'a'], ['Watch for reaction, extravasation, CI-AKI at 48–72 h', 'e']]); },
+    radioprotect: function () { return ladder('Radioprotection', [['Justification', 'Benefit must outweigh risk – right exam for the right indication'], ['Optimisation', 'ALARA: as low as reasonably achievable (kV/mAs, collimation, shielding)'], ['Limitation', 'Dose limits for workers and public'], ['Deterministic', 'Threshold, severity ∝ dose (burns, cataract, sterility, acute radiation syndrome)'], ['Stochastic', 'No threshold, probability ∝ dose (cancer, genetic)']]); },
+    xrayGeometry: function () { return ladder('Image geometry in radiography', [['Object–film', 'SMALL distance → sharp image, almost true size'], ['Far from film', 'Magnified (larger) + blurred edges'], ['Focus–film', 'Long distance → less magnification'], ['Focal spot', 'Small → less penumbra (sharper)'], ['Beam', 'Conic (divergent) → magnification at the periphery']]); },
+    huScale: function () { return ladder('CT densities (Hounsfield units)', [['−1000', 'Air'], ['−100', 'Fat (darker than water)'], ['0', 'Water; simple cyst 0–20'], ['+30…+60', 'Soft tissue; fresh blood +50…+80'], ['+400…+1000', 'Bone; calcium, contrast, metal higher']]); },
+    mriSignal: function () { return ladder('MRI signal cheat-sheet', [['T1 bright', 'Fat, subacute blood (methaemoglobin), melanin, gadolinium, protein'], ['T1 dark', 'Fluid, oedema, cortical bone, calcification, tendons, air'], ['T2 bright', 'Fluid, oedema, cysts, most tumours, inflammation'], ['T2 dark', 'Cortex, calcification, fibrosis, haemosiderin, air, fast flow'], ['Source', 'Radiofrequency signal emitted by protons after RF excitation']]); },
+    ctPhases: function () { return ladder('Contrast CT phases', [['Native', 'Calcifications, haemorrhage, fat, baseline density'], ['Arterial 25–35 s', 'Hypervascular lesions (HCC, FNH), arteries; corticomedullary kidney'], ['Portal 45–70 s', 'Liver parenchyma brightest; hypovascular metastases'], ['Nephrographic 90–100 s', 'Homogeneous kidney – renal masses'], ['Excretory 5–10 min', 'Collecting system, ureters, bladder']]); },
+    usEcho: function () { return ladder('Ultrasound vocabulary', [['Anechoic', 'Fluid – black, posterior acoustic enhancement ("transsonic")'], ['Hypoechoic', 'Darker than reference – lymph node, many tumours, acute hepatitis'], ['Isoechoic', 'Same as reference'], ['Hyperechoic', 'Bright – fat, fibrosis, haemangioma; stone/calcium with shadow'], ['Doppler', 'Frequency shift of echoes → flow; power Doppler shows lumen without contrast']]); },
+    nuclearTracers: function () { return ladder('Nuclear medicine – tracers', [['Tc-99m', 'T½ 6 h, 140 keV, pure gamma'], ['Bone scan', 'Tc-99m MDP – images 2–4 h; metastases, occult fractures'], ['Dynamic renal', 'Tc-99m DTPA / MAG3 – split function, obstruction (diuretic)'], ['Static renal', 'Tc-99m DMSA – cortical scars (UTI)'], ['Lung perfusion', 'Tc-99m MAA – pulmonary embolism (V/Q)'], ['PET', 'F-18 FDG – oncology; hybrid PET/CT']]); },
+    periosteal: function () { return ladder('Periosteal reaction', [['Solid', 'Thick, continuous – benign, slow'], ['Lamellated', '"Onion skin" – aggressive (Ewing, osteomyelitis)'], ['Spiculated', '"Sunburst" – aggressive (osteosarcoma, Ewing)'], ['Codman', 'Triangle of elevated periosteum – very aggressive (osteosarcoma)']]); },
+    boneDensity: function () { return ladder('Bone structure changes', [['Osteoporosis', 'Less MINERAL, normal matrix: transparency, thin cortex'], ['Osteomalacia', 'Defective mineralisation: Looser zones'], ['Osteolysis', 'Matrix destroyed: geographic → moth-eaten → permeative'], ['Osteosclerosis', 'More density: snowball (localised) or ivory (diffuse)'], ['Hyper/hypostosis', 'Thicker / thinner bone (size, not density)']]); },
+    callus: function () { return ladder('Fracture callus', [['0–7 days', 'Fibrino-proteic – invisible'], ['7–16 days', 'Provisional fibrous – invisible'], ['From day 16', 'Raw (woven) bone – visible after 20–60 days, cloudy'], ['6–12 months', 'Definitive callus – normal bone structure (remodelling)']]); },
+    ddh: function () { return ladder('Newborn hip dysplasia – US advantages', [['Safe', 'Non-invasive, non-ionising'], ['Repeatable', 'Screening and follow-up'], ['Cartilage', 'Direct view of non-ossified femoral head'], ['Accurate', 'Sensitivity ≈ 100 %; WHO first exam'], ['Limit', 'Operator dependent']]); },
+    osteoVsSyn: function () { return ladder('Osteophyte vs syndesmophyte', [['Origin', 'Vertebral surface vs vertebral corner'], ['Direction', 'Horizontal (perpendicular) vs vertical (parallel)'], ['Thickness', 'Thick "parrot beak" vs thin, linear'], ['Fusion', 'No vs yes (bamboo spine)'], ['Symmetry', 'Asymmetric vs symmetric'], ['Disease', 'Osteoarthritis vs ankylosing spondylitis']]); },
+    raStages: function () { return ladder('Rheumatoid arthritis – radiological stages', [['I', 'Soft tissue swelling, periarticular osteopenia, widened joint (effusion)'], ['II', 'I + subchondral (marginal) erosions, joint space narrowing'], ['III', 'II + bone destruction, subluxations, pencil-in-cup'], ['IV', 'III + ankylosis']]); },
+    boneTumourTable: function () { return ladder('Benign vs malignant bone lesion (X-ray)', [['Number', 'Single vs single/multiple'], ['Margins', 'Sharp sclerotic vs blurred, wide transition'], ['Size', '< 6 cm vs > 6 cm'], ['Structure', 'Homogeneous/trabeculated vs anarchic'], ['Cortex', 'Intact/expanded vs destroyed'], ['Periosteum', 'None/solid vs lamellated, spiculated, Codman']]); },
+    ageLocation: function () { return ladder('Bone tumours – age & location', [['Epiphysis', 'Chondroblastoma (young), giant cell tumour (after physis closure), geode'], ['Metaphysis', 'Osteosarcoma, osteochondroma, NOF, SBC, ABC, osteomyelitis'], ['Diaphysis', 'Ewing, fibrous dysplasia, osteoid osteoma, myeloma'], ['< 30 years', 'Osteosarcoma, Ewing, benign cartilage/fibrous lesions'], ['> 30 years', 'Metastases, myeloma, lymphoma, chondrosarcoma']]); },
+    osteomyelitis: function () { return flow('Osteomyelitis – imaging course', [['Suspected osteomyelitis', 'e'], ['X-ray (normal first 10–14 days)', 'a', 'Then osteolysis + periosteal reaction'], ['Persistent suspicion → MRI', 'a', 'Best early: T1 hypo, T2 hyper, abscess'], ['Chronic phase', 'q', 'Sequestrum, involucrum, cloaca'], ['CT for sequestrum & fistula', 'e']]); },
+    bosniak: function () { return ladder('Bosniak classification (renal cysts, CT)', [['I', 'Simple: water density, thin wall, no septa/Ca/enhancement – benign'], ['II', 'Few thin septa, fine Ca, hyperdense < 3 cm – benign'], ['IIF', 'More septa, thick Ca – follow-up'], ['III', 'Thick irregular wall/septa with enhancement – ~50 % malignant, surgery'], ['IV', 'Enhancing soft-tissue component – malignant']]); },
+    kidneySize: function () { return ladder('Kidney size syndromes', [['Small uni', 'Chronic pyelonephritis (scars), renal artery stenosis, hypoplasia, TB'], ['Small bilat', 'Nephrosclerosis, chronic glomerulonephritis, chronic stasis'], ['Large uni', 'Obstruction (colic, hydronephrosis), acute pyelonephritis, abscess, renal vein thrombosis, tumour, compensatory hypertrophy'], ['Large bilat', 'ADPKD, ATN, acute GN, diabetes, amyloid, lymphoma, bilateral obstruction']]); },
+    ctPhasesKidney: function () { return ladder('Kidney on contrast CT', [['Native', 'Cortex = medulla; stones, Ca, fat'], ['Corticomedullary', '25–40 s: cortex bright, medulla dark (SEPARATE)'], ['Nephrographic', '90–100 s: homogeneous – best for masses'], ['Excretory', '5–10 min: calyces, pelvis, ureters (CT urography)']]); },
+    stoneAlgo: function () { return flow('Suspected renal colic', [['Flank pain + haematuria', 'e'], ['US (children, pregnancy) – hydronephrosis, stone', 'a'], ['Native low-dose CT = most sensitive', 'a', 'Size, site, density'], ['Complicated (fever, single kidney)?', 'q', 'Urgent drainage'], ['KUB for follow-up of opaque stones', 'e']]); },
+    adrenalAlgo: function () { return flow('Adrenal mass', [['Adrenal mass (US / CT)', 'e'], ['Macroscopic fat (negative HU)?', 'q', 'Yes → myelolipoma'], ['Native CT < 10 HU?', 'q', 'Yes → lipid-rich adenoma'], ['Contrast wash-out > 60 % / MRI signal drop?', 'q', 'Yes → adenoma'], ['Bilateral, known cancer?', 'q', 'Metastases'], ['Hormonal work-up (phaeo), MIBG; biopsy or resection', 'e']]); },
+    iota: function () { return ladder('IOTA simple rules – ovarian mass', [['M1–M5', 'Irregular solid tumour · ascites · ≥ 4 papillary projections · irregular multilocular-solid ≥ 10 cm · colour score 4'], ['B1–B5', 'Unilocular · solid < 7 mm · acoustic shadow · smooth multilocular < 10 cm · colour score 1'], ['Result', 'Any M without B → malignant; any B without M → benign; both/none → MRI or expert']]); },
+    endometrium: function () { return ladder('Endometrium on transvaginal US', [['Early prolif.', 'Thin, linear, echogenic'], ['Late prolif.', 'Thick trilaminar: clear – dark – clear'], ['Secretory', 'Thick, hyperechoic, homogeneous'], ['Menopause', '≤ 4 mm; bleeding + > 4 mm → biopsy']]); },
+    figo: function () { return ladder('FIGO – endometrial & cervical cancer (MRI)', [['Endo IA / IB', 'Myometrial invasion < 50 % / ≥ 50 %'], ['Endo II–IV', 'II cervical stroma; III serosa, adnexa, nodes; IVA bladder/rectal mucosa'], ['Cervix I', 'Confined: IA ≤ 5 mm; IB1 ≤ 2 cm, IB2 2–4 cm, IB3 > 4 cm'], ['Cervix II', 'IIA upper 2/3 vagina; IIB parametrium'], ['Cervix III–IV', 'Lower 1/3 vagina, sidewall, hydronephrosis; IVA bladder/rectum']]); },
+    birads: function () { return ladder('BI-RADS', [['0', 'Incomplete – additional imaging'], ['1–2', 'Negative / benign'], ['3', 'Probably benign (< 2 %) – follow-up at 6 months'], ['4', 'Suspicious – biopsy'], ['5', 'Highly suggestive (≥ 95 %) – biopsy'], ['6', 'Proven malignancy']]); },
+    breastMethods: function () { return ladder('Breast – which method?', [['Mammography', 'Screening ≥ 40–50 y, follow-up after treatment, microcalcifications'], ['Ultrasound', '< 30 y, pregnancy, dense breast, lump, cyst vs solid, biopsy guidance'], ['MRI', 'High risk (BRCA), implants, extent, occult primary, chemo response'], ['Limits mammo', 'Dense breast (masking), augmented breast (compression, implant)']]); },
+    liverLesionsR: function () { return ladder('Focal liver lesions – CT/MRI pattern', [['Cyst', 'Anechoic; 0–20 HU; T1 black, T2 bright; no enhancement'], ['Haemangioma', 'Hyperechoic; peripheral nodular enhancement, centripetal fill-in'], ['FNH', 'Arterial blush, central scar, iso in portal phase'], ['HCC', 'Cirrhosis; arterial wash-in + portal wash-out'], ['Metastases', 'Multiple, hypovascular in portal phase, may be cystic – most frequent malignancy in non-cirrhotic liver']]); },
+    biliaryNormal: function () { return ladder('Normal biliary measurements', [['Intrahepatic', '< 2 mm, thinner than portal branch'], ['CBD', '≤ 6–7 mm (larger after cholecystectomy / age)'], ['GB wall', '≤ 3–4 mm'], ['GB size', 'Transverse up to ~4 cm'], ['Stones', 'US: hyperechoic, mobile, posterior shadow; CT: only calcified']]); },
+    achalasiaVsCancer: function () { return ladder('Barium: benign vs malignant', [['Achalasia', 'Megaoesophagus, air-fluid level, no gastric bubble, short tapered bird\'s beak'], ['Benign stricture', 'Axial, smooth, progressive tapering'], ['Malignant stricture', 'Eccentric, irregular, abrupt shoulders, filling defects'], ['Benign ulcer', 'Addition image beyond wall, Hampton line, converging folds'], ['Cancer', 'Subtraction image (filling defect), apple core']]); },
     savary: function () { return ladder('Savary-Miller – reflux esophagitis', [['I', 'Isolated, non-confluent erythema / erosions'], ['II', 'Confluent but NOT circumferential erosions'], ['III', 'Circumferential erosions'], ['IV', 'Complications: ulcer, stricture, short esophagus'], ['V', 'Barrett epithelium (intestinal metaplasia)']]); },
     losAngeles: function () { return ladder('Los Angeles classification – erosive esophagitis', [['A', 'Mucosal breaks ≤ 5 mm, not between fold tops'], ['B', 'Breaks > 5 mm, not continuous between folds'], ['C', 'Continuous between ≥ 2 folds, < 75% circumference'], ['D', '≥ 75% of the circumference']]); },
     causticGrades: function () { return ladder('Zargar – endoscopic grading of caustic injury', [['0', 'Normal mucosa'], ['1', 'Oedema, hyperaemia'], ['2a', 'Friable, erosions, blisters, superficial ulcers'], ['2b', '2a + deep or circumferential ulceration → stenosis risk'], ['3a', 'Focal necrosis'], ['3b', 'Extensive necrosis → perforation risk, surgery']]); },
@@ -425,7 +460,7 @@ function qScore(q, ticks) {
         return 1;
     if (q.single)
         return 0;
-    return m.n === 1 ? 0.5 : 0;
+    return m.n === 1 ? 0.8 : m.n === 2 ? 0.4 : 0;
 }
 function attemptPct(a) {
     var items = a.items.filter(function (it) { return it.a && it.a.length; });
@@ -487,8 +522,9 @@ function firebaseStore(fb, user) {
 }
 function loadState() {
     return STORE.list().then(function (docs) {
-        S.attempts = docs.filter(function (d) { return d.t === 'attempt'; }).sort(function (a, b) { return a.date - b.date; });
-        S.jury = docs.filter(function (d) { return d.t === 'jury'; }).sort(function (a, b) { return a.date - b.date; });
+        S.allAttempts = docs.filter(function (d) { return d.t === 'attempt'; }).sort(function (a, b) { return a.date - b.date; });
+        S.allJury = docs.filter(function (d) { return d.t === 'jury'; }).sort(function (a, b) { return a.date - b.date; });
+        applySubject();
         S.meta = docs.filter(function (d) { return d.t === 'meta'; })[0] || { t: 'meta', id: 'meta' };
         S.fc = docs.filter(function (d) { return d.t === 'fc'; })[0] || { t: 'fc', id: 'fc', known: {} };
     }).catch(function (e) { console.warn(e); toast('Could not load your saved progress – working offline for now.'); });
@@ -500,11 +536,26 @@ function save(doc) {
 }
 /* ---------------- boot ---------------- */
 function isClaude() { return !!(window.claude && typeof window.claude.use === 'function'); }
-function boot() {
-    applyTheme();
-    Promise.all([getJSON('data/core.json')]).then(function (r) {
-        APP.core = r[0];
+var MODULES = [
+    { id: 'm1', title: 'Orthopaedics – Radiology – Nephrology – Urology', subjects: [['radiology', 'Radiology', 'R'], ['ortho', 'Orthopaedics & traumatology', 'O'], ['nephro', 'Nephrology', 'N'], ['uro', 'Urology', 'U']] },
+    { id: 'm0', title: 'General surgery module', subjects: [['surgery', 'General Surgery', '✚']] }
+];
+var SUBJ = { surgery: { title: 'General Surgery', base: 'data/', book: 'Surgery for Students' }, radiology: { title: 'Radiology', base: 'data/radiology/', book: 'Radiology for Medical Students, vol. I (S. Dudea)' } };
+function getSubj() { try {
+    var v = localStorage.getItem('subj');
+    return SUBJ[v] ? v : 'surgery';
+}
+catch (e) {
+    return 'surgery';
+} }
+function loadCore(id) {
+    return getJSON(SUBJ[id].base + 'core.json').then(function (core) {
+        APP.subj = id;
+        APP.core = core;
         APP.summary = [];
+        APP.topic = {};
+        if (!APP.core.cards)
+            APP.core.cards = [];
         APP.qById = {};
         APP.core.questions.forEach(function (q) { APP.qById[q.id] = q; });
         APP.pById = {};
@@ -514,6 +565,35 @@ function boot() {
         APP.oldFreq = {};
         APP.core.questions.forEach(function (q) { if (q.src === 'old')
             APP.oldFreq[q.topic] = (APP.oldFreq[q.topic] || 0) + 1 + (q.also ? q.also.length : 0); });
+        try {
+            localStorage.setItem('subj', id);
+        }
+        catch (e) { }
+    });
+}
+function subjOf(d) { return d.subj || 'surgery'; }
+function applySubject() {
+    if (!S.allAttempts)
+        S.allAttempts = S.attempts || [];
+    if (!S.allJury)
+        S.allJury = S.jury || [];
+    S.attempts = S.allAttempts.filter(function (a) { return subjOf(a) === APP.subj; });
+    S.jury = S.allJury.filter(function (j) { return subjOf(j) === APP.subj; });
+}
+function switchSubject(id) {
+    if (!SUBJ[id]) {
+        toast('This subject is being prepared – send the documents to add it.');
+        return;
+    }
+    $('#main').innerHTML = '<div class="card"><p class="muted">Loading ' + h(SUBJ[id].title) + '…</p></div>';
+    loadCore(id).then(function () { applySubject(); FC = null; LTAB = 'overview'; ADM.data = null; renderShell(); go('dash'); }).catch(function () { return toast('Could not load this subject – check your connection.'); });
+}
+function vModules() {
+    return "<div class=\"page-h\"><h1>Modules & subjects</h1><p class=\"muted\">Pick the subject you want to study. Progress is saved separately for each subject.</p></div>\n  ".concat(MODULES.map(function (m) { return "<div class=\"card\"><h3>".concat(h(m.title), "</h3><div class=\"cards\">").concat(m.subjects.map(function (x) { return "<a href=\"#\" class=\"card lc".concat(SUBJ[x[0]] ? '' : ' soon', "\" data-act=\"subject\" data-id=\"").concat(x[0], "\"><span class=\"lic\">").concat(h(x[2]), "</span><b>").concat(h(x[1]), "</b><span class=\"muted small\">").concat(SUBJ[x[0]] ? (x[0] === APP.subj ? 'Current subject' : 'Open') : 'Coming soon', "</span></a>"); }).join(''), "</div></div>"); }).join(''));
+}
+function boot() {
+    applyTheme();
+    loadCore(getSubj()).catch(function () { return loadCore('surgery'); }).then(function () {
         var waited = 0;
         var decide = function () {
             if (isClaude())
@@ -586,7 +666,7 @@ function bootWeb() {
 function showLogin() {
     $('#shell').className = 'hidden';
     $('#login').className = '';
-    $('#login').innerHTML = "<div class=\"login-card\">\n    <div class=\"logo\">\u271A</div><h1>General Surgery</h1><p class=\"muted\">Lessons \u00B7 MCQs from old exams \u00B7 OSCE clinical cases</p>\n    ".concat(APP.fbReady ? "<form id=\"emailF\" class=\"left\">\n      <div class=\"tabs2\"><a href=\"#\" class=\"".concat(LOGIN_MODE === 'in' ? 'on' : '', "\" data-act=\"lmode\" data-id=\"in\">Sign in</a><a href=\"#\" class=\"").concat(LOGIN_MODE === 'up' ? 'on' : '', "\" data-act=\"lmode\" data-id=\"up\">Create account</a></div>\n      <input id=\"lEmail\" class=\"inp\" type=\"email\" placeholder=\"E-mail\" autocomplete=\"email\" autocapitalize=\"off\" required>\n      ").concat(LOGIN_MODE !== 'reset' ? "<input id=\"lPass\" class=\"inp\" type=\"password\" placeholder=\"Password".concat(LOGIN_MODE === 'up' ? ' (min. 6 characters)' : '', "\" autocomplete=\"").concat(LOGIN_MODE === 'up' ? 'new-password' : 'current-password', "\" required>") : '', "\n      ").concat(LOGIN_MODE === 'up' ? '<input id="lPass2" class="inp" type="password" placeholder="Repeat password" autocomplete="new-password" required>' : '', "\n      <div id=\"lErr\" class=\"small lerr\"></div>\n      <button class=\"btn primary wide\" type=\"submit\">").concat(LOGIN_MODE === 'up' ? 'Create my account' : LOGIN_MODE === 'reset' ? 'Send reset e-mail' : 'Sign in', "</button>\n      <p class=\"small center\">").concat(LOGIN_MODE === 'reset' ? '<a href="#" data-act="lmode" data-id="in">Back to sign in</a>' : '<a href="#" data-act="lmode" data-id="reset">Forgot password?</a>', "</p></form>\n    <p class=\"small muted\">Your progress, grades and mistakes are saved to your account and follow you on every device. The site creator can see your progress and results to help the group.</p>\n    <div class=\"or\"><span>or</span></div>\n    <button class=\"btn wide\" data-act=\"google\">Continue with Google</button>") : '<p class="small muted">Accounts are not configured yet on this copy of the site.</p>', "\n    <div class=\"or\"><span>or</span></div>\n    <button class=\"btn wide\" data-act=\"guest\">Continue as guest</button>\n    <p class=\"small muted\">Guest mode: everything works, but nothing is saved when you close the page.</p></div>");
+    $('#login').innerHTML = "<div class=\"login-card\">\n    <div class=\"logo\">\u271A</div><h1>Medical Study Platform</h1><p class=\"muted\">General Surgery \u00B7 Radiology \u00B7 lessons, MCQs from old exams, flashcards, clinical cases</p>\n    ".concat(APP.fbReady ? "<form id=\"emailF\" class=\"left\">\n      <div class=\"tabs2\"><a href=\"#\" class=\"".concat(LOGIN_MODE === 'in' ? 'on' : '', "\" data-act=\"lmode\" data-id=\"in\">Sign in</a><a href=\"#\" class=\"").concat(LOGIN_MODE === 'up' ? 'on' : '', "\" data-act=\"lmode\" data-id=\"up\">Create account</a></div>\n      <input id=\"lEmail\" class=\"inp\" type=\"email\" placeholder=\"E-mail\" autocomplete=\"email\" autocapitalize=\"off\" required>\n      ").concat(LOGIN_MODE !== 'reset' ? "<input id=\"lPass\" class=\"inp\" type=\"password\" placeholder=\"Password".concat(LOGIN_MODE === 'up' ? ' (min. 6 characters)' : '', "\" autocomplete=\"").concat(LOGIN_MODE === 'up' ? 'new-password' : 'current-password', "\" required>") : '', "\n      ").concat(LOGIN_MODE === 'up' ? '<input id="lPass2" class="inp" type="password" placeholder="Repeat password" autocomplete="new-password" required>' : '', "\n      <div id=\"lErr\" class=\"small lerr\"></div>\n      <button class=\"btn primary wide\" type=\"submit\">").concat(LOGIN_MODE === 'up' ? 'Create my account' : LOGIN_MODE === 'reset' ? 'Send reset e-mail' : 'Sign in', "</button>\n      <p class=\"small center\">").concat(LOGIN_MODE === 'reset' ? '<a href="#" data-act="lmode" data-id="in">Back to sign in</a>' : '<a href="#" data-act="lmode" data-id="reset">Forgot password?</a>', "</p></form>\n    <p class=\"small muted\">Your progress, grades and mistakes are saved to your account and follow you on every device. The site creator can see your progress and results to help the group.</p>\n    <div class=\"or\"><span>or</span></div>\n    <button class=\"btn wide\" data-act=\"google\">Continue with Google</button>") : '<p class="small muted">Accounts are not configured yet on this copy of the site.</p>', "\n    <div class=\"or\"><span>or</span></div>\n    <button class=\"btn wide\" data-act=\"guest\">Continue as guest</button>\n    <p class=\"small muted\">Guest mode: everything works, but nothing is saved when you close the page.</p></div>");
 }
 var LOGIN_MODE = 'in';
 var AUTH_ERR = { 'auth/email-already-in-use': 'An account already exists with this e-mail – use "Sign in".', 'auth/invalid-email': 'This e-mail address is not valid.',
@@ -637,6 +717,8 @@ function logout() {
     S.user = null;
     S.attempts = [];
     S.jury = [];
+    S.allAttempts = [];
+    S.allJury = [];
     S.meta = {};
     S.fc = { known: {} };
     showLogin();
@@ -689,8 +771,8 @@ function adminLoad() {
 }
 function withState(docs, fn) {
     var keep = { a: S.attempts, j: S.jury };
-    S.attempts = docs.filter(function (d) { return d.t === 'attempt'; }).sort(function (a, b) { return a.date - b.date; });
-    S.jury = docs.filter(function (d) { return d.t === 'jury'; }).sort(function (a, b) { return a.date - b.date; });
+    S.attempts = docs.filter(function (d) { return d.t === 'attempt' && subjOf(d) === APP.subj; }).sort(function (a, b) { return a.date - b.date; });
+    S.jury = docs.filter(function (d) { return d.t === 'jury' && subjOf(d) === APP.subj; }).sort(function (a, b) { return a.date - b.date; });
     try {
         return fn();
     }
@@ -730,7 +812,7 @@ function vAdmin() {
     var detail = '';
     if (u)
         detail = "<div class=\"card\"><h3>".concat(who(u), "</h3>\n    <table class=\"tbl\"><tr><th>Lecture</th><th>Answered</th><th>Grade</th></tr>").concat(L.filter(function (l) { return u.st[l.id] && u.st[l.id].total; }).map(function (l) { return "<tr><td>".concat(h(l.title), "</td><td>").concat(u.st[l.id].done, "/").concat(u.st[l.id].total, "</td><td>").concat(gradeBadge(u.st[l.id].pct), "</td></tr>"); }).join(''), "</table>\n    <h4>Sets (").concat(u.sets.length, ")</h4>").concat(u.sets.length ? "<table class=\"tbl\"><tr><th>Date</th><th>Set</th><th>Grade</th></tr>".concat(u.sets.slice().reverse().map(function (x) { return "<tr><td>".concat(fmtDate(x.date), "</td><td>").concat(h(x.label), "</td><td>").concat(gradeBadge(x.pct), "</td></tr>"); }).join(''), "</table>") : '<p class="muted">No finished set.</p>', "\n    <h4>Clinical cases (").concat(u.jury.length, ")</h4>").concat(u.jury.length ? "<table class=\"tbl\"><tr><th>Date</th><th>Case</th><th>Grade</th></tr>".concat(u.jury.slice().reverse().map(function (j) { return "<tr><td>".concat(fmtDate(j.date), "</td><td>").concat(h(j.label), "</td><td>").concat(gradeBadge(j.s * 10), " <span class=\"muted small\">").concat(j.s.toFixed(1), "/10</span></td></tr>"); }).join(''), "</table>") : '<p class="muted">No case yet.</p>', "</div>");
-    return "<div class=\"page-h\"><h1>Students \u2013 progress & results</h1><p class=\"muted\">".concat(list.length, " account").concat(list.length === 1 ? '' : 's', " \u00B7 guests are not tracked. <a href=\"#\" data-act=\"admReload\">Refresh</a></p></div>").concat(detail, "\n  <div class=\"card\"><table class=\"tbl\"><tr><th>Student</th><th>Last activity</th><th>MCQs answered</th><th>Average</th><th>Sets</th><th>Cases</th><th>Weakest lectures</th></tr>\n  ").concat(list.map(function (x) { return "<tr><td><a href=\"#\" data-act=\"admSel\" data-id=\"".concat(h(x.uid), "\">").concat(who(x), "</a></td><td>").concat(x.lastSeen ? fmtDate(x.lastSeen) : '–', "</td><td>").concat(x.done, "/").concat(x.total, " <span class=\"muted small\">(").concat(Math.round(100 * x.done / x.total), "%)</span></td><td>").concat(gradeBadge(x.pct), "</td><td>").concat(x.sets.length).concat(x.sets.length ? ' · last ' + gradeBadge(x.sets[x.sets.length - 1].pct) : '', "</td><td>").concat(x.jury.length).concat(x.juryAvg != null ? ' · ' + x.juryAvg.toFixed(1) + '/10' : '', "</td><td class=\"small\">").concat(x.weak.map(function (k) { return h(APP.lById[k] ? APP.lById[k].title : k); }).join(', ') || '–', "</td></tr>"); }).join(''), "</table></div>");
+    return "<div class=\"page-h\"><h1>Students \u2013 progress & results</h1><p class=\"muted\">Subject: <b>".concat(h(SUBJ[APP.subj].title), "</b> (switch subject to see the others) \u00B7 ").concat(list.length, " account").concat(list.length === 1 ? '' : 's', " \u00B7 guests are not tracked. <a href=\"#\" data-act=\"admReload\">Refresh</a></p></div>").concat(detail, "\n  <div class=\"card\"><table class=\"tbl\"><tr><th>Student</th><th>Last activity</th><th>MCQs answered</th><th>Average</th><th>Sets</th><th>Cases</th><th>Weakest lectures</th></tr>\n  ").concat(list.map(function (x) { return "<tr><td><a href=\"#\" data-act=\"admSel\" data-id=\"".concat(h(x.uid), "\">").concat(who(x), "</a></td><td>").concat(x.lastSeen ? fmtDate(x.lastSeen) : '–', "</td><td>").concat(x.done, "/").concat(x.total, " <span class=\"muted small\">(").concat(Math.round(100 * x.done / x.total), "%)</span></td><td>").concat(gradeBadge(x.pct), "</td><td>").concat(x.sets.length).concat(x.sets.length ? ' · last ' + gradeBadge(x.sets[x.sets.length - 1].pct) : '', "</td><td>").concat(x.jury.length).concat(x.juryAvg != null ? ' · ' + x.juryAvg.toFixed(1) + '/10' : '', "</td><td class=\"small\">").concat(x.weak.map(function (k) { return h(APP.lById[k] ? APP.lById[k].title : k); }).join(', ') || '–', "</td></tr>"); }).join(''), "</table></div>");
 }
 /* ---------------- shell & routing ---------------- */
 var NAV = [['dash', 'Dashboard', '◉'], ['lessons', 'Lessons', '▤'], ['gallery', 'Mind maps & drawings', '✎'], ['flash', 'Flashcards', '❏'], ['practice', 'Lecture MCQs', '✓'],
@@ -738,7 +820,15 @@ var NAV = [['dash', 'Dashboard', '◉'], ['lessons', 'Lessons', '▤'], ['galler
 function renderShell() {
     $('#login').className = 'hidden';
     $('#shell').className = '';
-    $('#nav').innerHTML = (isAdmin() ? NAV.concat([['admin', 'Students (admin)', '♛']]) : NAV).map(function (n) { return "<a href=\"#".concat(n[0], "\" class=\"nav-a").concat(VIEW.name === n[0] ? ' on' : '', "\" data-nav=\"").concat(n[0], "\"><span class=\"ni\">").concat(n[2], "</span>").concat(n[1], "</a>"); }).join('') +
+    var ttl = SUBJ[APP.subj].title, parts = ttl.split(' ');
+    $('.brand').innerHTML = (APP.subj === 'surgery' ? '✚ ' : '◎ ') + h(parts.length > 1 ? parts[0] + ' ' : '') + '<span>' + h(parts.length > 1 ? parts.slice(1).join(' ') : parts[0]) + '</span>';
+    if ($('#topTitle'))
+        $('#topTitle').textContent = ttl;
+    try {
+        document.title = ttl + ' – Study Platform';
+    }
+    catch (e) { }
+    $('#nav').innerHTML = "<a href=\"#modules\" class=\"nav-a subj".concat(VIEW.name === 'modules' ? ' on' : '', "\" data-nav=\"modules\"><span class=\"ni\">\u21C4</span>Modules & subjects</a>") + (isAdmin() ? NAV.concat([['admin', 'Students (admin)', '♛']]) : NAV).filter(function (n) { return n[0] !== 'cases' || APP.core.cases.length; }).map(function (n) { return "<a href=\"#".concat(n[0], "\" class=\"nav-a").concat(VIEW.name === n[0] ? ' on' : '', "\" data-nav=\"").concat(n[0], "\"><span class=\"ni\">").concat(n[2], "</span>").concat(n[1], "</a>"); }).join('') +
         "<div class=\"nav-foot\"><div class=\"save-pill ".concat(STORE ? STORE.mode : '', "\">").concat(h(STORE ? STORE.label : ''), "</div>\n    <button class=\"btn sm\" data-act=\"theme\">\u25D0 Light / dark</button>").concat(S.mode === 'web' ? '<button class="btn sm" data-act="logout">' + (S.guest ? 'Exit guest mode' : 'Sign out') + '</button>' : '', "</div>");
     $('#tutorBtn').style.display = AI ? '' : 'none';
 }
@@ -752,7 +842,7 @@ function go(name, arg) { VIEW = { name: name, arg: arg }; if (location.hash !== 
 } render(); }
 function route() {
     var n = (location.hash || '#dash').slice(1);
-    var known = NAV.some(function (x) { return x[0] === n; }) || n === 'run' || n === 'review' || n === 'lesson' || n === 'case' || n === 'help' || (n === 'admin' && isAdmin());
+    var known = NAV.some(function (x) { return x[0] === n; }) || n === 'run' || n === 'review' || n === 'lesson' || n === 'case' || n === 'help' || n === 'modules' || (n === 'admin' && isAdmin());
     VIEW = { name: known && n !== 'run' && n !== 'review' && n !== 'case' && n !== 'lesson' ? n : 'dash', arg: null };
     render();
 }
@@ -761,7 +851,7 @@ function render() {
         return;
     document.querySelectorAll('.nav-a').forEach(function (a) { return a.className = 'nav-a' + (a.getAttribute('data-nav') === VIEW.name ? ' on' : ''); });
     $('#side').className = '';
-    var fn = { dash: vDash, lessons: vLessons, lesson: vLesson, gallery: vGallery, flash: vFlash, practice: vPractice, run: vRun, review: vReview, mock: vMock, final: vFinal, papers: vPapers, cases: vCases, case: vCase, mistakes: vMistakes, help: vHelp, admin: vAdmin }[VIEW.name] || vDash;
+    var fn = { dash: vDash, lessons: vLessons, lesson: vLesson, gallery: vGallery, flash: vFlash, practice: vPractice, run: vRun, review: vReview, mock: vMock, final: vFinal, papers: vPapers, cases: vCases, case: vCase, mistakes: vMistakes, help: vHelp, admin: vAdmin, modules: vModules }[VIEW.name] || vDash;
     $('#main').innerHTML = fn(VIEW.arg);
     $('#main').scrollTop = 0;
     window.scrollTo(0, 0);
@@ -783,10 +873,10 @@ function vDash() {
     var allDone = Object.keys(st).filter(function (k) { return st[k].done; });
     var overall = allDone.length ? allDone.reduce(function (s, k) { return s + st[k].sum; }, 0) / allDone.reduce(function (s, k) { return s + st[k].done; }, 0) * 100 : null;
     var review = L.map(function (l) { var s = st[l.id]; var freq = APP.oldFreq[l.id] || 0; var weak = s.pct == null ? 60 : (100 - s.pct); return { l: l, s: s, prio: freq * (weak + 10) }; }).filter(function (x) { return x.s.total; }).sort(function (a, b) { return b.prio - a.prio; }).slice(0, 5);
-    return "<div class=\"page-h\"><h1>Dashboard</h1><span class=\"save-pill ".concat(STORE.mode, "\">").concat(STORE.mode === 'claude' || STORE.mode === 'firebase' ? '✓ ' : '').concat(h(STORE.label), "</span></div>\n  <div class=\"grid4\">\n    <div class=\"card stat\"><div class=\"k\">Exam</div>").concat(days != null ? "<div class=\"v\">".concat(days >= 0 ? days : 0, "</div><div class=\"muted\">day").concat(days === 1 ? '' : 's', " left \u00B7 ").concat(h(exam), "</div>") : '<div class="muted">Set your exam date</div>', "\n      <input type=\"date\" id=\"examDate\" value=\"").concat(h(exam || ''), "\" data-change=\"examDate\" class=\"inp\"></div>\n    <div class=\"card stat\"><div class=\"k\">Progress</div><div class=\"v\">").concat(Math.round(100 * done / total), "%</div><div class=\"bar\"><i style=\"width:").concat(100 * done / total, "%\"></i></div><div class=\"muted\">").concat(done, " / ").concat(total, " questions tried</div></div>\n    <div class=\"card stat\"><div class=\"k\">Current grade</div><div class=\"v\">").concat(gradeBadge(overall, true), "</div><div class=\"muted\">").concat(overall == null ? 'Answer some questions' : Math.round(overall) + '% · ' + (passed(overall) ? 'on track to pass' : 'keep going – pass mark 45%'), "</div></div>\n    <div class=\"card stat\"><div class=\"k\">Best set</div><div class=\"v\">").concat(best ? gradeBadge(best.pct, true) : '–', "</div><div class=\"muted\">").concat(best ? h(best.a.label) : 'No set finished yet', "</div></div>\n  </div>\n  <div class=\"grid2\">\n    <div class=\"card\"><h3>What to review first</h3><p class=\"muted small\">Lectures the old exams ask most, weighted by how you are doing.</p>\n      ").concat(review.map(function (x) { return "<div class=\"rev-row\"><b>".concat(h(x.l.title), "</b> <span class=\"muted small\">").concat(APP.oldFreq[x.l.id] || 0, " old-exam Qs</span> ").concat(gradeBadge(x.s.pct), "\n      <span class=\"right\"><button class=\"btn sm\" data-act=\"openLesson\" data-id=\"").concat(x.l.id, "\">Lesson</button> <button class=\"btn sm primary\" data-act=\"startLecture\" data-id=\"").concat(x.l.id, "\">MCQs</button></span></div>"); }).join(''), "</div>\n    <div class=\"card\"><h3>Grade per lecture</h3><table class=\"tbl\"><tr><th>Lecture</th><th>Tried</th><th>Grade</th></tr>\n      ").concat(L.filter(function (l) { return st[l.id].total; }).map(function (l) { return "<tr><td><a href=\"#\" data-act=\"openLesson\" data-id=\"".concat(l.id, "\">").concat(h(l.title), "</a></td><td>").concat(st[l.id].done, "/").concat(st[l.id].total, "</td><td>").concat(gradeBadge(st[l.id].pct), "</td></tr>"); }).join(''), "</table></div>\n  </div>\n  <div class=\"grid2\">\n    <div class=\"card\"><h3>My grades</h3>").concat(sets.length ? "<table class=\"tbl\"><tr><th>Date</th><th>Set</th><th>Grade</th><th></th></tr>".concat(sets.slice().reverse().slice(0, 25).map(function (x) { return "<tr><td>".concat(fmtDate(x.a.date), "</td><td><a href=\"#\" data-act=\"openReview\" data-id=\"").concat(x.a.id, "\">").concat(h(x.a.label), "</a></td><td>").concat(gradeBadge(x.pct), "</td><td>").concat(passTag(x.pct), "</td></tr>"); }).join(''), "</table>") : '<p class="muted">Your finished sets will appear here.</p>', "</div>\n    <div class=\"card\"><h3>Clinical cases \u2013 jury</h3>").concat(S.jury.length ? "<table class=\"tbl\"><tr><th>Date</th><th>Case</th><th>Grade</th></tr>".concat(S.jury.slice().reverse().slice(0, 15).map(function (j) { return "<tr><td>".concat(fmtDate(j.date), "</td><td>").concat(h(j.label), "</td><td>").concat(gradeBadge(j.score10 * 10), " <span class=\"muted small\">").concat(j.score10.toFixed(1), "/10</span></td></tr>"); }).join(''), "</table>") : '<p class="muted">Practise a clinical case to see your jury grades here.</p>', "\n    <p class=\"small muted\">Grades: F &lt;45% \u00B7 E 45\u201354 \u00B7 D 55\u201364 \u00B7 C 65\u201374 \u00B7 B 75\u201384 \u00B7 A 85\u201394 \u00B7 A+ \u226595. Pass = E or better. <a href=\"#\" data-act=\"help\">How grading works</a></p></div>\n  </div>");
+    return "<div class=\"page-h\"><h1>Dashboard</h1><span class=\"save-pill ".concat(STORE.mode, "\">").concat(STORE.mode === 'claude' || STORE.mode === 'firebase' ? '✓ ' : '').concat(h(STORE.label), "</span></div>\n  <div class=\"grid4\">\n    <div class=\"card stat\"><div class=\"k\">Exam</div>").concat(days != null ? "<div class=\"v\">".concat(days >= 0 ? days : 0, "</div><div class=\"muted\">day").concat(days === 1 ? '' : 's', " left \u00B7 ").concat(h(exam), "</div>") : '<div class="muted">Set your exam date</div>', "\n      <input type=\"date\" id=\"examDate\" value=\"").concat(h(exam || ''), "\" data-change=\"examDate\" class=\"inp\"></div>\n    <div class=\"card stat\"><div class=\"k\">Progress</div><div class=\"v\">").concat(Math.round(100 * done / total), "%</div><div class=\"bar\"><i style=\"width:").concat(100 * done / total, "%\"></i></div><div class=\"muted\">").concat(done, " / ").concat(total, " questions tried</div></div>\n    <div class=\"card stat\"><div class=\"k\">Current grade</div><div class=\"v\">").concat(gradeBadge(overall, true), "</div><div class=\"muted\">").concat(overall == null ? 'Answer some questions' : Math.round(overall) + '% · ' + (passed(overall) ? 'on track to pass' : 'keep going – pass mark 45%'), "</div></div>\n    <div class=\"card stat\"><div class=\"k\">Best set</div><div class=\"v\">").concat(best ? gradeBadge(best.pct, true) : '–', "</div><div class=\"muted\">").concat(best ? h(best.a.label) : 'No set finished yet', "</div></div>\n  </div>\n  <div class=\"grid2\">\n    <div class=\"card\"><h3>What to review first</h3><p class=\"muted small\">Lectures the old exams ask most, weighted by how you are doing.</p>\n      ").concat(review.map(function (x) { return "<div class=\"rev-row\"><b>".concat(h(x.l.title), "</b> <span class=\"muted small\">").concat(APP.oldFreq[x.l.id] || 0, " old-exam Qs</span> ").concat(gradeBadge(x.s.pct), "\n      <span class=\"right\"><button class=\"btn sm\" data-act=\"openLesson\" data-id=\"").concat(x.l.id, "\">Lesson</button> <button class=\"btn sm primary\" data-act=\"startLecture\" data-id=\"").concat(x.l.id, "\">MCQs</button></span></div>"); }).join(''), "</div>\n    <div class=\"card\"><h3>Grade per lecture</h3><table class=\"tbl\"><tr><th>Lecture</th><th>Tried</th><th>Grade</th></tr>\n      ").concat(L.filter(function (l) { return st[l.id].total; }).map(function (l) { return "<tr><td><a href=\"#\" data-act=\"openLesson\" data-id=\"".concat(l.id, "\">").concat(h(l.title), "</a></td><td>").concat(st[l.id].done, "/").concat(st[l.id].total, "</td><td>").concat(gradeBadge(st[l.id].pct), "</td></tr>"); }).join(''), "</table></div>\n  </div>\n  <div class=\"grid2\">\n    <div class=\"card\"><h3>My grades</h3>").concat(sets.length ? "<table class=\"tbl\"><tr><th>Date</th><th>Set</th><th>Grade</th><th></th></tr>".concat(sets.slice().reverse().slice(0, 25).map(function (x) { return "<tr><td>".concat(fmtDate(x.a.date), "</td><td><a href=\"#\" data-act=\"openReview\" data-id=\"").concat(x.a.id, "\">").concat(h(x.a.label), "</a></td><td>").concat(gradeBadge(x.pct), "</td><td>").concat(passTag(x.pct), "</td></tr>"); }).join(''), "</table>") : '<p class="muted">Your finished sets will appear here.</p>', "</div>\n    <div class=\"card\"><h3>").concat(APP.core.cases.length ? 'Clinical cases – jury' : 'Grading', "</h3>").concat(!APP.core.cases.length ? '' : S.jury.length ? "<table class=\"tbl\"><tr><th>Date</th><th>Case</th><th>Grade</th></tr>".concat(S.jury.slice().reverse().slice(0, 15).map(function (j) { return "<tr><td>".concat(fmtDate(j.date), "</td><td>").concat(h(j.label), "</td><td>").concat(gradeBadge(j.score10 * 10), " <span class=\"muted small\">").concat(j.score10.toFixed(1), "/10</span></td></tr>"); }).join(''), "</table>") : '<p class="muted">Practise a clinical case to see your jury grades here.</p>', "\n    <p class=\"small muted\">Grades: F &lt;45% \u00B7 E 45\u201354 \u00B7 D 55\u201364 \u00B7 C 65\u201374 \u00B7 B 75\u201384 \u00B7 A 85\u201394 \u00B7 A+ \u226595. Pass = E or better. <a href=\"#\" data-act=\"help\">How grading works</a></p></div>\n  </div>");
 }
 function vHelp() {
-    return "<div class=\"page-h\"><h1>How grading works</h1></div><div class=\"card prose\">\n  <p><b>Each question:</b> all propositions judged right = full point. Questions marked \u2605 have exactly one answer: one tick only, all-or-nothing. On multiple-answer questions, one mistake (a wrong tick or a missed true answer) gives half a point; two or more give zero.</p>\n  <p><b>Each set:</b> the percentage of points becomes a letter: <b>F</b> &lt;45% (not passed) \u00B7 <b>E</b> 45\u201354 \u00B7 <b>D</b> 55\u201364 \u00B7 <b>C</b> 65\u201374 \u00B7 <b>B</b> 75\u201384 \u00B7 <b>A</b> 85\u201394 \u00B7 <b>A+</b> \u226595. E or better = PASSED.</p>\n  <p><b>Mock exam:</b> 75% MCQs + 25% clinical case, and both parts must reach 45%.</p>\n  <p>Your ticked answers are stored, not just the scores, so every grade is recalculated from them.</p></div>";
+    return "<div class=\"page-h\"><h1>How grading works</h1></div><div class=\"card prose\">\n  <p><b>Each question:</b> all propositions judged right = full point. Questions marked \u2605 have exactly one answer: one tick only, all-or-nothing. On multiple-answer questions, each wrong tick or missed true answer is one mistake: 1 mistake = 0.8 point, 2 mistakes = 0.4, 3 or more = 0.</p>\n  <p><b>Each set:</b> the percentage of points becomes a letter: <b>F</b> &lt;45% (not passed) \u00B7 <b>E</b> 45\u201354 \u00B7 <b>D</b> 55\u201364 \u00B7 <b>C</b> 65\u201374 \u00B7 <b>B</b> 75\u201384 \u00B7 <b>A</b> 85\u201394 \u00B7 <b>A+</b> \u226595. E or better = PASSED.</p>\n  <p><b>Mock exam:</b> 75% MCQs + 25% clinical case, and both parts must reach 45%.</p>\n  <p>Your ticked answers are stored, not just the scores, so every grade is recalculated from them.</p></div>";
 }
 /* ---------------- Lessons ---------------- */
 function lecturePaths(id) { return APP.core.paths.filter(function (p) { return p.t === id; }); }
@@ -796,7 +886,7 @@ function vLessons() {
 }
 function pathSheet(p, open) {
     var sec = function (t, arr) { return arr && arr.length ? "<h4>".concat(t, "</h4><ul>").concat(arr.map(function (x) { return "<li>".concat(h(x), "</li>"); }).join(''), "</ul>") : ''; };
-    return "<details class=\"sheet\" ".concat(open ? 'open' : '', " id=\"sh-").concat(p.id, "\"><summary>").concat(h(p.n), "</summary><p class=\"def\">").concat(h(p.def), "</p>\n  ").concat(sec('Symptoms & clinical signs', p.sx)).concat(sec('Physical examination', p.ex)).concat(sec('Laboratory', p.lab)).concat(sec('Imaging & other investigations', p.img)).concat(sec('Treatment', p.tx)).concat(sec('Complications', p.cx)).concat(sec('Classifications & key facts', p.oth), "<details class=\"pm\"><summary>Mind map</summary><div class=\"svgwrap\">").concat(pathMap(p), "</div></details></details>");
+    return "<details class=\"sheet\" ".concat(open ? 'open' : '', " id=\"sh-").concat(p.id, "\"><summary>").concat(h(p.n), "</summary><p class=\"def\">").concat(h(p.def), "</p>\n  ").concat(sec(FL('sx', 'Symptoms & clinical signs'), p.sx)).concat(sec(FL('ex', 'Physical examination'), p.ex)).concat(sec(FL('lab', 'Laboratory'), p.lab)).concat(sec(FL('img', 'Imaging & other investigations'), p.img)).concat(sec(FL('tx', 'Treatment'), p.tx)).concat(sec(FL('cx', 'Complications'), p.cx)).concat(sec(FL('oth', 'Classifications & key facts'), p.oth), "<details class=\"pm\"><summary>Mind map</summary><div class=\"svgwrap\">").concat(pathMap(p), "</div></details></details>");
 }
 var LTAB = 'overview';
 function ensureCourse(id) {
@@ -804,10 +894,22 @@ function ensureCourse(id) {
     if (APP.topic[id] || APP.topic[id + '_l'])
         return;
     APP.topic[id + '_l'] = 1;
-    getJSON('data/t/' + id + '.json').then(function (d) { APP.topic[id] = d; delete APP.topic[id + '_l']; if (VIEW.name === 'lesson')
+    getJSON(SUBJ[APP.subj].base + 't/' + id + '.json').then(function (d) { APP.topic[id] = d; delete APP.topic[id + '_l']; if (VIEW.name === 'lesson')
         render(); })
         .catch(function () { delete APP.topic[id + '_l']; APP.topic[id + '_e'] = 1; if (VIEW.name === 'lesson')
         render(); });
+}
+var LPART = 0;
+function ensurePart(id, key) {
+    var k = id + '|' + key;
+    APP.part = APP.part || {};
+    if (APP.part[k] || APP.part[k + '_l'])
+        return APP.part[k];
+    APP.part[k + '_l'] = 1;
+    getJSON(SUBJ[APP.subj].base + 't/' + id + '-' + key + '.json').then(function (d) { APP.part[k] = d; delete APP.part[k + '_l']; if (VIEW.name === 'lesson')
+        render(); })
+        .catch(function () { delete APP.part[k + '_l']; toast('Could not load this part – check your connection.'); });
+    return null;
 }
 function proseBlock(htmlStr, toc, prefix, idPrefix) {
     var k = 0;
@@ -819,7 +921,8 @@ function proseBlock(htmlStr, toc, prefix, idPrefix) {
             items.push([lv, id, txt]);
         return "<h".concat(lv, " id=\"").concat(id, "\">").concat(inner, "</h").concat(lv, ">");
     });
-    var tocHtml = items.length > 1 ? "<div class=\"toc\"><b>Contents</b><ol>".concat(items.map(function (it) { return "<li class=\"".concat(it[0] === '3' ? 'sub' : '', "\"><a href=\"#\" data-act=\"scrollTo\" data-id=\"").concat(it[1], "\">").concat(h(it[2]), "</a></li>"); }).join(''), "</ol></div>") : '';
+    var list = "<ol>".concat(items.map(function (it) { return "<li class=\"".concat(it[0] === '3' ? 'sub' : '', "\"><a href=\"#\" data-act=\"scrollTo\" data-id=\"").concat(it[1], "\">").concat(h(it[2].replace(/\s#\d+$/, '')), "</a></li>"); }).join(''), "</ol>");
+    var tocHtml = items.length < 2 ? '' : items.length > 25 ? "<details class=\"toc\"><summary><b>Contents</b> (".concat(items.length, " sections \u2013 tap to open)</summary>").concat(list, "</details>") : "<div class=\"toc\"><b>Contents</b>".concat(list, "</div>");
     return tocHtml + "<div class=\"prose course\">".concat(body, "</div>");
 }
 function vLesson(id) {
@@ -841,6 +944,16 @@ function vLesson(id) {
     else if (LTAB === 'course' || LTAB === 'book') {
         if (!TD)
             body = "<div class=\"card\"><p class=\"muted\">".concat(APP.topic && APP.topic[id + '_e'] ? 'Could not load the course – check your connection and reopen the tab.' : 'Loading the full course…', "</p></div>");
+        else if (LTAB === 'course' && TD.course.length && typeof TD.course[0] === 'string') {
+            var k_1 = Math.min(LPART, TD.course.length - 1);
+            var part = ensurePart(id, 'c' + k_1);
+            body = "<div class=\"card\"><div class=\"parts\">".concat(TD.course.map(function (t, i) { return "<a href=\"#\" class=\"chip".concat(i === k_1 ? ' on' : '', "\" data-act=\"cpart\" data-id=\"").concat(i, "\">").concat(h(t), "</a>"); }).join(''), "</div></div>") +
+                (part ? "<div class=\"card\"><h2 class=\"ch\">".concat(h(part.title), "</h2><p class=\"muted small\">Every slide of the course with its text, notes and main picture.</p>").concat(proseBlock(part.html, [], 'S', 'P' + k_1 + '-'), "</div>") : "<div class=\"card\"><p class=\"muted\">Loading this lecture\u2026</p></div>");
+        }
+        else if (LTAB === 'book' && TD.course.length && typeof TD.course[0] === 'string') {
+            var b = TD.book ? ensurePart(id, 'b') : null;
+            body = !TD.book ? "<div class=\"card\"><p class=\"muted\">No textbook chapter for this topic.</p></div>" : b ? "<div class=\"card\"><h2 class=\"ch\">Textbook \u2013 ".concat(h(l.title), "</h2><p class=\"muted small\">").concat(h(SUBJ[APP.subj].book), " \u2013 complete chapters.</p>").concat(proseBlock(b.html, b.toc, 'B', 'B-'), "</div>") : "<div class=\"card\"><p class=\"muted\">Loading the textbook chapter\u2026</p></div>";
+        }
         else if (LTAB === 'course') {
             var cs = TD.course;
             body = cs.length ? cs.map(function (c) { return "<div class=\"card\"><h2 class=\"ch\">Lecture ".concat(c.n, " \u2013 ").concat(h(c.title), "</h2><p class=\"muted small\">From your course summary (all text, tables and figures).</p>").concat(proseBlock(c.html, c.toc, 'S', 'S' + c.n + '-'), "</div>"); }).join('')
@@ -848,7 +961,7 @@ function vLesson(id) {
         }
         else {
             var b = TD.book;
-            body = b ? "<div class=\"card\"><h2 class=\"ch\">Textbook \u2013 ".concat(h(l.title), "</h2><p class=\"muted small\">Surgery for Students (pages ").concat(b.pages[0], "\u2013").concat(b.pages[1], "), complete chapter.</p>").concat(proseBlock(b.html, b.toc, 'B', 'B-'), "</div>") : "<div class=\"card\"><p class=\"muted\">No textbook chapter for this topic.</p></div>";
+            body = b ? "<div class=\"card\"><h2 class=\"ch\">Textbook \u2013 ".concat(h(l.title), "</h2><p class=\"muted small\">").concat(h(SUBJ[APP.subj].book), " (pages ").concat(b.pages[0], "\u2013").concat(b.pages[1], "), complete chapter.</p>").concat(proseBlock(b.html, b.toc, 'B', 'B-'), "</div>") : "<div class=\"card\"><p class=\"muted\">No textbook chapter for this topic.</p></div>";
         }
     }
     else {
@@ -862,29 +975,41 @@ function vGallery() {
 /* ---------------- Flashcards ---------------- */
 var FC = null;
 var FIELDS = [['sx', 'Symptoms & clinical signs'], ['ex', 'Physical examination'], ['lab', 'Laboratory'], ['img', 'Imaging / investigations'], ['tx', 'Treatment (surgical & medical)'], ['cx', 'Complications'], ['oth', 'Classifications & key facts']];
-function buildDeck(topic) {
+function FL(k, d) { return (APP.core.labels && APP.core.labels[k]) || d; }
+function fields() { return FIELDS.map(function (f) { return [f[0], FL(f[0], f[1])]; }); }
+function buildDeck(topic, mode) {
     var cards = [];
-    APP.core.paths.filter(function (p) { return !topic || p.t === topic; }).forEach(function (p) {
-        cards.push({ k: p.id + '_def', front: p.n, sub: 'Definition / mechanism', back: [p.def] });
-        FIELDS.forEach(function (f) { if (p[f[0]] && p[f[0]].length)
-            cards.push({ k: p.id + '_' + f[0], front: p.n, sub: f[1], back: p[f[0]] }); });
-    });
+    if (mode !== 'sheets')
+        (APP.core.cards || []).filter(function (c) { return !topic || c.topic === topic; }).forEach(function (c) { cards.push({ k: c.id, front: c.q, sub: 'My card · ' + (APP.lById[c.topic] ? APP.lById[c.topic].title : ''), back: [c.a], mine: 1 }); });
+    if (mode !== 'mine')
+        APP.core.paths.filter(function (p) { return !topic || p.t === topic; }).forEach(function (p) {
+            cards.push({ k: p.id + '_def', front: p.n, sub: 'Definition / mechanism', back: [p.def] });
+            fields().forEach(function (f) { if (p[f[0]] && p[f[0]].length)
+                cards.push({ k: p.id + '_' + f[0], front: p.n, sub: f[1], back: p[f[0]] }); });
+        });
     return cards;
+}
+function deckCard(topic, mode, title, sub) {
+    var d = buildDeck(topic, mode);
+    var k = d.filter(function (c) { return S.fc.known && S.fc.known[c.k]; }).length;
+    var pct = d.length ? Math.round(100 * k / d.length) : 0;
+    return "<a href=\"#\" class=\"card lc\" data-act=\"flashLecture\" data-id=\"".concat(topic || '', "\" data-m=\"").concat(mode || '', "\"><b>").concat(h(title), "</b><span class=\"muted small\">").concat(sub ? h(sub) + ' · ' : '').concat(k, "/").concat(d.length, " known</span><div class=\"bar\"><i style=\"width:").concat(pct, "%\"></i></div></a>");
 }
 function vFlash(arg) {
     if (!FC || arg === 'pick') {
-        return "<div class=\"page-h\"><h1>Flashcards</h1><p class=\"muted\">For each pathology: signs & symptoms, examination, labs, imaging, treatment, complications, classifications.</p></div>\n    <div class=\"cards\"><a href=\"#\" class=\"card lc\" data-act=\"flashLecture\" data-id=\"\"><b>All lectures</b><span class=\"muted small\">".concat(buildDeck().length, " cards</span></a>\n    ").concat(APP.core.lectures.map(function (l) { var d = buildDeck(l.id); var k = d.filter(function (c) { return S.fc.known && S.fc.known[c.k]; }).length; return "<a href=\"#\" class=\"card lc\" data-act=\"flashLecture\" data-id=\"".concat(l.id, "\"><b>").concat(h(l.title), "</b><span class=\"muted small\">").concat(k, "/").concat(d.length, " known</span></a>"); }).join(''), "</div>");
+        var mine = (APP.core.cards || []).length;
+        return "<div class=\"page-h\"><h1>Flashcards</h1><p class=\"muted\">Tap a card to flip it, then say whether you knew it. Unknown cards come back first next time; your progress is saved.</p></div>\n    <div class=\"cards\">".concat(deckCard('', '', 'All cards', 'everything')).concat(mine ? deckCard('', 'mine', 'My handwritten cards', mine + ' cards from your own maps') : '').concat(deckCard('', 'sheets', 'Pathology sheets only', ''), "</div>\n    <h3 style=\"margin:16px 0 8px\">By lecture</h3><div class=\"cards\">").concat(APP.core.lectures.filter(function (l) { return buildDeck(l.id).length; }).map(function (l) { return deckCard(l.id, '', l.title, ''); }).join(''), "</div>\n    <p class=\"muted small\">Reset a deck by marking cards \"Again\"; the counter shows how many you already know.</p>");
     }
     var c = FC.cards[FC.i];
     if (!c)
-        return "<div class=\"card center\"><h2>Deck finished \uD83C\uDF89</h2><p>".concat(FC.cards.length, " cards reviewed.</p><button class=\"btn primary\" data-act=\"flashLecture\" data-id=\"").concat(FC.topic, "\">Again (unknown first)</button> <button class=\"btn\" data-act=\"flashPick\">Other deck</button></div>");
+        return "<div class=\"card center\"><h2>Deck finished \uD83C\uDF89</h2><p>".concat(FC.cards.length, " cards reviewed.</p><button class=\"btn primary\" data-act=\"flashLecture\" data-id=\"").concat(FC.topic, "\" data-m=\"").concat(FC.mode || '', "\">Again (unknown first)</button> <button class=\"btn\" data-act=\"flashPick\">Other deck</button></div>");
     return "<div class=\"page-h\"><a href=\"#\" data-act=\"flashPick\" class=\"back\">\u2190 Decks</a><h1>Flashcards</h1><span class=\"muted\">".concat(FC.i + 1, " / ").concat(FC.cards.length, "</span></div>\n  <div class=\"flash ").concat(FC.flip ? 'flip' : '', "\" data-act=\"flip\"><div class=\"face front\"><div class=\"muted small\">").concat(h(c.sub), "</div><h2>").concat(h(c.front), "</h2><p class=\"muted small\">Tap to reveal</p></div>\n  <div class=\"face back\"><div class=\"muted small\">").concat(h(c.front), " \u00B7 ").concat(h(c.sub), "</div><ul>").concat(c.back.map(function (b) { return "<li>".concat(h(b), "</li>"); }).join(''), "</ul></div></div>\n  <div class=\"row center\"><button class=\"btn\" data-act=\"fcAgain\">Again</button> <button class=\"btn primary\" data-act=\"fcKnow\">I knew it</button></div>");
 }
-function startFlash(topic) {
-    var deck = buildDeck(topic || null);
+function startFlash(topic, mode) {
+    var deck = buildDeck(topic || null, mode || '');
     var known = (S.fc && S.fc.known) || {};
     var cards = shuffle(deck.filter(function (c) { return !known[c.k]; })).concat(shuffle(deck.filter(function (c) { return known[c.k]; })));
-    FC = { topic: topic || '', cards: cards, i: 0, flip: false };
+    FC = { topic: topic || '', mode: mode || '', cards: cards, i: 0, flip: false };
     go('flash');
 }
 /* ---------------- MCQ sets ---------------- */
@@ -940,7 +1065,7 @@ function vRun() {
 }
 function finishRun() {
     var items = RUN.qs.map(function (id) { return ({ q: id, a: RUN.ans[id] || [] }); });
-    var att = { t: 'attempt', id: RUN.id, date: Date.now(), kind: RUN.kind, label: RUN.label, mode: RUN.mode, topics: RUN.topics, items: items };
+    var att = { t: 'attempt', subj: APP.subj, id: RUN.id, date: Date.now(), kind: RUN.kind, label: RUN.label, mode: RUN.mode, topics: RUN.topics, items: items };
     if (!items.some(function (it) { return it.a.length; })) {
         toast('Answer at least one question first.');
         return;
@@ -949,6 +1074,8 @@ function finishRun() {
         att.caseId = RUN.caseId;
     }
     S.attempts.push(att);
+    if (S.allAttempts && S.allAttempts !== S.attempts)
+        S.allAttempts.push(att);
     save(att);
     var finished = RUN;
     RUN = null;
@@ -1003,7 +1130,7 @@ function weightedPick(pool, n) {
 }
 function vMock() {
     var st = lectureStats();
-    return "<div class=\"page-h\"><h1>Mock exam</h1><p class=\"muted\">20 random questions weighted toward what old exams ask most \u00B7 no timer \u00B7 corrected at the end \u00B7 then a clinical case from the same lectures".concat(AI ? ' graded by the AI jury' : ' (self-assessed against the teacher\'s answer)', ". Final = 75% MCQ + 25% case.</p></div>\n  <div class=\"card\"><div class=\"row\"><button class=\"btn\" data-act=\"mockAll\">All lectures</button> <button class=\"btn\" data-act=\"mockWeak\">My weakest lectures</button></div>\n  <div class=\"checks\">").concat(APP.core.lectures.filter(function (l) { return st[l.id].total; }).map(function (l) { return "<label><input type=\"checkbox\" class=\"mockchk\" value=\"".concat(l.id, "\"> ").concat(h(l.title), " ").concat(gradeBadge(st[l.id].pct), "</label>"); }).join(''), "</div>\n  <button class=\"btn primary\" data-act=\"mockStart\">Start mock exam</button></div>");
+    return "<div class=\"page-h\"><h1>Mock exam</h1><p class=\"muted\">20 random questions weighted toward what old exams ask most \u00B7 no timer \u00B7 corrected at the end \u00B7 ".concat(APP.core.cases.length ? '' : ' (this subject has no clinical cases: MCQs only)').concat(APP.core.cases.length ? ' then a clinical case from the same lectures' : '').concat(!APP.core.cases.length ? '' : AI ? ' graded by the AI jury' : ' (self-assessed against the teacher\'s answer)', ". Final = 75% MCQ + 25% case.</p></div>\n  <div class=\"card\"><div class=\"row\"><button class=\"btn\" data-act=\"mockAll\">All lectures</button> <button class=\"btn\" data-act=\"mockWeak\">My weakest lectures</button></div>\n  <div class=\"checks\">").concat(APP.core.lectures.filter(function (l) { return st[l.id].total; }).map(function (l) { return "<label><input type=\"checkbox\" class=\"mockchk\" value=\"".concat(l.id, "\"> ").concat(h(l.title), " ").concat(gradeBadge(st[l.id].pct), "</label>"); }).join(''), "</div>\n  <button class=\"btn primary\" data-act=\"mockStart\">Start mock exam</button></div>");
 }
 function startMock(topics) {
     if (!topics.length) {
@@ -1014,14 +1141,15 @@ function startMock(topics) {
     var cases = APP.core.cases.filter(function (c) { return topics.indexOf(c.topic) >= 0; });
     var c = (cases.length ? shuffle(cases) : shuffle(APP.core.cases))[0];
     startSet({ kind: 'mock', label: 'Mock exam (' + (topics.length > 6 ? 'all lectures' : topics.map(function (t) { return APP.lById[t].title; }).join(', ')) + ')', qs: weightedPick(pool, Math.min(20, pool.length)), mode: 'exam', topics: topics });
-    RUN.caseId = c.id;
+    if (c)
+        RUN.caseId = c.id;
 }
 function vFinal() {
     return "<div class=\"page-h\"><h1>Final test</h1><p class=\"muted\">40 questions, half from old exams, half new / OSCE-book questions \u00B7 no timer \u00B7 corrected at the end.</p></div>\n  <div class=\"card center\"><button class=\"btn primary\" data-act=\"finalStart\">Start the final test</button></div>";
 }
 function startFinal() {
-    var old = shuffle(APP.core.questions.filter(function (q) { return q.src === 'old'; })).slice(0, 20).map(function (q) { return q.id; });
     var other = shuffle(APP.core.questions.filter(function (q) { return q.src !== 'old'; })).slice(0, 20).map(function (q) { return q.id; });
+    var old = shuffle(APP.core.questions.filter(function (q) { return q.src === 'old'; })).slice(0, 40 - other.length).map(function (q) { return q.id; });
     startSet({ kind: 'final', label: 'Final test (40 Q)', qs: shuffle(old.concat(other)), mode: 'exam' });
 }
 function papers() { var m = {}; APP.core.questions.filter(function (q) { return q.src !== 'new'; }).forEach(function (q) { (m[q.exam] = m[q.exam] || []).push(q.id); }); return m; }
@@ -1053,7 +1181,7 @@ function recap(q) {
     q.o.filter(function (o) { return o.c; }).forEach(function (o) { return (o.t + ' ' + q.q).toLowerCase().replace(/[^a-z0-9 ]/g, ' ').split(/\s+/).forEach(function (w) { if (w.length > 4)
         keyWords[w] = 1; }); });
     var lines = [];
-    FIELDS.concat([['def', 'Definition']]).forEach(function (f) { var arr = f[0] === 'def' ? [p.def] : (p[f[0]] || []); arr.forEach(function (x) { var s = Object.keys(keyWords).filter(function (w) { return x.toLowerCase().indexOf(w) >= 0; }).length; if (s)
+    fields().concat([['def', 'Definition']]).forEach(function (f) { var arr = f[0] === 'def' ? [p.def] : (p[f[0]] || []); arr.forEach(function (x) { var s = Object.keys(keyWords).filter(function (w) { return x.toLowerCase().indexOf(w) >= 0; }).length; if (s)
         lines.push({ x: x, s: s, f: f[1] }); }); });
     lines.sort(function (a, b) { return b.s - a.s; });
     return "<div class=\"recap\"><b>Lesson recap \u2013 ".concat(h(p.n), "</b><ul>").concat(lines.slice(0, 4).map(function (l) { return "<li><span class=\"muted small\">".concat(h(l.f), ":</span> ").concat(h(l.x), "</li>"); }).join('') || "<li>".concat(h(p.def), "</li>"), "</ul><a href=\"#\" data-act=\"openRef\" data-id=\"").concat(p.id, "\" data-t=\"").concat(p.t, "\">Open the full lesson \u2192</a></div>");
@@ -1109,8 +1237,10 @@ function caseSummary() {
     var score10 = rs.length ? rs.reduce(function (s, r) { return s + r.score; }, 0) / c.steps.length : 0;
     if (!CASE.saved && rs.length) {
         CASE.saved = true;
-        var j = { t: 'jury', id: 'j' + Date.now(), date: Date.now(), caseId: c.id, label: c.title, score10: score10, steps: c.steps.map(function (s, k) { return ({ q: s.q, answer: CASE.answers[k] || '', r: CASE.results[k] || null }); }) };
+        var j = { t: 'jury', subj: APP.subj, id: 'j' + Date.now(), date: Date.now(), caseId: c.id, label: c.title, score10: score10, steps: c.steps.map(function (s, k) { return ({ q: s.q, answer: CASE.answers[k] || '', r: CASE.results[k] || null }); }) };
         S.jury.push(j);
+        if (S.allJury && S.allJury !== S.jury)
+            S.allJury.push(j);
         save(j);
         if (CASE.mockAttempt) {
             var a = S.attempts.filter(function (x) { return x.id === CASE.mockAttempt; })[0];
@@ -1217,10 +1347,18 @@ document.addEventListener('click', function (ev) {
             break;
         case 'openLesson':
             LTAB = 'overview';
+            LPART = 0;
             go('lesson', id);
             break;
         case 'ltab':
             LTAB = id;
+            render();
+            break;
+        case 'subject':
+            switchSubject(id);
+            break;
+        case 'cpart':
+            LPART = +id;
             render();
             break;
         case 'admSel':
@@ -1251,7 +1389,7 @@ document.addEventListener('click', function (ev) {
             startLecture(id);
             break;
         case 'flashLecture':
-            startFlash(id);
+            startFlash(id, el.getAttribute('data-m') || '');
             break;
         case 'flashPick':
             FC = null;
