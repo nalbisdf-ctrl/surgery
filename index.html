@@ -508,7 +508,11 @@ function emailSubmit() {
     err.textContent = '';
     var email = ($('#lEmail').value || '').trim();
     var pass = $('#lPass') ? $('#lPass').value : '';
-    var fail = function (e) { err.textContent = AUTH_ERR[e && e.code] || (e && e.message) || 'Something went wrong.'; };
+    var fail = function (e) {
+        var m = String((e && e.message) || '');
+        var raw = /INVALID_LOGIN_CREDENTIALS|INVALID_PASSWORD/.test(m) ? 'auth/invalid-credential' : /EMAIL_NOT_FOUND/.test(m) ? 'auth/user-not-found' : /EMAIL_EXISTS/.test(m) ? 'auth/email-already-in-use' : /WEAK_PASSWORD/.test(m) ? 'auth/weak-password' : /INVALID_EMAIL/.test(m) ? 'auth/invalid-email' : /TOO_MANY/.test(m) ? 'auth/too-many-requests' : (e && e.code);
+        err.textContent = AUTH_ERR[raw] || 'Something went wrong – please try again.';
+    };
     if (LOGIN_MODE === 'up') {
         if (pass !== $('#lPass2').value) {
             err.textContent = 'The two passwords are different.';
