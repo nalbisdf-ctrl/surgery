@@ -948,7 +948,7 @@ function vLesson(id) {
             var k_1 = Math.min(LPART, TD.course.length - 1);
             var part = ensurePart(id, 'c' + k_1);
             body = "<div class=\"card\"><div class=\"parts\">".concat(TD.course.map(function (t, i) { return "<a href=\"#\" class=\"chip".concat(i === k_1 ? ' on' : '', "\" data-act=\"cpart\" data-id=\"").concat(i, "\">").concat(h(t), "</a>"); }).join(''), "</div></div>") +
-                (part ? "<div class=\"card\"><h2 class=\"ch\">".concat(h(part.title), "</h2><p class=\"muted small\">Every slide of the course with its text, notes and main picture.</p>").concat(proseBlock(part.html, [], 'S', 'P' + k_1 + '-'), "</div>") : "<div class=\"card\"><p class=\"muted\">Loading this lecture\u2026</p></div>");
+                (part ? "<div class=\"card\"><div class=\"row\" style=\"justify-content:space-between;align-items:center\"><span class=\"muted small\">Done revising? Test yourself on this lecture only.</span><button class=\"btn primary\" data-act=\"startLec\" data-id=\"".concat(id, "-c").concat(k_1, "\">MCQs on this lecture (").concat(lecStats(id + '-c' + k_1).total, ")</button></div></div><div class=\"card\"><h2 class=\"ch\">").concat(h(part.title), "</h2><p class=\"muted small\">Every slide of the course with its text, notes and main picture.</p>").concat(proseBlock(part.html, [], 'S', 'P' + k_1 + '-'), "<div class=\"center\" style=\"margin-top:14px\"><button class=\"btn primary\" data-act=\"startLec\" data-id=\"").concat(id, "-c").concat(k_1, "\">Now practise the MCQs of this lecture (").concat(lecStats(id + '-c' + k_1).total, ")</button></div></div>") : "<div class=\"card\"><p class=\"muted\">Loading this lecture\u2026</p></div>");
         }
         else if (LTAB === 'book' && TD.course.length && typeof TD.course[0] === 'string') {
             var b = TD.book ? ensurePart(id, 'b') : null;
@@ -1015,8 +1015,23 @@ function startFlash(topic, mode) {
 /* ---------------- MCQ sets ---------------- */
 function vPractice() {
     var st = lectureStats();
-    return "<div class=\"page-h\"><h1>Lecture MCQs</h1><p class=\"muted\">Each answer is checked immediately with corrections. 5 propositions A\u2013E, several can be true; \u2605 = exactly one answer.</p></div>\n  <div class=\"cards\">".concat(APP.core.lectures.filter(function (l) { return st[l.id].total; }).map(function (l) { return "<a href=\"#\" class=\"card lc\" data-act=\"startLecture\" data-id=\"".concat(l.id, "\"><b>").concat(h(l.title), "</b><span class=\"muted small\">").concat(st[l.id].total, " questions \u00B7 ").concat(st[l.id].old, " from old exams</span>").concat(gradeBadge(st[l.id].pct), "</a>"); }).join(''), "</div>");
+    return "<div class=\"page-h\"><h1>Lecture MCQs</h1><p class=\"muted\">Each answer is checked immediately with corrections. 5 propositions A\u2013E, several can be true; \u2605 = exactly one answer.</p></div>\n  ".concat(APP.core.lectures.some(function (l) { return l.parts; }) ? "<p class=\"muted small\">Revise a lecture, then practise the MCQs of that exact lecture (course part), or the whole chapter.</p>" + APP.core.lectures.filter(function (l) { return st[l.id].total; }).map(function (l) { return "<div class=\"card\"><div class=\"row\" style=\"justify-content:space-between;align-items:center\"><h3 style=\"margin:0\">".concat(h(l.title), "</h3><span>").concat(gradeBadge(st[l.id].pct), " <button class=\"btn sm primary\" data-act=\"startLecture\" data-id=\"").concat(l.id, "\">Whole chapter (").concat(st[l.id].total, ")</button></span></div>\n    ").concat((l.parts || []).map(function (p) { var ps = lecStats(p[0]); return ps.total ? "<div class=\"rev-row\"><span>".concat(h(p[1]), " <span class=\"muted small\">").concat(ps.total, " MCQs \u00B7 ").concat(ps.done, " done</span> ").concat(gradeBadge(ps.pct), "</span><span class=\"right\"><button class=\"btn sm\" data-act=\"openPart\" data-id=\"").concat(l.id, "\" data-k=\"").concat(p[0], "\">Revise</button> <button class=\"btn sm primary\" data-act=\"startLec\" data-id=\"").concat(p[0], "\">MCQs</button></span></div>") : ''; }).join(''), "</div>"); }).join('')
+        : "<div class=\"cards\">".concat(APP.core.lectures.filter(function (l) { return st[l.id].total; }).map(function (l) { return "<a href=\"#\" class=\"card lc\" data-act=\"startLecture\" data-id=\"".concat(l.id, "\"><b>").concat(h(l.title), "</b><span class=\"muted small\">").concat(st[l.id].total, " questions \u00B7 ").concat(st[l.id].old, " from old exams</span>").concat(gradeBadge(st[l.id].pct), "</a>"); }).join(''), "</div>"));
 }
+function lecStats(lec) {
+    var last = lastAnswers();
+    var r = { total: 0, done: 0, sum: 0 };
+    APP.core.questions.forEach(function (q) { if (q.lec !== lec)
+        return; r.total++; if (last[q.id]) {
+        r.done++;
+        r.sum += qScore(q, last[q.id].a);
+    } });
+    r.pct = r.done ? 100 * r.sum / r.done : null;
+    return r;
+}
+function partTitle(lec) { var t = lec; APP.core.lectures.forEach(function (l) { return (l.parts || []).forEach(function (p) { if (p[0] === lec)
+    t = p[1]; }); }); return t; }
+function startLec(lec) { var qs = APP.core.questions.filter(function (q) { return q.lec === lec; }); startSet({ kind: 'lecture', label: 'Lecture: ' + partTitle(lec), qs: shuffle(qs).map(function (q) { return q.id; }), mode: 'practice', topics: [lec.split('-')[0]] }); }
 function startSet(opts) {
     if (!opts.qs.length) {
         toast('No questions available for this selection.');
@@ -1361,6 +1376,16 @@ document.addEventListener('click', function (ev) {
             LPART = +id;
             render();
             break;
+        case 'startLec':
+            startLec(id);
+            break;
+        case 'openPart': {
+            var k = el.getAttribute('data-k');
+            LTAB = 'course';
+            LPART = +k.split('-c')[1];
+            go('lesson', id);
+            break;
+        }
         case 'admSel':
             ADM.sel = ADM.sel === id ? null : id;
             render();
