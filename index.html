@@ -34,6 +34,7 @@ span.ok{color:var(--ok)}
 .ptask.done .pinfo b{text-decoration:line-through;color:var(--muted)}.ptask.late{background:var(--nobg);border-radius:8px;padding-left:6px}.pchk input{width:20px;height:20px}
 .pday{margin:8px 0 4px}.pday .pdh{font-weight:700;font-size:13px;color:var(--muted);margin-bottom:2px}.pday.today .pdh{color:var(--pri)}
 .pweek summary{cursor:pointer;padding:2px 0}.pms{display:-webkit-box;display:-webkit-flex;display:flex;flex-wrap:wrap;gap:10px}.pms>div{border-left:3px solid var(--pri);padding:2px 10px;min-width:150px}.pms>div.past{opacity:.5}.pms span{display:block;font-size:13px;color:var(--muted)}
+.pwarn{border-left:4px solid #d97a1c}.pwarn summary{cursor:pointer}.pk{width:20px;height:20px}
 .pflex{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-flex-wrap:wrap;flex-wrap:wrap;gap:10px 14px;align-items:flex-end}.pflex .inp{margin:0}.phr .inp[type=date]{width:auto}
 .phr{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-orient:vertical;flex-direction:column;font-size:13px;font-weight:600}.phr .inp{width:70px}
 @media (max-width:600px){.ptask{flex-wrap:wrap}.ptask .pbtn{width:100%;padding-left:30px}}
@@ -798,31 +799,44 @@ function genPlan(p) {
     var done = {};
     (p.tasks || []).forEach(function (t) { if (taskDone(t))
         done[t.id] = t; });
+    var known = p.known || {};
     var want = [];
     var T = function (id, type, lec, d, min, pr) { if (!done[id])
         want.push({ id: id, type: type, lec: lec || '', pref: d, min: min, pr: pr }); };
     var finalStart = addD(p.exam, -10);
+    var left = dDiff(from, p.exam);
     planLectures().forEach(function (l) {
         var t0 = p.lec[l.id] || p.start;
-        T('learn|' + l.id, 'learn', l.id, t0, learnMin(l.id), 0);
-        T('fc|' + l.id, 'fc', l.id, addD(t0, 1), 25, 2);
-        T('mcq|' + l.id, 'mcq', l.id, addD(t0, 1), 30, 2);
-        [3, 7, 14, 28].forEach(function (o, k) { var d = addD(t0, o); if (d < finalStart || k < 2)
-            T('rev' + (k + 1) + '|' + l.id, 'rev', l.id, d, 30, 3); });
+        if (!known[l.id]) {
+            T('learn|' + l.id, 'learn', l.id, t0, learnMin(l.id), 0);
+            T('fc|' + l.id, 'fc', l.id, addD(t0, 1), 25, 2);
+            T('mcq|' + l.id, 'mcq', l.id, addD(t0, 1), 30, 2);
+        }
+        // spaced reviews: those already in the past collapse into ONE catch-up review
+        var revs = [3, 7, 14, 28].map(function (o, k) { return ({ k: k, d: addD(t0, o) }); }).filter(function (r) { return r.d < finalStart || r.k < 2 || known[l.id]; }).filter(function (r) { return r.d <= last; });
+        var past = revs.filter(function (r) { return r.d < from && !done['rev' + (r.k + 1) + '|' + l.id]; });
+        var fut = revs.filter(function (r) { return r.d >= from; });
+        if (past.length) {
+            var r = past[past.length - 1];
+            T('rev' + (r.k + 1) + '|' + l.id, 'rev', l.id, from, 30, known[l.id] ? 2 : 3);
+        }
+        if (known[l.id] && !revs.length)
+            T('rev1|' + l.id, 'rev', l.id, from, 30, 2);
+        fut.forEach(function (r) { return T('rev' + (r.k + 1) + '|' + l.id, 'rev', l.id, r.d, 30, 3); });
     });
-    var hasPapers = 1;
-    [9, 6, 3].forEach(function (o) { return T('mock|' + o, 'mock', '', addD(p.exam, -o), 120, 1); });
-    if (hasPapers)
-        [8, 5].forEach(function (o) { return T('papers|' + o, 'papers', '', addD(p.exam, -o), 90, 1); });
-    [7, 4].forEach(function (o) { return T('mistakes|' + o, 'mistakes', '', addD(p.exam, -o), 45, 1); });
-    T('final|2', 'final', '', addD(p.exam, -2), 60, 1);
-    T('light|1', 'light', '', addD(p.exam, -1), 45, 1);
-    var cap = {}, off = {};
+    // final phase, only on days still ahead; a short time left = a short final phase
+    var fin = [['mock|9', 'mock', 9, 120], ['papers|8', 'papers', 8, 90], ['mistakes|7', 'mistakes', 7, 45], ['mock|6', 'mock', 6, 120], ['papers|5', 'papers', 5, 90],
+        ['mistakes|4', 'mistakes', 4, 45], ['mock|3', 'mock', 3, 120], ['final|2', 'final', 2, 60], ['light|1', 'light', 1, 45]];
+    fin.forEach(function (f) { var d = addD(p.exam, -f[2]); if (d >= from)
+        T(f[0], f[1], '', d, f[3], 1); });
+    if (left >= 3 && !fin.some(function (f) { return f[1] === 'mock' && addD(p.exam, -f[2]) >= from; }))
+        T('mock|2', 'mock', '', addD(p.exam, -2), 120, 1);
+    var off = {};
     (p.off || []).forEach(function (d) { off[d] = 1; });
     var capOf = function (d) { return off[d] ? 0 : (+p.hours[dowOf(d)] || 0) * 60; };
     var used = {};
     Object.keys(done).forEach(function (k) { var t = done[k]; used[t.d] = (used[t.d] || 0) + t.min; });
-    var placed = [];
+    var placed = [], extra = [];
     want.sort(function (a, b) { return a.pr - b.pr || (a.pref < b.pref ? -1 : a.pref > b.pref ? 1 : 0); }).forEach(function (t) {
         var d = t.pref < from ? from : t.pref;
         if (d > last)
@@ -835,18 +849,32 @@ function genPlan(p) {
                 break;
             }
         }
-        if (!best)
-            for (var x = d; x <= last; x = addD(x, 1)) {
-                if (capOf(x) > 0) {
+        if (!best && t.pr === 0)
+            for (var x = from; x <= last; x = addD(x, 1)) {
+                var c = capOf(x);
+                if (c > 0 && (used[x] || 0) + t.min <= c * 1.5) {
                     best = x;
                     break;
                 }
             }
-        best = best || d;
-        used[best] = (used[best] || 0) + t.min;
-        placed.push({ id: t.id, type: t.type, lec: t.lec, d: best, min: t.min });
+        if (!best && t.type === 'rev')
+            for (var x = from; x < d; x = addD(x, 1)) {
+                var c = capOf(x);
+                if (c > 0 && (used[x] || 0) + t.min <= c + 15) {
+                    best = x;
+                    break;
+                }
+            }
+        var o = { id: t.id, type: t.type, lec: t.lec, d: best || d, min: t.min };
+        if (best) {
+            used[best] = (used[best] || 0) + t.min;
+            placed.push(o);
+        }
+        else
+            extra.push(o);
     });
     p.tasks = Object.keys(done).map(function (k) { return done[k]; }).concat(placed).sort(function (a, b) { return a.d < b.d ? -1 : a.d > b.d ? 1 : 0; });
+    p.extra = extra;
     p.gen = Date.now();
     return p;
 }
@@ -897,7 +925,7 @@ function planStatus(p) {
     var td = dayStr();
     var all = p.tasks || [];
     var done = all.filter(taskDone).length;
-    var due = all.filter(function (t) { return t.d <= td; });
+    var due = all.filter(function (t) { return t.d < td; });
     var dueDone = due.filter(taskDone).length;
     return { all: all.length, done: done, behind: due.length - dueDone, today: all.filter(function (t) { return t.d === td; }), late: all.filter(function (t) { return t.d < td && !taskDone(t); }), pct: all.length ? 100 * done / all.length : 0 };
 }
@@ -934,13 +962,13 @@ function vPlan() {
         ts.forEach(function (t) { return (byDay[t.d] = byDay[t.d] || []).push(t); });
         return "<details class=\"card pweek\"".concat(w === curW || w === openW ? ' open' : '', "><summary><b>Week ").concat(w + 1, "</b> <span class=\"muted small\">").concat(fmtD(ws), " \u2192 ").concat(fmtD(addD(ws, 6)), " \u00B7 ").concat(dn, "/").concat(ts.length, " done \u00B7 ~").concat(Math.round(mins / 60), " h</span>").concat(w === curW ? ' <span class="chip on">this week</span>' : '', "</summary>\n    ").concat(Object.keys(byDay).sort().map(function (d) { return "<div class=\"pday".concat(d === td ? ' today' : '', "\"><div class=\"pdh\">").concat(fmtD(d)).concat(d === td ? ' · today' : '', " <span class=\"muted small\">~").concat(byDay[d].reduce(function (n, t) { return n + t.min; }, 0), " min</span></div>").concat(byDay[d].map(function (t) { return taskRow(t); }).join(''), "</div>"); }).join('') || '<p class="muted">Free week.</p>', "</details>");
     };
-    return "<div class=\"page-h\"><h1>Study planner</h1><p class=\"muted\">Spaced revision for ".concat(h(SUBJ[APP.subj].title), ": each lecture is learned, then reviewed at +1, +3, +7, +14 and +28 days; the last 10 days are for mocks, past papers and your mistakes. Tasks tick themselves when you do the activity on the site.</p></div>\n  <div class=\"grid4\"><div class=\"card stat\"><div class=\"k\">Exam</div><div class=\"v\">").concat(daysLeft >= 0 ? daysLeft : 0, "</div><div class=\"muted\">days left \u00B7 ").concat(fmtD(p.exam), "</div></div>\n  <div class=\"card stat\"><div class=\"k\">Plan done</div><div class=\"v\">").concat(Math.round(s.pct), "%</div><div class=\"bar\"><i style=\"width:").concat(s.pct, "%\"></i></div><div class=\"muted\">").concat(s.done, "/").concat(s.all, " tasks</div></div>\n  <div class=\"card stat\"><div class=\"k\">Status</div><div class=\"v\">").concat(s.behind ? "<span class=\"lerr\">".concat(s.behind, "</span>") : '✓', "</div><div class=\"muted\">").concat(s.behind ? 'tasks behind schedule' : 'on track', "</div></div>\n  <div class=\"card stat\"><div class=\"k\">Today</div><div class=\"v\">").concat(s.today.filter(function (t) { return !taskDone(t); }).length, "</div><div class=\"muted\">tasks left \u00B7 ~").concat(s.today.filter(function (t) { return !taskDone(t); }).reduce(function (n, t) { return n + t.min; }, 0), " min</div></div></div>\n  <div class=\"pflex\" style=\"margin-bottom:12px\"><button class=\"btn\" data-act=\"planEdit\">Change my schedule</button> <button class=\"btn\" data-act=\"planRe\">Re-plan from today").concat(s.late.length ? ' (' + s.late.length + ' overdue)' : '', "</button> <button class=\"btn\" data-act=\"planIcs\">Add to my calendar (.ics)</button></div>\n  ").concat(s.late.length || s.today.length ? "<div class=\"card\"><h3>Today".concat(s.late.length ? ' + overdue' : '', "</h3>").concat(s.late.map(function (t) { return taskRow(t, 1); }).join('')).concat(s.today.map(function (t) { return taskRow(t); }).join(''), "</div>") : '', "\n  <div class=\"card\"><h3>Milestones</h3><div class=\"pms\">").concat(ms.map(function (m) { return "<div class=\"".concat(m[0] <= td ? 'past' : '', "\"><b>").concat(fmtD(m[0]), "</b><span>").concat(h(m[1]), "</span></div>"); }).join(''), "</div>\n  <p class=\"muted small\">Lecture deadlines: ").concat(planLectures().map(function (l) { var t = (p.tasks || []).filter(function (x) { return x.id === 'learn|' + l.id; })[0]; return t ? "<span class=\"".concat(taskDone(t) ? 'ok' : t.d < td ? 'lerr' : '', "\">").concat(h(l.title), " \u2013 ").concat(fmtD(t.d), "</span>") : ''; }).filter(Boolean).join(' · '), "</p></div>\n  ").concat(Array.apply(null, { length: nW }).map(function (x, w) { return wk(w); }).join(''));
+    return "<div class=\"page-h\"><h1>Study planner</h1><p class=\"muted\">Spaced revision for ".concat(h(SUBJ[APP.subj].title), ": each lecture is learned, then reviewed at +1, +3, +7, +14 and +28 days; the last 10 days are for mocks, past papers and your mistakes. Tasks tick themselves when you do the activity on the site.</p></div>\n  <div class=\"grid4\"><div class=\"card stat\"><div class=\"k\">Exam</div><div class=\"v\">").concat(daysLeft >= 0 ? daysLeft : 0, "</div><div class=\"muted\">days left \u00B7 ").concat(fmtD(p.exam), "</div></div>\n  <div class=\"card stat\"><div class=\"k\">Plan done</div><div class=\"v\">").concat(Math.round(s.pct), "%</div><div class=\"bar\"><i style=\"width:").concat(s.pct, "%\"></i></div><div class=\"muted\">").concat(s.done, "/").concat(s.all, " tasks</div></div>\n  <div class=\"card stat\"><div class=\"k\">Status</div><div class=\"v\">").concat(s.behind ? "<span class=\"lerr\">".concat(s.behind, "</span>") : '✓', "</div><div class=\"muted\">").concat(s.behind ? 'tasks behind schedule' : 'on track', "</div></div>\n  <div class=\"card stat\"><div class=\"k\">Today</div><div class=\"v\">").concat(s.today.filter(function (t) { return !taskDone(t); }).length, "</div><div class=\"muted\">tasks left \u00B7 ~").concat(s.today.filter(function (t) { return !taskDone(t); }).reduce(function (n, t) { return n + t.min; }, 0), " min</div></div></div>\n  <div class=\"pflex\" style=\"margin-bottom:12px\"><button class=\"btn\" data-act=\"planEdit\">Change my schedule</button> <button class=\"btn\" data-act=\"planRe\">Re-plan from today").concat(s.late.length ? ' (' + s.late.length + ' overdue)' : '', "</button> <button class=\"btn\" data-act=\"planIcs\">Add to my calendar (.ics)</button></div>\n  ").concat((p.extra || []).length ? "<details class=\"card pwarn\"><summary><b>\u26A0 ".concat(p.extra.length, " task").concat(p.extra.length > 1 ? 's' : '', " did not fit (~").concat(Math.round(p.extra.reduce(function (n, t) { return n + t.min; }, 0) / 60), " h)</b> <span class=\"muted small\">\u2013 not enough hours before the exam. Add hours, tick lectures you already know (Change my schedule), or do them if you have spare time.</span></summary>").concat(p.extra.map(function (t) { return taskRow(t); }).join(''), "</details>") : '', "\n  ").concat(s.late.length || s.today.length ? "<div class=\"card\"><h3>Today".concat(s.late.length ? ' + overdue' : '', "</h3>").concat(s.late.map(function (t) { return taskRow(t, 1); }).join('')).concat(s.today.map(function (t) { return taskRow(t); }).join(''), "</div>") : '', "\n  <div class=\"card\"><h3>Milestones</h3><div class=\"pms\">").concat(ms.map(function (m) { return "<div class=\"".concat(m[0] <= td ? 'past' : '', "\"><b>").concat(fmtD(m[0]), "</b><span>").concat(h(m[1]), "</span></div>"); }).join(''), "</div>\n  <p class=\"muted small\">").concat((p.tasks || []).some(function (x) { return x.type === 'learn'; }) ? 'Lecture deadlines: ' : '').concat(planLectures().map(function (l) { var t = (p.tasks || []).filter(function (x) { return x.id === 'learn|' + l.id; })[0]; return t ? "<span class=\"".concat(taskDone(t) ? 'ok' : t.d < td ? 'lerr' : '', "\">").concat(h(l.title), " \u2013 ").concat(fmtD(t.d), "</span>") : ''; }).filter(Boolean).join(' · '), "</p></div>\n  ").concat(Array.apply(null, { length: nW }).map(function (x, w) { return (w < curW && !(weeks[w] || []).length) ? '' : wk(w); }).join(''));
 }
 function vPlanSetup(p) {
     var d = PLAN_DRAFT || (PLAN_DRAFT = JSON.parse(JSON.stringify(p || planDefault())));
     var L = planLectures();
     var wh = d.hours.reduce(function (a, b) { return a + (+b || 0); }, 0);
-    return "<div class=\"page-h\"><h1>Study planner \u2013 my schedule</h1><p class=\"muted\">Tell the site when you can study and when each lecture is taught. It builds a day-by-day plan with spaced reviews until the exam (a module is about 8 weeks). You can change it any time.</p></div>\n  <div class=\"card\"><h3>1 \u00B7 Dates</h3><div class=\"pflex\"><label class=\"phr\">Start <input type=\"date\" class=\"inp\" data-change=\"pd\" data-id=\"start\" value=\"".concat(h(d.start), "\"></label>\n  <label class=\"phr\">Exam <input type=\"date\" class=\"inp\" data-change=\"pd\" data-id=\"exam\" value=\"").concat(h(d.exam), "\"></label><span class=\"muted small\" style=\"align-self:center\">").concat(Math.max(0, dDiff(d.start, d.exam)), " days \u00B7 ").concat(Math.round(dDiff(d.start, d.exam) / 7), " weeks</span></div></div>\n  <div class=\"card\"><h3>2 \u00B7 Hours I can study per day</h3><p class=\"muted small\">Think of classes, hospital, sport\u2026 Put 0 for a day without study.</p>\n  <div class=\"pflex\">").concat(DOW.map(function (n, i) { return "<label class=\"phr\">".concat(n, "<input type=\"number\" min=\"0\" max=\"12\" step=\"0.5\" class=\"inp\" data-change=\"ph\" data-id=\"").concat(i, "\" value=\"").concat(d.hours[i], "\"></label>"); }).join(''), "</div><p class=\"muted small\">").concat(wh, " h per week.</p>\n  <h4>Days off (no study at all)</h4><div class=\"pflex\" style=\"align-items:center\"><input type=\"date\" class=\"inp\" id=\"pOff\" style=\"width:auto\"> <button class=\"btn sm\" data-act=\"pOffAdd\">Add</button> ").concat((d.off || []).sort().map(function (x) { return "<span class=\"chip\">".concat(fmtD(x), " <a href=\"#\" data-act=\"pOffDel\" data-id=\"").concat(x, "\">\u2715</a></span>"); }).join(''), "</div></div>\n  <div class=\"card\"><h3>3 \u00B7 When is each lecture taught? (your timetable)</h3><p class=\"muted small\">From this date the lecture is learned, then reviewed. Prefilled evenly \u2013 put the real date of the course. <a href=\"#\" data-act=\"pSpread\">Spread evenly again</a></p>\n  <table class=\"tbl\">").concat(L.map(function (l, i) { return "<tr><td>".concat(i + 1, ". ").concat(h(l.title), "</td><td><input type=\"date\" class=\"inp\" data-change=\"pl\" data-id=\"").concat(l.id, "\" value=\"").concat(h(d.lec[l.id] || d.start), "\"></td></tr>"); }).join(''), "</table></div>\n  <div class=\"row\" style=\"gap:8px\"><button class=\"btn primary\" data-act=\"planGen\">").concat(p ? 'Rebuild my plan' : 'Build my plan', "</button>").concat(p ? ' <button class="btn" data-act="planCancel">Cancel</button>' : '', "</div>\n  <p class=\"muted small\">Tasks you already did stay done when you rebuild.</p>");
+    return "<div class=\"page-h\"><h1>Study planner \u2013 my schedule</h1><p class=\"muted\">Tell the site when you can study and when each lecture is taught. It builds a day-by-day plan with spaced reviews until the exam (a module is about 8 weeks). You can change it any time.</p></div>\n  <div class=\"card\"><h3>1 \u00B7 Dates</h3><div class=\"pflex\"><label class=\"phr\">Start <input type=\"date\" class=\"inp\" data-change=\"pd\" data-id=\"start\" value=\"".concat(h(d.start), "\"></label>\n  <label class=\"phr\">Exam <input type=\"date\" class=\"inp\" data-change=\"pd\" data-id=\"exam\" value=\"").concat(h(d.exam), "\"></label><span class=\"muted small\" style=\"align-self:center\">").concat(Math.max(0, dDiff(d.start, d.exam)), " days \u00B7 ").concat(Math.round(dDiff(d.start, d.exam) / 7), " weeks</span></div></div>\n  <div class=\"card\"><h3>2 \u00B7 Hours I can study per day</h3><p class=\"muted small\">Think of classes, hospital, sport\u2026 Put 0 for a day without study.</p>\n  <div class=\"pflex\">").concat(DOW.map(function (n, i) { return "<label class=\"phr\">".concat(n, "<input type=\"number\" min=\"0\" max=\"12\" step=\"0.5\" class=\"inp\" data-change=\"ph\" data-id=\"").concat(i, "\" value=\"").concat(d.hours[i], "\"></label>"); }).join(''), "</div><p class=\"muted small\">").concat(wh, " h per week.</p>\n  <h4>Days off (no study at all)</h4><div class=\"pflex\" style=\"align-items:center\"><input type=\"date\" class=\"inp\" id=\"pOff\" style=\"width:auto\"> <button class=\"btn sm\" data-act=\"pOffAdd\">Add</button> ").concat((d.off || []).sort().map(function (x) { return "<span class=\"chip\">".concat(fmtD(x), " <a href=\"#\" data-act=\"pOffDel\" data-id=\"").concat(x, "\">\u2715</a></span>"); }).join(''), "</div></div>\n  <div class=\"card\"><h3>3 \u00B7 When is each lecture taught? (your timetable)</h3><p class=\"muted small\">From this date the lecture is learned, then reviewed. Prefilled evenly \u2013 put the real date of the course. <a href=\"#\" data-act=\"pSpread\">Spread evenly again</a></p>\n  <p class=\"muted small\">Tick <b>Already studied</b> for lectures you already know: no \u201Clearn\u201D session, only spaced reviews.</p>\n  <table class=\"tbl\"><tr><th>Lecture</th><th>Taught on</th><th>Already studied</th></tr>").concat(L.map(function (l, i) { return "<tr><td>".concat(i + 1, ". ").concat(h(l.title), "</td><td><input type=\"date\" class=\"inp\" data-change=\"pl\" data-id=\"").concat(l.id, "\" value=\"").concat(h(d.lec[l.id] || d.start), "\"></td><td class=\"center\"><input type=\"checkbox\" class=\"pk\" data-change=\"pk\" data-id=\"").concat(l.id, "\"").concat((d.known || {})[l.id] ? ' checked' : '', "></td></tr>"); }).join(''), "</table>\n  <p class=\"small\"><a href=\"#\" data-act=\"pKnowAll\">Tick all</a> \u00B7 <a href=\"#\" data-act=\"pKnowNone\">Untick all</a></p></div>\n  <div class=\"row\" style=\"gap:8px\"><button class=\"btn primary\" data-act=\"planGen\">").concat(p ? 'Rebuild my plan' : 'Build my plan', "</button>").concat(p ? ' <button class="btn" data-act="planCancel">Cancel</button>' : '', "</div>\n  <p class=\"muted small\">Tasks you already did stay done when you rebuild.</p>");
 }
 function planSave(p) { S.plans[APP.subj] = p; save(p); }
 function planIcs() {
@@ -1716,6 +1744,15 @@ document.addEventListener('click', function (ev) {
             PLAN_DRAFT = null;
             render();
             break;
+        case 'pKnowAll':
+            PLAN_DRAFT.known = {};
+            planLectures().forEach(function (l) { PLAN_DRAFT.known[l.id] = 1; });
+            render();
+            break;
+        case 'pKnowNone':
+            PLAN_DRAFT.known = {};
+            render();
+            break;
         case 'pSpread':
             spreadLectures(PLAN_DRAFT);
             render();
@@ -2002,6 +2039,14 @@ document.addEventListener('change', function (ev) {
     if (dc === 'ph' && PLAN_DRAFT) {
         PLAN_DRAFT.hours[+did] = Math.max(0, +ev.target.value || 0);
         render();
+        return;
+    }
+    if (dc === 'pk' && PLAN_DRAFT) {
+        PLAN_DRAFT.known = PLAN_DRAFT.known || {};
+        if (ev.target.checked)
+            PLAN_DRAFT.known[did] = 1;
+        else
+            delete PLAN_DRAFT.known[did];
         return;
     }
     if (dc === 'pl' && PLAN_DRAFT) {
