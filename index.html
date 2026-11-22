@@ -51,6 +51,7 @@ h2.ch{margin:0 0 4px;font-size:21px}details.pm{margin-top:8px}details.pm>summary
 .parts{display:flex;flex-wrap:wrap}.chip{display:inline-block;padding:6px 12px;margin:3px;border:1px solid var(--line);border-radius:20px;text-decoration:none;color:var(--ink);font-size:14px}.chip.on{background:var(--pri);color:#fff;border-color:var(--pri)}
 .slide{border-top:1px solid var(--line);padding:10px 0}.slide h3{font-size:16px;margin:4px 0}.sn{color:var(--muted);font-size:12px;font-weight:400}ul.sl{margin:4px 0 6px 18px;padding:0}ul.sl li{margin:2px 0}ul.sl li.l1{margin-left:16px}ul.sl li.l2{margin-left:32px}ul.sl li.l3{margin-left:48px}.note{background:var(--bg);border-left:3px solid var(--pri2);padding:6px 10px;font-size:13.5px}
 .card.soon{opacity:.55}.nav-a.subj{border:1px dashed var(--line);margin-bottom:8px}
+.xcard img{max-width:100%;height:auto;display:block;margin:8px auto;border-radius:8px}.xcard{font-size:15px;line-height:1.5}.xcard mark{background:#fde68a;padding:0 2px}.xback{border-left:4px solid var(--pri)}.xcard ul,.xcard ol{margin:4px 0 6px 20px;padding:0}
 .svgwrap{overflow-x:auto;margin:6px 0}.svgwrap svg{width:100%;min-width:560px;height:auto;display:block}
 .mm-root{fill:var(--pri)}.mm-root-t{fill:#fff;font-weight:700;font-size:15px}.mm-edge,.edge{stroke:var(--muted);stroke-width:1.5;fill:none}.mm-node{stroke:var(--line)}.c0{fill:var(--c0)}.c1{fill:var(--c1)}.c2{fill:var(--c2)}.c3{fill:var(--c3)}.c4{fill:var(--c4)}.c5{fill:var(--c5)}
 .mm-node-t{fill:var(--ink);font-weight:600;font-size:13px}.mm-leaf{fill:var(--card);stroke:var(--line)}.mm-leaf-t{fill:var(--ink);font-size:12.5px}
@@ -575,6 +576,9 @@ function loadCore(id) {
             localStorage.setItem('subj', id);
         }
         catch (e) { }
+        APP.xidx = null;
+        APP.xcache = {};
+        return getJSON('data/cards/' + id + '-index.json').then(function (x) { APP.xidx = x; }).catch(function () { });
     });
 }
 function subjOf(d) { return d.subj || 'surgery'; }
@@ -1001,12 +1005,38 @@ function deckCard(topic, mode, title, sub) {
     var pct = d.length ? Math.round(100 * k / d.length) : 0;
     return "<a href=\"#\" class=\"card lc\" data-act=\"flashLecture\" data-id=\"".concat(topic || '', "\" data-m=\"").concat(mode || '', "\"><b>").concat(h(title), "</b><span class=\"muted small\">").concat(sub ? h(sub) + ' · ' : '').concat(k, "/").concat(d.length, " known</span><div class=\"bar\"><i style=\"width:").concat(pct, "%\"></i></div></a>");
 }
+function xCount(kind, topic) { var T = (APP.xidx && APP.xidx.topics) || {}; var n = 0; Object.keys(T).forEach(function (t) { if (topic && t !== topic)
+    return; Object.keys(T[t]).forEach(function (k) { if (!kind || k === kind)
+    n += T[t][k]; }); }); return n; }
+function xDecksHtml() {
+    if (!APP.xidx)
+        return '';
+    var K = APP.xidx.kinds, T = APP.xidx.topics;
+    var tt = function (t) { return APP.lById[t] ? APP.lById[t].title : (t === 'osce' ? 'OSCE cases' : t === 'other' ? 'Other' : t); };
+    return "<h3 style=\"margin:16px 0 8px\">".concat(APP.subj === 'radiology' ? 'Image flashcards (oral exam): picture → diagnosis & description' : 'Imported decks', "</h3>\n  <div class=\"cards\">").concat(Object.keys(K).map(function (k) { return "<a href=\"#\" class=\"card lc\" data-act=\"xdeck\" data-k=\"".concat(k, "\" data-id=\"\"><b>").concat(h(K[k]), "</b><span class=\"muted small\">").concat(xCount(k), " cards \u00B7 all chapters</span></a>"); }).join(''), "</div>\n  <h4 style=\"margin:12px 0 6px\">").concat(APP.subj === 'radiology' ? 'Image cards by chapter' : 'Imported cards by chapter', "</h4>\n  <div class=\"cards\">").concat(Object.keys(T).sort(function (a, b) { return (APP.core.lectures.findIndex(function (l) { return l.id === a; }) + 99) % 199 - (APP.core.lectures.findIndex(function (l) { return l.id === b; }) + 99) % 199; }).map(function (t) { return "<a href=\"#\" class=\"card lc\" data-act=\"xdeck\" data-k=\"\" data-id=\"".concat(t, "\"><b>").concat(h(tt(t)), "</b><span class=\"muted small\">").concat(Object.keys(T[t]).map(function (k) { return T[t][k] + ' ' + (k === 'img' ? 'exam pictures' : k === 'ortho' ? 'ortho X-rays' : k === 'lect' ? 'lecture cards' : k === 'mcq' ? 'MCQ cards' : k === 'osce' ? 'OSCE' : k === 'open' ? 'open questions' : k); }).join(' · '), "</span></a>"); }).join(''), "</div>");
+}
+function startXDeck(kind, topic) {
+    var T = (APP.xidx && APP.xidx.topics) || {};
+    var ts = Object.keys(T).filter(function (t) { return (!topic || t === topic) && (!kind || T[t][kind]); });
+    toast('Loading cards…');
+    Promise.all(ts.map(function (t) { return APP.xcache[t] ? Promise.resolve(APP.xcache[t]) : getJSON('data/cards/' + APP.subj + '-' + t + '.json').then(function (d) { APP.xcache[t] = d; return d; }); })).then(function (rs) {
+        var deck = [].concat.apply([], rs).filter(function (c) { return !kind || c.kind === kind; }).map(function (c) { return ({ k: c.id, html: 1, q: c.q, a: c.a, sub: (APP.lById[c.topic] ? APP.lById[c.topic].title : c.topic) + ' · ' + c.src }); });
+        var known = (S.fc && S.fc.known) || {};
+        var cards = shuffle(deck.filter(function (c) { return !known[c.k]; })).concat(shuffle(deck.filter(function (c) { return known[c.k]; })));
+        FC = { x: 1, kind: kind || '', topic: topic || '', cards: cards, i: 0, flip: false };
+        go('flash');
+    }).catch(function () { return toast('Could not load the cards – check your connection.'); });
+}
 function vFlash(arg) {
     if (!FC || arg === 'pick') {
         var mine = (APP.core.cards || []).length;
-        return "<div class=\"page-h\"><h1>Flashcards</h1><p class=\"muted\">Tap a card to flip it, then say whether you knew it. Unknown cards come back first next time; your progress is saved.</p></div>\n    <div class=\"cards\">".concat(deckCard('', '', 'All cards', 'everything')).concat(mine ? deckCard('', 'mine', 'My handwritten cards', mine + ' cards from your own maps') : '').concat(deckCard('', 'sheets', 'Pathology sheets only', ''), "</div>\n    <h3 style=\"margin:16px 0 8px\">By lecture</h3><div class=\"cards\">").concat(APP.core.lectures.filter(function (l) { return buildDeck(l.id).length; }).map(function (l) { return deckCard(l.id, '', l.title, ''); }).join(''), "</div>\n    <p class=\"muted small\">Reset a deck by marking cards \"Again\"; the counter shows how many you already know.</p>");
+        return "<div class=\"page-h\"><h1>Flashcards</h1><p class=\"muted\">Tap a card to flip it, then say whether you knew it. Unknown cards come back first next time; your progress is saved.</p></div>\n    <div class=\"cards\">".concat(deckCard('', '', 'All cards', 'everything')).concat(mine ? deckCard('', 'mine', 'My handwritten cards', mine + ' cards from your own maps') : '').concat(deckCard('', 'sheets', 'Pathology sheets only', ''), "</div>\n    ").concat(xDecksHtml(), "\n    <h3 style=\"margin:16px 0 8px\">By lecture</h3><div class=\"cards\">").concat(APP.core.lectures.filter(function (l) { return buildDeck(l.id).length; }).map(function (l) { return deckCard(l.id, '', l.title, ''); }).join(''), "</div>\n    <p class=\"muted small\">Reset a deck by marking cards \"Again\"; the counter shows how many you already know.</p>");
     }
     var c = FC.cards[FC.i];
+    if (!c && FC.x)
+        return "<div class=\"card center\"><h2>Deck finished \uD83C\uDF89</h2><p>".concat(FC.cards.length, " cards reviewed.</p><button class=\"btn primary\" data-act=\"xdeck\" data-k=\"").concat(FC.kind, "\" data-id=\"").concat(FC.topic, "\">Again (unknown first)</button> <button class=\"btn\" data-act=\"flashPick\">Other deck</button></div>");
+    if (c && c.html)
+        return "<div class=\"page-h\"><a href=\"#\" data-act=\"flashPick\" class=\"back\">\u2190 Decks</a><h1>Flashcards</h1><span class=\"muted\">".concat(FC.i + 1, " / ").concat(FC.cards.length, " \u00B7 ").concat(h(c.sub), "</span></div>\n  <div class=\"card xcard\">").concat(c.q, "</div>\n  ").concat(FC.flip ? "<div class=\"card xcard xback\">".concat(c.a, "</div><div class=\"row center\"><button class=\"btn\" data-act=\"fcAgain\">Again</button> <button class=\"btn primary\" data-act=\"fcKnow\">I knew it</button></div>") : "<div class=\"row center\"><button class=\"btn primary\" data-act=\"flip\">Show the answer</button></div>");
     if (!c)
         return "<div class=\"card center\"><h2>Deck finished \uD83C\uDF89</h2><p>".concat(FC.cards.length, " cards reviewed.</p><button class=\"btn primary\" data-act=\"flashLecture\" data-id=\"").concat(FC.topic, "\" data-m=\"").concat(FC.mode || '', "\">Again (unknown first)</button> <button class=\"btn\" data-act=\"flashPick\">Other deck</button></div>");
     return "<div class=\"page-h\"><a href=\"#\" data-act=\"flashPick\" class=\"back\">\u2190 Decks</a><h1>Flashcards</h1><span class=\"muted\">".concat(FC.i + 1, " / ").concat(FC.cards.length, "</span></div>\n  <div class=\"flash ").concat(FC.flip ? 'flip' : '', "\" data-act=\"flip\"><div class=\"face front\"><div class=\"muted small\">").concat(h(c.sub), "</div><h2>").concat(h(c.front), "</h2><p class=\"muted small\">Tap to reveal</p></div>\n  <div class=\"face back\"><div class=\"muted small\">").concat(h(c.front), " \u00B7 ").concat(h(c.sub), "</div><ul>").concat(c.back.map(function (b) { return "<li>".concat(h(b), "</li>"); }).join(''), "</ul></div></div>\n  <div class=\"row center\"><button class=\"btn\" data-act=\"fcAgain\">Again</button> <button class=\"btn primary\" data-act=\"fcKnow\">I knew it</button></div>");
@@ -1418,6 +1448,9 @@ document.addEventListener('click', function (ev) {
             break;
         case 'startLecture':
             startLecture(id);
+            break;
+        case 'xdeck':
+            startXDeck(el.getAttribute('data-k') || '', id);
             break;
         case 'flashLecture':
             startFlash(id, el.getAttribute('data-m') || '');
