@@ -29,6 +29,14 @@ a{color:var(--pri)}h1{font-size:24px;margin:0 0 4px}h2{font-size:19px}h3{font-si
 .fcst{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-flex-wrap:wrap;flex-wrap:wrap;gap:8px 28px;align-items:flex-end}.fcst>div{min-width:130px;-webkit-box-flex:1;-webkit-flex:1;flex:1}.fcst .k{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}.fcst .v{font-size:26px;font-weight:700;margin:2px 0}
 .mbars{display:-webkit-box;display:-webkit-flex;display:flex;align-items:flex-end;height:38px;gap:3px;margin:6px 0}.mbars i{display:block;width:10px;background:var(--pri);border-radius:2px;opacity:.85}
 a.fclink{display:block;color:inherit;text-decoration:none}
+span.ok{color:var(--ok)}
+.ptask{display:-webkit-box;display:-webkit-flex;display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}.ptask .pinfo{-webkit-box-flex:1;-webkit-flex:1;flex:1;min-width:0}.ptask .pinfo b{display:block}.ptask .pbtn{white-space:nowrap}
+.ptask.done .pinfo b{text-decoration:line-through;color:var(--muted)}.ptask.late{background:var(--nobg);border-radius:8px;padding-left:6px}.pchk input{width:20px;height:20px}
+.pday{margin:8px 0 4px}.pday .pdh{font-weight:700;font-size:13px;color:var(--muted);margin-bottom:2px}.pday.today .pdh{color:var(--pri)}
+.pweek summary{cursor:pointer;padding:2px 0}.pms{display:-webkit-box;display:-webkit-flex;display:flex;flex-wrap:wrap;gap:10px}.pms>div{border-left:3px solid var(--pri);padding:2px 10px;min-width:150px}.pms>div.past{opacity:.5}.pms span{display:block;font-size:13px;color:var(--muted)}
+.pflex{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-flex-wrap:wrap;flex-wrap:wrap;gap:10px 14px;align-items:flex-end}.pflex .inp{margin:0}.phr .inp[type=date]{width:auto}
+.phr{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-orient:vertical;flex-direction:column;font-size:13px;font-weight:600}.phr .inp{width:70px}
+@media (max-width:600px){.ptask{flex-wrap:wrap}.ptask .pbtn{width:100%;padding-left:30px}}
 .bar{height:8px;background:var(--line);border-radius:6px;overflow:hidden;margin:6px 0}.bar i{display:block;height:100%;background:var(--pri)}
 .btn{display:inline-block;padding:8px 14px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;cursor:pointer;margin:2px 0;-webkit-appearance:none}
 .btn:hover{border-color:var(--pri)}.btn.primary{background:var(--pri);border-color:var(--pri);color:#fff}.btn.sm{padding:4px 10px;font-size:13px}.btn[disabled]{opacity:.45;cursor:default}.btn.wide{display:block;width:100%;padding:12px}.btn.finish{border-color:var(--pri);color:var(--pri);font-weight:600}
@@ -532,6 +540,8 @@ function loadState() {
         S.meta = docs.filter(function (d) { return d.t === 'meta'; })[0] || { t: 'meta', id: 'meta' };
         S.fc = docs.filter(function (d) { return d.t === 'fc'; })[0] || { t: 'fc', id: 'fc', known: {} };
         USE = docs.filter(function (d) { return d.t === 'usage'; })[0] || { t: 'usage', id: 'usage', c: {}, d: {} };
+        S.plans = {};
+        docs.filter(function (d) { return d.t === 'plan'; }).forEach(function (p) { S.plans[p.subj] = p; });
     }).catch(function (e) { console.warn(e); toast('Could not load your saved progress – working offline for now.'); });
 }
 function save(doc) {
@@ -756,6 +766,206 @@ function toggleTheme() {
     }
     catch (e) { }
 }
+/* ---------------- study planner (spaced revision calendar) ---------------- */
+var PLAN_EDIT = false, PLAN_DRAFT = null, PLAN_WEEK = 0;
+var DOW = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+function addD(ds, n) { var d = new Date(ds + 'T12:00:00'); d.setDate(d.getDate() + n); return dayStr(d.getTime()); }
+function dDiff(a, b) { return Math.round((new Date(b + 'T12:00:00') - new Date(a + 'T12:00:00')) / 864e5); }
+function dowOf(ds) { return (new Date(ds + 'T12:00:00').getDay() + 6) % 7; }
+function fmtD(ds) { var d = new Date(ds + 'T12:00:00'); return DOW[dowOf(ds)] + ' ' + d.getDate() + ' ' + ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][d.getMonth()]; }
+function planLectures() { var st = lectureStats(); return APP.core.lectures.filter(function (l) { return (st[l.id] && st[l.id].total) || lecturePaths(l.id).length; }); }
+function planDefault() {
+    var start = dayStr();
+    var exam = (S.meta && S.meta.examDate) || addD(start, 56);
+    var p = { t: 'plan', id: 'plan-' + APP.subj, subj: APP.subj, start: start, exam: exam, hours: [2, 2, 2, 2, 2, 3, 1], off: [], lec: {}, tasks: [] };
+    spreadLectures(p);
+    return p;
+}
+function spreadLectures(p) {
+    var L = planLectures();
+    var span = Math.max(1, dDiff(p.start, p.exam) - 14);
+    p.lec = {};
+    L.forEach(function (l, i) { p.lec[l.id] = addD(p.start, Math.floor(i * span / Math.max(1, L.length))); });
+}
+function learnMin(id) { var n = APP.core.questions.filter(function (q) { return q.topic === id; }).length; return 50 + Math.min(70, n); }
+var PT = { learn: ['Learn', 'Read the lesson (sheets, course, drawings)'], fc: ['Flashcards', 'First pass on the flashcards'], mcq: ['MCQs', 'First MCQ set on this lecture'],
+    rev: ['Spaced review', 'Flashcards (unknown first) + MCQ set'], mock: ['Mock exam', 'Full timed mock exam'], papers: ['Past paper', 'One old exam in exam conditions'],
+    mistakes: ['My mistakes', 'Redo the questions you got wrong'], final: ['Final test', '40-question final test'], light: ['Light review', 'Flashcards of your weakest lectures only'] };
+function genPlan(p) {
+    var today = dayStr();
+    var from = p.start > today ? p.start : today;
+    var last = addD(p.exam, -1);
+    var done = {};
+    (p.tasks || []).forEach(function (t) { if (taskDone(t))
+        done[t.id] = t; });
+    var want = [];
+    var T = function (id, type, lec, d, min, pr) { if (!done[id])
+        want.push({ id: id, type: type, lec: lec || '', pref: d, min: min, pr: pr }); };
+    var finalStart = addD(p.exam, -10);
+    planLectures().forEach(function (l) {
+        var t0 = p.lec[l.id] || p.start;
+        T('learn|' + l.id, 'learn', l.id, t0, learnMin(l.id), 0);
+        T('fc|' + l.id, 'fc', l.id, addD(t0, 1), 25, 2);
+        T('mcq|' + l.id, 'mcq', l.id, addD(t0, 1), 30, 2);
+        [3, 7, 14, 28].forEach(function (o, k) { var d = addD(t0, o); if (d < finalStart || k < 2)
+            T('rev' + (k + 1) + '|' + l.id, 'rev', l.id, d, 30, 3); });
+    });
+    var hasPapers = 1;
+    [9, 6, 3].forEach(function (o) { return T('mock|' + o, 'mock', '', addD(p.exam, -o), 120, 1); });
+    if (hasPapers)
+        [8, 5].forEach(function (o) { return T('papers|' + o, 'papers', '', addD(p.exam, -o), 90, 1); });
+    [7, 4].forEach(function (o) { return T('mistakes|' + o, 'mistakes', '', addD(p.exam, -o), 45, 1); });
+    T('final|2', 'final', '', addD(p.exam, -2), 60, 1);
+    T('light|1', 'light', '', addD(p.exam, -1), 45, 1);
+    var cap = {}, off = {};
+    (p.off || []).forEach(function (d) { off[d] = 1; });
+    var capOf = function (d) { return off[d] ? 0 : (+p.hours[dowOf(d)] || 0) * 60; };
+    var used = {};
+    Object.keys(done).forEach(function (k) { var t = done[k]; used[t.d] = (used[t.d] || 0) + t.min; });
+    var placed = [];
+    want.sort(function (a, b) { return a.pr - b.pr || (a.pref < b.pref ? -1 : a.pref > b.pref ? 1 : 0); }).forEach(function (t) {
+        var d = t.pref < from ? from : t.pref;
+        if (d > last)
+            d = last < from ? from : last;
+        var best = null;
+        for (var x = d; x <= last; x = addD(x, 1)) {
+            var c = capOf(x);
+            if (c > 0 && (used[x] || 0) + t.min <= c + 15) {
+                best = x;
+                break;
+            }
+        }
+        if (!best)
+            for (var x = d; x <= last; x = addD(x, 1)) {
+                if (capOf(x) > 0) {
+                    best = x;
+                    break;
+                }
+            }
+        best = best || d;
+        used[best] = (used[best] || 0) + t.min;
+        placed.push({ id: t.id, type: t.type, lec: t.lec, d: best, min: t.min });
+    });
+    p.tasks = Object.keys(done).map(function (k) { return done[k]; }).concat(placed).sort(function (a, b) { return a.d < b.d ? -1 : a.d > b.d ? 1 : 0; });
+    p.gen = Date.now();
+    return p;
+}
+function taskAuto(t) {
+    var since = addD(t.d, t.type === 'rev' || t.type === 'fc' || t.type === 'mcq' ? -1 : -3);
+    var att = S.attempts.filter(function (a) { return dayStr(a.date) >= since && (a.items || []).length >= 3; });
+    if (t.type === 'mcq' || t.type === 'rev') {
+        if (att.some(function (a) { return (a.topics || []).indexOf(t.lec) >= 0; }))
+            return true;
+    }
+    if (t.type === 'fc' || t.type === 'rev') {
+        var td = (S.fc && S.fc.td) || {};
+        for (var x = since; x <= dayStr(); x = addD(x, 1))
+            if (td[APP.subj + '|' + t.lec + '|' + x] >= 5)
+                return true;
+    }
+    if (t.type === 'mock')
+        return att.some(function (a) { return a.kind === 'mock'; });
+    if (t.type === 'final')
+        return att.some(function (a) { return a.kind === 'final'; });
+    if (t.type === 'papers')
+        return att.some(function (a) { return a.kind === 'paper'; });
+    if (t.type === 'mistakes')
+        return att.some(function (a) { return a.kind === 'redo'; });
+    return false;
+}
+function taskDone(t) { return !!t.done || (S.attempts ? taskAuto(t) : false); }
+function taskLabel(t) { var L = t.lec && APP.lById[t.lec] ? APP.lById[t.lec].title : ''; return PT[t.type][0] + (t.type === 'rev' ? ' #' + t.id.slice(3, 4) : '') + (L ? ' – ' + L : ''); }
+function taskBtn(t) {
+    var b = function (act, id, txt, extra) { return "<button class=\"btn sm primary\" data-act=\"".concat(act, "\" data-id=\"").concat(id || '', "\"").concat(extra || '', ">").concat(txt, "</button>"); };
+    switch (t.type) {
+        case 'learn': return b('openLesson', t.lec, 'Open lesson');
+        case 'fc': return b('flashLecture', t.lec, 'Flashcards', ' data-m=""');
+        case 'mcq': return b('startLecture', t.lec, 'Start MCQs');
+        case 'rev': return b('flashLecture', t.lec, 'Flashcards', ' data-m=""') + ' ' + b('startLecture', t.lec, 'MCQs');
+        case 'mock': return b('nav', 'mock', 'Mock exam');
+        case 'papers': return b('nav', 'papers', 'Past papers');
+        case 'mistakes': return b('nav', 'mistakes', 'My mistakes');
+        case 'final': return b('nav', 'final', 'Final test');
+        default: return b('nav', 'flash', 'Flashcards');
+    }
+}
+function taskRow(t, showDate) {
+    var dn = taskDone(t), late = !dn && t.d < dayStr();
+    return "<div class=\"ptask".concat(dn ? ' done' : '').concat(late ? ' late' : '', "\"><label class=\"pchk\"><input type=\"checkbox\" data-change=\"ptask\" data-id=\"").concat(h(t.id), "\"").concat(dn ? ' checked' : '').concat(!t.done && dn ? ' disabled title="Done automatically from your activity"' : '', "></label>\n  <div class=\"pinfo\"><b>").concat(h(taskLabel(t)), "</b><span class=\"muted small\">").concat(showDate ? fmtD(t.d) + ' · ' : '').concat(h(PT[t.type][1]), " \u00B7 ~").concat(t.min, " min").concat(late ? ' · <span class="lerr">overdue</span>' : '').concat(!t.done && dn ? ' · ✓ auto' : '', "</span></div><div class=\"pbtn\">").concat(dn ? '' : taskBtn(t), "</div></div>");
+}
+function planStatus(p) {
+    var td = dayStr();
+    var all = p.tasks || [];
+    var done = all.filter(taskDone).length;
+    var due = all.filter(function (t) { return t.d <= td; });
+    var dueDone = due.filter(taskDone).length;
+    return { all: all.length, done: done, behind: due.length - dueDone, today: all.filter(function (t) { return t.d === td; }), late: all.filter(function (t) { return t.d < td && !taskDone(t); }), pct: all.length ? 100 * done / all.length : 0 };
+}
+function planTodayCard() {
+    var p = S.plans && S.plans[APP.subj];
+    if (!p)
+        return "<a href=\"#\" class=\"card fclink\" data-act=\"nav\" data-id=\"plan\"><b>\u25A3 Study planner</b> <span class=\"muted small\">Give your schedule and exam date \u2013 the site builds your spaced-revision calendar for the module.</span></a>";
+    var s = planStatus(p);
+    var todo = s.late.concat(s.today.filter(function (t) { return !taskDone(t); }));
+    return "<div class=\"card\"><div class=\"row\" style=\"justify-content:space-between;align-items:center\"><h3 style=\"margin:0\">Today's plan</h3><span class=\"small\">".concat(s.behind ? "<span class=\"lerr\">".concat(s.behind, " task").concat(s.behind > 1 ? 's' : '', " behind</span>") : '<span class="ok">✓ on track</span>', " \u00B7 <a href=\"#\" data-act=\"nav\" data-id=\"plan\">Open planner</a></span></div>\n  ").concat(todo.length ? todo.slice(0, 6).map(function (t) { return taskRow(t, t.d !== dayStr()); }).join('') : (function () { var nx = (p.tasks || []).filter(function (t) { return t.d > dayStr() && !taskDone(t); }); var d1 = nx.length ? nx[0].d : null; return "<p class=\"muted\">Nothing left for today".concat(s.today.length ? ' – well done 🎉' : '', ".</p>") + (d1 ? "<p class=\"small\"><b>Next \u2013 ".concat(fmtD(d1), ":</b> ").concat(nx.filter(function (t) { return t.d === d1; }).map(function (t) { return h(taskLabel(t)); }).join(' · '), "</p>") : ''); })(), "</div>");
+}
+function vPlan() {
+    var p = S.plans && S.plans[APP.subj];
+    if (!p || PLAN_EDIT)
+        return vPlanSetup(p);
+    var s = planStatus(p);
+    var td = dayStr();
+    var w0 = addD(p.start, -dowOf(p.start));
+    var weeks = {};
+    (p.tasks || []).forEach(function (t) { var w = Math.floor(dDiff(w0, t.d) / 7); (weeks[w] = weeks[w] || []).push(t); });
+    var nW = Math.max(1, Math.floor(dDiff(w0, p.exam) / 7) + 1);
+    var curW = Math.max(0, Math.min(nW - 1, Math.floor(dDiff(w0, td) / 7)));
+    var nxt = (p.tasks || []).filter(function (t) { return t.d >= td && !taskDone(t); })[0];
+    var openW = nxt ? Math.floor(dDiff(w0, nxt.d) / 7) : curW;
+    var learnAll = (p.tasks || []).filter(function (t) { return t.type === 'learn'; }).map(function (t) { return t.d; }).sort().pop();
+    var ms = [[p.start, 'Start of the planning'], [learnAll, 'Every lecture learned'], [addD(p.exam, -10), 'Final phase: mocks, past papers, mistakes'], [p.exam, 'EXAM']].filter(function (x) { return x[0]; });
+    var daysLeft = dDiff(td, p.exam);
+    var wk = function (w) {
+        var ws = addD(w0, w * 7);
+        var ts = (weeks[w] || []);
+        var dn = ts.filter(taskDone).length;
+        var mins = ts.reduce(function (n, t) { return n + t.min; }, 0);
+        var byDay = {};
+        ts.forEach(function (t) { return (byDay[t.d] = byDay[t.d] || []).push(t); });
+        return "<details class=\"card pweek\"".concat(w === curW || w === openW ? ' open' : '', "><summary><b>Week ").concat(w + 1, "</b> <span class=\"muted small\">").concat(fmtD(ws), " \u2192 ").concat(fmtD(addD(ws, 6)), " \u00B7 ").concat(dn, "/").concat(ts.length, " done \u00B7 ~").concat(Math.round(mins / 60), " h</span>").concat(w === curW ? ' <span class="chip on">this week</span>' : '', "</summary>\n    ").concat(Object.keys(byDay).sort().map(function (d) { return "<div class=\"pday".concat(d === td ? ' today' : '', "\"><div class=\"pdh\">").concat(fmtD(d)).concat(d === td ? ' · today' : '', " <span class=\"muted small\">~").concat(byDay[d].reduce(function (n, t) { return n + t.min; }, 0), " min</span></div>").concat(byDay[d].map(function (t) { return taskRow(t); }).join(''), "</div>"); }).join('') || '<p class="muted">Free week.</p>', "</details>");
+    };
+    return "<div class=\"page-h\"><h1>Study planner</h1><p class=\"muted\">Spaced revision for ".concat(h(SUBJ[APP.subj].title), ": each lecture is learned, then reviewed at +1, +3, +7, +14 and +28 days; the last 10 days are for mocks, past papers and your mistakes. Tasks tick themselves when you do the activity on the site.</p></div>\n  <div class=\"grid4\"><div class=\"card stat\"><div class=\"k\">Exam</div><div class=\"v\">").concat(daysLeft >= 0 ? daysLeft : 0, "</div><div class=\"muted\">days left \u00B7 ").concat(fmtD(p.exam), "</div></div>\n  <div class=\"card stat\"><div class=\"k\">Plan done</div><div class=\"v\">").concat(Math.round(s.pct), "%</div><div class=\"bar\"><i style=\"width:").concat(s.pct, "%\"></i></div><div class=\"muted\">").concat(s.done, "/").concat(s.all, " tasks</div></div>\n  <div class=\"card stat\"><div class=\"k\">Status</div><div class=\"v\">").concat(s.behind ? "<span class=\"lerr\">".concat(s.behind, "</span>") : '✓', "</div><div class=\"muted\">").concat(s.behind ? 'tasks behind schedule' : 'on track', "</div></div>\n  <div class=\"card stat\"><div class=\"k\">Today</div><div class=\"v\">").concat(s.today.filter(function (t) { return !taskDone(t); }).length, "</div><div class=\"muted\">tasks left \u00B7 ~").concat(s.today.filter(function (t) { return !taskDone(t); }).reduce(function (n, t) { return n + t.min; }, 0), " min</div></div></div>\n  <div class=\"pflex\" style=\"margin-bottom:12px\"><button class=\"btn\" data-act=\"planEdit\">Change my schedule</button> <button class=\"btn\" data-act=\"planRe\">Re-plan from today").concat(s.late.length ? ' (' + s.late.length + ' overdue)' : '', "</button> <button class=\"btn\" data-act=\"planIcs\">Add to my calendar (.ics)</button></div>\n  ").concat(s.late.length || s.today.length ? "<div class=\"card\"><h3>Today".concat(s.late.length ? ' + overdue' : '', "</h3>").concat(s.late.map(function (t) { return taskRow(t, 1); }).join('')).concat(s.today.map(function (t) { return taskRow(t); }).join(''), "</div>") : '', "\n  <div class=\"card\"><h3>Milestones</h3><div class=\"pms\">").concat(ms.map(function (m) { return "<div class=\"".concat(m[0] <= td ? 'past' : '', "\"><b>").concat(fmtD(m[0]), "</b><span>").concat(h(m[1]), "</span></div>"); }).join(''), "</div>\n  <p class=\"muted small\">Lecture deadlines: ").concat(planLectures().map(function (l) { var t = (p.tasks || []).filter(function (x) { return x.id === 'learn|' + l.id; })[0]; return t ? "<span class=\"".concat(taskDone(t) ? 'ok' : t.d < td ? 'lerr' : '', "\">").concat(h(l.title), " \u2013 ").concat(fmtD(t.d), "</span>") : ''; }).filter(Boolean).join(' · '), "</p></div>\n  ").concat(Array.apply(null, { length: nW }).map(function (x, w) { return wk(w); }).join(''));
+}
+function vPlanSetup(p) {
+    var d = PLAN_DRAFT || (PLAN_DRAFT = JSON.parse(JSON.stringify(p || planDefault())));
+    var L = planLectures();
+    var wh = d.hours.reduce(function (a, b) { return a + (+b || 0); }, 0);
+    return "<div class=\"page-h\"><h1>Study planner \u2013 my schedule</h1><p class=\"muted\">Tell the site when you can study and when each lecture is taught. It builds a day-by-day plan with spaced reviews until the exam (a module is about 8 weeks). You can change it any time.</p></div>\n  <div class=\"card\"><h3>1 \u00B7 Dates</h3><div class=\"pflex\"><label class=\"phr\">Start <input type=\"date\" class=\"inp\" data-change=\"pd\" data-id=\"start\" value=\"".concat(h(d.start), "\"></label>\n  <label class=\"phr\">Exam <input type=\"date\" class=\"inp\" data-change=\"pd\" data-id=\"exam\" value=\"").concat(h(d.exam), "\"></label><span class=\"muted small\" style=\"align-self:center\">").concat(Math.max(0, dDiff(d.start, d.exam)), " days \u00B7 ").concat(Math.round(dDiff(d.start, d.exam) / 7), " weeks</span></div></div>\n  <div class=\"card\"><h3>2 \u00B7 Hours I can study per day</h3><p class=\"muted small\">Think of classes, hospital, sport\u2026 Put 0 for a day without study.</p>\n  <div class=\"pflex\">").concat(DOW.map(function (n, i) { return "<label class=\"phr\">".concat(n, "<input type=\"number\" min=\"0\" max=\"12\" step=\"0.5\" class=\"inp\" data-change=\"ph\" data-id=\"").concat(i, "\" value=\"").concat(d.hours[i], "\"></label>"); }).join(''), "</div><p class=\"muted small\">").concat(wh, " h per week.</p>\n  <h4>Days off (no study at all)</h4><div class=\"pflex\" style=\"align-items:center\"><input type=\"date\" class=\"inp\" id=\"pOff\" style=\"width:auto\"> <button class=\"btn sm\" data-act=\"pOffAdd\">Add</button> ").concat((d.off || []).sort().map(function (x) { return "<span class=\"chip\">".concat(fmtD(x), " <a href=\"#\" data-act=\"pOffDel\" data-id=\"").concat(x, "\">\u2715</a></span>"); }).join(''), "</div></div>\n  <div class=\"card\"><h3>3 \u00B7 When is each lecture taught? (your timetable)</h3><p class=\"muted small\">From this date the lecture is learned, then reviewed. Prefilled evenly \u2013 put the real date of the course. <a href=\"#\" data-act=\"pSpread\">Spread evenly again</a></p>\n  <table class=\"tbl\">").concat(L.map(function (l, i) { return "<tr><td>".concat(i + 1, ". ").concat(h(l.title), "</td><td><input type=\"date\" class=\"inp\" data-change=\"pl\" data-id=\"").concat(l.id, "\" value=\"").concat(h(d.lec[l.id] || d.start), "\"></td></tr>"); }).join(''), "</table></div>\n  <div class=\"row\" style=\"gap:8px\"><button class=\"btn primary\" data-act=\"planGen\">").concat(p ? 'Rebuild my plan' : 'Build my plan', "</button>").concat(p ? ' <button class="btn" data-act="planCancel">Cancel</button>' : '', "</div>\n  <p class=\"muted small\">Tasks you already did stay done when you rebuild.</p>");
+}
+function planSave(p) { S.plans[APP.subj] = p; save(p); }
+function planIcs() {
+    var p = S.plans[APP.subj];
+    if (!p)
+        return;
+    var byDay = {};
+    p.tasks.filter(function (t) { return !taskDone(t); }).forEach(function (t) { return (byDay[t.d] = byDay[t.d] || []).push(t); });
+    var esc = function (x) { return String(x).replace(/[,;\\]/g, function (m) { return '\\' + m; }); };
+    var ev = Object.keys(byDay).map(function (d) {
+        var ts = byDay[d];
+        var dd = d.replace(/-/g, '');
+        return ['BEGIN:VEVENT', 'UID:' + APP.subj + '-' + dd + '@study', 'DTSTAMP:' + dd + 'T080000Z', 'DTSTART;VALUE=DATE:' + dd, 'DTEND;VALUE=DATE:' + addD(d, 1).replace(/-/g, ''),
+            'SUMMARY:' + esc(SUBJ[APP.subj].title + ': ' + ts.length + ' task' + (ts.length > 1 ? 's' : '') + ' (~' + ts.reduce(function (n, t) { return n + t.min; }, 0) + ' min)'), 'DESCRIPTION:' + esc(ts.map(taskLabel).join('\\n')), 'END:VEVENT'].join('\r\n');
+    });
+    ev.push(['BEGIN:VEVENT', 'UID:' + APP.subj + '-exam@study', 'DTSTAMP:' + p.exam.replace(/-/g, '') + 'T080000Z', 'DTSTART;VALUE=DATE:' + p.exam.replace(/-/g, ''), 'DTEND;VALUE=DATE:' + addD(p.exam, 1).replace(/-/g, ''), 'SUMMARY:' + esc('EXAM – ' + SUBJ[APP.subj].title), 'END:VEVENT'].join('\r\n'));
+    var ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//study//planner//EN'].concat(ev, ['END:VCALENDAR']).join('\r\n');
+    var a = document.createElement('a');
+    a.href = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(ics);
+    a.download = 'study-plan-' + APP.subj + '.ics';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    toast('Calendar file downloaded – open it to add the plan to your calendar.');
+}
 /* ---------------- usage tracking & flashcard stats ---------------- */
 var USE = null, USE_T = null, USE_LAST = '';
 function dayStr(t) { var d = t ? new Date(t) : new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
@@ -784,6 +994,12 @@ function fcMark(c) {
     S.fc.days = S.fc.days || {};
     var dk = APP.subj + '|' + dayStr();
     S.fc.days[dk] = (S.fc.days[dk] || 0) + 1;
+    var tp = c.topic || (FC && FC.topic) || '';
+    if (tp) {
+        S.fc.td = S.fc.td || {};
+        var tk = APP.subj + '|' + tp + '|' + dayStr();
+        S.fc.td[tk] = (S.fc.td[tk] || 0) + 1;
+    }
 }
 function fcStats(fc, subj) {
     fc = fc || {};
@@ -863,9 +1079,10 @@ function adminSummary(u) {
         var jury = S.jury.map(function (j) { return ({ label: j.label, date: j.date, s: j.score10 }); });
         var weak = ids.filter(function (k) { return st[k].done >= 3; }).sort(function (a, b) { return st[a].pct - st[b].pct; }).slice(0, 3);
         var lastAct = Math.max.apply(Math, __spreadArray(__spreadArray([prof.lastSeen || 0], S.attempts.map(function (a) { return a.date || 0; }), false), S.jury.map(function (j) { return j.date || 0; }), false));
+        var pl = u.docs.filter(function (d) { return d.t === 'plan' && d.subj === APP.subj; })[0];
         var fcd = u.docs.filter(function (d) { return d.t === 'fc'; })[0] || {};
         var use = u.docs.filter(function (d) { return d.t === 'usage'; })[0] || {};
-        return { uid: u.uid, email: prof.email || '', name: prof.name || '', lastSeen: Math.max(lastAct || 0, use.last || 0) || null, done: done, total: APP.core.questions.length, fc: fcStats(fcd, APP.subj), use: use.c || {}, useD: use.d || {},
+        return { uid: u.uid, email: prof.email || '', name: prof.name || '', lastSeen: Math.max(lastAct || 0, use.last || 0) || null, done: done, total: APP.core.questions.length, fc: fcStats(fcd, APP.subj), plan: pl ? planStatus(pl) : null, use: use.c || {}, useD: use.d || {},
             pct: done ? 100 * sum / done : null, st: st, sets: sets, jury: jury, juryAvg: jury.length ? jury.reduce(function (a, j) { return a + j.s; }, 0) / jury.length : null, weak: weak };
     });
 }
@@ -885,7 +1102,7 @@ function vAdmin() {
     var detail = '';
     if (u)
         detail = "<div class=\"card\"><h3>".concat(who(u), "</h3>\n    <table class=\"tbl\"><tr><th>Lecture</th><th>Answered</th><th>Grade</th></tr>").concat(L.filter(function (l) { return u.st[l.id] && u.st[l.id].total; }).map(function (l) { return "<tr><td>".concat(h(l.title), "</td><td>").concat(u.st[l.id].done, "/").concat(u.st[l.id].total, "</td><td>").concat(gradeBadge(u.st[l.id].pct), "</td></tr>"); }).join(''), "</table>\n    <p><b>Flashcards:</b> ").concat(u.fc.seen, " seen \u00B7 ").concat(u.fc.known, " known \u00B7 ").concat(u.fc.rev, " reviews (").concat(u.fc.week, " this week)</p>").concat(miniBars(u.fc.last, 14), "\n    <h4>Sets (").concat(u.sets.length, ")</h4>").concat(u.sets.length ? "<table class=\"tbl\"><tr><th>Date</th><th>Set</th><th>Grade</th></tr>".concat(u.sets.slice().reverse().map(function (x) { return "<tr><td>".concat(fmtDate(x.date), "</td><td>").concat(h(x.label), "</td><td>").concat(gradeBadge(x.pct), "</td></tr>"); }).join(''), "</table>") : '<p class="muted">No finished set.</p>', "\n    <h4>Clinical cases (").concat(u.jury.length, ")</h4>").concat(u.jury.length ? "<table class=\"tbl\"><tr><th>Date</th><th>Case</th><th>Grade</th></tr>".concat(u.jury.slice().reverse().map(function (j) { return "<tr><td>".concat(fmtDate(j.date), "</td><td>").concat(h(j.label), "</td><td>").concat(gradeBadge(j.s * 10), " <span class=\"muted small\">").concat(j.s.toFixed(1), "/10</span></td></tr>"); }).join(''), "</table>") : '<p class="muted">No case yet.</p>', "</div>");
-    return "<div class=\"page-h\"><h1>Students \u2013 progress & results</h1><p class=\"muted\">Subject: <b>".concat(h(SUBJ[APP.subj].title), "</b> (switch subject to see the others) \u00B7 ").concat(list.length, " account").concat(list.length === 1 ? '' : 's', " \u00B7 guests are not tracked. <a href=\"#\" data-act=\"admReload\">Refresh</a></p></div>").concat(detail, "\n  <div class=\"card\"><table class=\"tbl\"><tr><th>Student</th><th>Last activity</th><th>MCQs answered</th><th>Average</th><th>Flashcards</th><th>Sets</th><th>Cases</th><th>Weakest lectures</th></tr>\n  ").concat(list.map(function (x) { return "<tr><td><a href=\"#\" data-act=\"admSel\" data-id=\"".concat(h(x.uid), "\">").concat(who(x), "</a></td><td>").concat(x.lastSeen ? fmtDate(x.lastSeen) : '–', "</td><td>").concat(x.done, "/").concat(x.total, " <span class=\"muted small\">(").concat(Math.round(100 * x.done / x.total), "%)</span></td><td>").concat(gradeBadge(x.pct), "</td><td>").concat(x.fc.seen, " seen \u00B7 ").concat(x.fc.known, " known<br><span class=\"muted small\">").concat(x.fc.week, " this week</span></td><td>").concat(x.sets.length).concat(x.sets.length ? ' · last ' + gradeBadge(x.sets[x.sets.length - 1].pct) : '', "</td><td>").concat(x.jury.length).concat(x.juryAvg != null ? ' · ' + x.juryAvg.toFixed(1) + '/10' : '', "</td><td class=\"small\">").concat(x.weak.map(function (k) { return h(APP.lById[k] ? APP.lById[k].title : k); }).join(', ') || '–', "</td></tr>"); }).join(''), "</table></div>\n  ").concat(adminUsage(list));
+    return "<div class=\"page-h\"><h1>Students \u2013 progress & results</h1><p class=\"muted\">Subject: <b>".concat(h(SUBJ[APP.subj].title), "</b> (switch subject to see the others) \u00B7 ").concat(list.length, " account").concat(list.length === 1 ? '' : 's', " \u00B7 guests are not tracked. <a href=\"#\" data-act=\"admReload\">Refresh</a></p></div>").concat(detail, "\n  <div class=\"card\"><table class=\"tbl\"><tr><th>Student</th><th>Last activity</th><th>MCQs answered</th><th>Average</th><th>Flashcards</th><th>Planner</th><th>Sets</th><th>Cases</th><th>Weakest lectures</th></tr>\n  ").concat(list.map(function (x) { return "<tr><td><a href=\"#\" data-act=\"admSel\" data-id=\"".concat(h(x.uid), "\">").concat(who(x), "</a></td><td>").concat(x.lastSeen ? fmtDate(x.lastSeen) : '–', "</td><td>").concat(x.done, "/").concat(x.total, " <span class=\"muted small\">(").concat(Math.round(100 * x.done / x.total), "%)</span></td><td>").concat(gradeBadge(x.pct), "</td><td>").concat(x.fc.seen, " seen \u00B7 ").concat(x.fc.known, " known<br><span class=\"muted small\">").concat(x.fc.week, " this week</span></td><td>").concat(x.plan ? Math.round(x.plan.pct) + '% done' + (x.plan.behind ? "<br><span class=\"lerr small\">".concat(x.plan.behind, " behind</span>") : '<br><span class="ok small">on track</span>') : '<span class="muted small">no plan</span>', "</td><td>").concat(x.sets.length).concat(x.sets.length ? ' · last ' + gradeBadge(x.sets[x.sets.length - 1].pct) : '', "</td><td>").concat(x.jury.length).concat(x.juryAvg != null ? ' · ' + x.juryAvg.toFixed(1) + '/10' : '', "</td><td class=\"small\">").concat(x.weak.map(function (k) { return h(APP.lById[k] ? APP.lById[k].title : k); }).join(', ') || '–', "</td></tr>"); }).join(''), "</table></div>\n  ").concat(adminUsage(list));
 }
 function adminUsage(list) {
     var pre = APP.subj + ':';
@@ -910,7 +1127,7 @@ function adminUsage(list) {
 }
 /* ---------------- shell & routing ---------------- */
 var NAV = [['dash', 'Dashboard', '◉'], ['lessons', 'Lessons', '▤'], ['gallery', 'Mind maps & drawings', '✎'], ['flash', 'Flashcards', '❏'], ['practice', 'Lecture MCQs', '✓'],
-    ['mock', 'Mock exam', '◷'], ['final', 'Final test', '★'], ['papers', 'Past papers', '▦'], ['cases', 'Clinical cases', '✚'], ['mistakes', 'My mistakes', '↺']];
+    ['mock', 'Mock exam', '◷'], ['final', 'Final test', '★'], ['papers', 'Past papers', '▦'], ['cases', 'Clinical cases', '✚'], ['mistakes', 'My mistakes', '↺'], ['plan', 'Study planner', '▣']];
 function renderShell() {
     $('#login').className = 'hidden';
     $('#shell').className = '';
@@ -947,7 +1164,7 @@ function render() {
         return;
     document.querySelectorAll('.nav-a').forEach(function (a) { return a.className = 'nav-a' + (a.getAttribute('data-nav') === VIEW.name ? ' on' : ''); });
     $('#side').className = '';
-    var fn = { dash: vDash, lessons: vLessons, lesson: vLesson, gallery: vGallery, flash: vFlash, practice: vPractice, run: vRun, review: vReview, mock: vMock, final: vFinal, papers: vPapers, cases: vCases, case: vCase, mistakes: vMistakes, help: vHelp, admin: vAdmin, modules: vModules }[VIEW.name] || vDash;
+    var fn = { dash: vDash, lessons: vLessons, lesson: vLesson, gallery: vGallery, flash: vFlash, practice: vPractice, run: vRun, review: vReview, mock: vMock, final: vFinal, papers: vPapers, cases: vCases, case: vCase, mistakes: vMistakes, plan: vPlan, help: vHelp, admin: vAdmin, modules: vModules }[VIEW.name] || vDash;
     $('#main').innerHTML = fn(VIEW.arg);
     $('#main').scrollTop = 0;
     window.scrollTo(0, 0);
@@ -969,7 +1186,7 @@ function vDash() {
     var allDone = Object.keys(st).filter(function (k) { return st[k].done; });
     var overall = allDone.length ? allDone.reduce(function (s, k) { return s + st[k].sum; }, 0) / allDone.reduce(function (s, k) { return s + st[k].done; }, 0) * 100 : null;
     var review = L.map(function (l) { var s = st[l.id]; var freq = APP.oldFreq[l.id] || 0; var weak = s.pct == null ? 60 : (100 - s.pct); return { l: l, s: s, prio: freq * (weak + 10) }; }).filter(function (x) { return x.s.total; }).sort(function (a, b) { return b.prio - a.prio; }).slice(0, 5);
-    return "<div class=\"page-h\"><h1>Dashboard</h1><span class=\"save-pill ".concat(STORE.mode, "\">").concat(STORE.mode === 'claude' || STORE.mode === 'firebase' ? '✓ ' : '').concat(h(STORE.label), "</span></div>\n  <div class=\"grid4\">\n    <div class=\"card stat\"><div class=\"k\">Exam</div>").concat(days != null ? "<div class=\"v\">".concat(days >= 0 ? days : 0, "</div><div class=\"muted\">day").concat(days === 1 ? '' : 's', " left \u00B7 ").concat(h(exam), "</div>") : '<div class="muted">Set your exam date</div>', "\n      <input type=\"date\" id=\"examDate\" value=\"").concat(h(exam || ''), "\" data-change=\"examDate\" class=\"inp\"></div>\n    <div class=\"card stat\"><div class=\"k\">Progress</div><div class=\"v\">").concat(Math.round(100 * done / total), "%</div><div class=\"bar\"><i style=\"width:").concat(100 * done / total, "%\"></i></div><div class=\"muted\">").concat(done, " / ").concat(total, " questions tried</div></div>\n    <div class=\"card stat\"><div class=\"k\">Current grade</div><div class=\"v\">").concat(gradeBadge(overall, true), "</div><div class=\"muted\">").concat(overall == null ? 'Answer some questions' : Math.round(overall) + '% · ' + (passed(overall) ? 'on track to pass' : 'keep going – pass mark 45%'), "</div></div>\n    <div class=\"card stat\"><div class=\"k\">Best set</div><div class=\"v\">").concat(best ? gradeBadge(best.pct, true) : '–', "</div><div class=\"muted\">").concat(best ? h(best.a.label) : 'No set finished yet', "</div></div>\n  </div>\n  <a href=\"#\" class=\"fclink\" data-act=\"nav\" data-id=\"flash\">").concat(fcStatsCard(), "</a>\n  <div class=\"grid2\">\n    <div class=\"card\"><h3>What to review first</h3><p class=\"muted small\">Lectures the old exams ask most, weighted by how you are doing.</p>\n      ").concat(review.map(function (x) { return "<div class=\"rev-row\"><b>".concat(h(x.l.title), "</b> <span class=\"muted small\">").concat(APP.oldFreq[x.l.id] || 0, " old-exam Qs</span> ").concat(gradeBadge(x.s.pct), "\n      <span class=\"right\"><button class=\"btn sm\" data-act=\"openLesson\" data-id=\"").concat(x.l.id, "\">Lesson</button> <button class=\"btn sm primary\" data-act=\"startLecture\" data-id=\"").concat(x.l.id, "\">MCQs</button></span></div>"); }).join(''), "</div>\n    <div class=\"card\"><h3>Grade per lecture</h3><table class=\"tbl\"><tr><th>Lecture</th><th>Tried</th><th>Grade</th></tr>\n      ").concat(L.filter(function (l) { return st[l.id].total; }).map(function (l) { return "<tr><td><a href=\"#\" data-act=\"openLesson\" data-id=\"".concat(l.id, "\">").concat(h(l.title), "</a></td><td>").concat(st[l.id].done, "/").concat(st[l.id].total, "</td><td>").concat(gradeBadge(st[l.id].pct), "</td></tr>"); }).join(''), "</table></div>\n  </div>\n  <div class=\"grid2\">\n    <div class=\"card\"><h3>My grades</h3>").concat(sets.length ? "<table class=\"tbl\"><tr><th>Date</th><th>Set</th><th>Grade</th><th></th></tr>".concat(sets.slice().reverse().slice(0, 25).map(function (x) { return "<tr><td>".concat(fmtDate(x.a.date), "</td><td><a href=\"#\" data-act=\"openReview\" data-id=\"").concat(x.a.id, "\">").concat(h(x.a.label), "</a></td><td>").concat(gradeBadge(x.pct), "</td><td>").concat(passTag(x.pct), "</td></tr>"); }).join(''), "</table>") : '<p class="muted">Your finished sets will appear here.</p>', "</div>\n    <div class=\"card\"><h3>").concat(APP.core.cases.length ? 'Clinical cases – jury' : 'Grading', "</h3>").concat(!APP.core.cases.length ? '' : S.jury.length ? "<table class=\"tbl\"><tr><th>Date</th><th>Case</th><th>Grade</th></tr>".concat(S.jury.slice().reverse().slice(0, 15).map(function (j) { return "<tr><td>".concat(fmtDate(j.date), "</td><td>").concat(h(j.label), "</td><td>").concat(gradeBadge(j.score10 * 10), " <span class=\"muted small\">").concat(j.score10.toFixed(1), "/10</span></td></tr>"); }).join(''), "</table>") : '<p class="muted">Practise a clinical case to see your jury grades here.</p>', "\n    <p class=\"small muted\">Grades: F &lt;45% \u00B7 E 45\u201354 \u00B7 D 55\u201364 \u00B7 C 65\u201374 \u00B7 B 75\u201384 \u00B7 A 85\u201394 \u00B7 A+ \u226595. Pass = E or better. <a href=\"#\" data-act=\"help\">How grading works</a></p></div>\n  </div>");
+    return "<div class=\"page-h\"><h1>Dashboard</h1><span class=\"save-pill ".concat(STORE.mode, "\">").concat(STORE.mode === 'claude' || STORE.mode === 'firebase' ? '✓ ' : '').concat(h(STORE.label), "</span></div>\n  <div class=\"grid4\">\n    <div class=\"card stat\"><div class=\"k\">Exam</div>").concat(days != null ? "<div class=\"v\">".concat(days >= 0 ? days : 0, "</div><div class=\"muted\">day").concat(days === 1 ? '' : 's', " left \u00B7 ").concat(h(exam), "</div>") : '<div class="muted">Set your exam date</div>', "\n      <input type=\"date\" id=\"examDate\" value=\"").concat(h(exam || ''), "\" data-change=\"examDate\" class=\"inp\"></div>\n    <div class=\"card stat\"><div class=\"k\">Progress</div><div class=\"v\">").concat(Math.round(100 * done / total), "%</div><div class=\"bar\"><i style=\"width:").concat(100 * done / total, "%\"></i></div><div class=\"muted\">").concat(done, " / ").concat(total, " questions tried</div></div>\n    <div class=\"card stat\"><div class=\"k\">Current grade</div><div class=\"v\">").concat(gradeBadge(overall, true), "</div><div class=\"muted\">").concat(overall == null ? 'Answer some questions' : Math.round(overall) + '% · ' + (passed(overall) ? 'on track to pass' : 'keep going – pass mark 45%'), "</div></div>\n    <div class=\"card stat\"><div class=\"k\">Best set</div><div class=\"v\">").concat(best ? gradeBadge(best.pct, true) : '–', "</div><div class=\"muted\">").concat(best ? h(best.a.label) : 'No set finished yet', "</div></div>\n  </div>\n  ").concat(planTodayCard(), "\n  <a href=\"#\" class=\"fclink\" data-act=\"nav\" data-id=\"flash\">").concat(fcStatsCard(), "</a>\n  <div class=\"grid2\">\n    <div class=\"card\"><h3>What to review first</h3><p class=\"muted small\">Lectures the old exams ask most, weighted by how you are doing.</p>\n      ").concat(review.map(function (x) { return "<div class=\"rev-row\"><b>".concat(h(x.l.title), "</b> <span class=\"muted small\">").concat(APP.oldFreq[x.l.id] || 0, " old-exam Qs</span> ").concat(gradeBadge(x.s.pct), "\n      <span class=\"right\"><button class=\"btn sm\" data-act=\"openLesson\" data-id=\"").concat(x.l.id, "\">Lesson</button> <button class=\"btn sm primary\" data-act=\"startLecture\" data-id=\"").concat(x.l.id, "\">MCQs</button></span></div>"); }).join(''), "</div>\n    <div class=\"card\"><h3>Grade per lecture</h3><table class=\"tbl\"><tr><th>Lecture</th><th>Tried</th><th>Grade</th></tr>\n      ").concat(L.filter(function (l) { return st[l.id].total; }).map(function (l) { return "<tr><td><a href=\"#\" data-act=\"openLesson\" data-id=\"".concat(l.id, "\">").concat(h(l.title), "</a></td><td>").concat(st[l.id].done, "/").concat(st[l.id].total, "</td><td>").concat(gradeBadge(st[l.id].pct), "</td></tr>"); }).join(''), "</table></div>\n  </div>\n  <div class=\"grid2\">\n    <div class=\"card\"><h3>My grades</h3>").concat(sets.length ? "<table class=\"tbl\"><tr><th>Date</th><th>Set</th><th>Grade</th><th></th></tr>".concat(sets.slice().reverse().slice(0, 25).map(function (x) { return "<tr><td>".concat(fmtDate(x.a.date), "</td><td><a href=\"#\" data-act=\"openReview\" data-id=\"").concat(x.a.id, "\">").concat(h(x.a.label), "</a></td><td>").concat(gradeBadge(x.pct), "</td><td>").concat(passTag(x.pct), "</td></tr>"); }).join(''), "</table>") : '<p class="muted">Your finished sets will appear here.</p>', "</div>\n    <div class=\"card\"><h3>").concat(APP.core.cases.length ? 'Clinical cases – jury' : 'Grading', "</h3>").concat(!APP.core.cases.length ? '' : S.jury.length ? "<table class=\"tbl\"><tr><th>Date</th><th>Case</th><th>Grade</th></tr>".concat(S.jury.slice().reverse().slice(0, 15).map(function (j) { return "<tr><td>".concat(fmtDate(j.date), "</td><td>").concat(h(j.label), "</td><td>").concat(gradeBadge(j.score10 * 10), " <span class=\"muted small\">").concat(j.score10.toFixed(1), "/10</span></td></tr>"); }).join(''), "</table>") : '<p class="muted">Practise a clinical case to see your jury grades here.</p>', "\n    <p class=\"small muted\">Grades: F &lt;45% \u00B7 E 45\u201354 \u00B7 D 55\u201364 \u00B7 C 65\u201374 \u00B7 B 75\u201384 \u00B7 A 85\u201394 \u00B7 A+ \u226595. Pass = E or better. <a href=\"#\" data-act=\"help\">How grading works</a></p></div>\n  </div>");
 }
 function vHelp() {
     return "<div class=\"page-h\"><h1>How grading works</h1></div><div class=\"card prose\">\n  <p><b>Each question:</b> all propositions judged right = full point. Questions marked \u2605 have exactly one answer: one tick only, all-or-nothing. On multiple-answer questions, each wrong tick or missed true answer is one mistake: 1 mistake = 0.8 point, 2 mistakes = 0.4, 3 or more = 0.</p>\n  <p><b>Each set:</b> the percentage of points becomes a letter: <b>F</b> &lt;45% (not passed) \u00B7 <b>E</b> 45\u201354 \u00B7 <b>D</b> 55\u201364 \u00B7 <b>C</b> 65\u201374 \u00B7 <b>B</b> 75\u201384 \u00B7 <b>A</b> 85\u201394 \u00B7 <b>A+</b> \u226595. E or better = PASSED.</p>\n  <p><b>Mock exam:</b> 75% MCQs + 25% clinical case, and both parts must reach 45%.</p>\n  <p>Your ticked answers are stored, not just the scores, so every grade is recalculated from them.</p></div>";
@@ -1489,6 +1706,66 @@ document.addEventListener('click', function (ev) {
             LPART = 0;
             go('lesson', id);
             break;
+        case 'planEdit':
+            PLAN_EDIT = true;
+            PLAN_DRAFT = null;
+            render();
+            break;
+        case 'planCancel':
+            PLAN_EDIT = false;
+            PLAN_DRAFT = null;
+            render();
+            break;
+        case 'pSpread':
+            spreadLectures(PLAN_DRAFT);
+            render();
+            break;
+        case 'pOffAdd': {
+            var v = ($('#pOff') || {}).value;
+            if (v) {
+                PLAN_DRAFT.off = PLAN_DRAFT.off || [];
+                if (PLAN_DRAFT.off.indexOf(v) < 0)
+                    PLAN_DRAFT.off.push(v);
+                render();
+            }
+            break;
+        }
+        case 'pOffDel':
+            PLAN_DRAFT.off = (PLAN_DRAFT.off || []).filter(function (x) { return x !== id; });
+            render();
+            break;
+        case 'planGen': {
+            if (!(PLAN_DRAFT.exam > PLAN_DRAFT.start)) {
+                toast('The exam must be after the start date.');
+                break;
+            }
+            var old = S.plans[APP.subj];
+            PLAN_DRAFT.tasks = old ? old.tasks : [];
+            planSave(genPlan(PLAN_DRAFT));
+            track('plan:build');
+            PLAN_EDIT = false;
+            PLAN_DRAFT = null;
+            S.meta = S.meta || {};
+            if (!S.meta.examDate) {
+                S.meta.t = 'meta';
+                S.meta.id = 'meta';
+                S.meta.examDate = S.plans[APP.subj].exam;
+                save(S.meta);
+            }
+            render();
+            toast('Your plan is ready.');
+            break;
+        }
+        case 'planRe':
+            planSave(genPlan(S.plans[APP.subj]));
+            track('plan:replan');
+            render();
+            toast('Plan rebuilt from today.');
+            break;
+        case 'planIcs':
+            planIcs();
+            track('plan:ics');
+            break;
         case 'ltab':
             LTAB = id;
             track('tab:' + id);
@@ -1712,6 +1989,39 @@ document.addEventListener('click', function (ev) {
 function saveCaseText() { var ta = $('#caseAns'); if (ta && CASE)
     CASE.answers[CASE.i] = ta.value; }
 document.addEventListener('change', function (ev) {
+    var dc = ev.target && ev.target.getAttribute('data-change'), did = ev.target && ev.target.getAttribute('data-id');
+    if (dc === 'pd' && PLAN_DRAFT) {
+        PLAN_DRAFT[did] = ev.target.value;
+        if (did === 'start' || did === 'exam') {
+            if (!PLAN_DRAFT.touched)
+                spreadLectures(PLAN_DRAFT);
+        }
+        render();
+        return;
+    }
+    if (dc === 'ph' && PLAN_DRAFT) {
+        PLAN_DRAFT.hours[+did] = Math.max(0, +ev.target.value || 0);
+        render();
+        return;
+    }
+    if (dc === 'pl' && PLAN_DRAFT) {
+        PLAN_DRAFT.lec[did] = ev.target.value;
+        PLAN_DRAFT.touched = 1;
+        return;
+    }
+    if (dc === 'ptask') {
+        var p = S.plans[APP.subj];
+        var t = p && p.tasks.filter(function (x) { return x.id === did; })[0];
+        if (t) {
+            if (ev.target.checked)
+                t.done = Date.now();
+            else
+                delete t.done;
+            planSave(p);
+            render();
+        }
+        return;
+    }
     if (ev.target && ev.target.getAttribute('data-change') === 'examDate') {
         S.meta = S.meta || {};
         S.meta.t = 'meta';
