@@ -26,6 +26,9 @@ a{color:var(--pri)}h1{font-size:24px;margin:0 0 4px}h2{font-size:19px}h3{font-si
 .lc{text-decoration:none;color:var(--ink);display:block;position:relative}.lc b{display:block;margin:4px 0}.lc .grade{position:absolute;top:12px;right:12px}
 .lic{display:inline-block;min-width:32px;height:32px;line-height:32px;text-align:center;border-radius:8px;background:var(--pri2);color:var(--pri);font-weight:700;font-size:13px}
 .stat .k{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}.stat .v{font-size:30px;font-weight:700;margin:4px 0}
+.fcst{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-flex-wrap:wrap;flex-wrap:wrap;gap:8px 28px;align-items:flex-end}.fcst>div{min-width:130px;-webkit-box-flex:1;-webkit-flex:1;flex:1}.fcst .k{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}.fcst .v{font-size:26px;font-weight:700;margin:2px 0}
+.mbars{display:-webkit-box;display:-webkit-flex;display:flex;align-items:flex-end;height:38px;gap:3px;margin:6px 0}.mbars i{display:block;width:10px;background:var(--pri);border-radius:2px;opacity:.85}
+a.fclink{display:block;color:inherit;text-decoration:none}
 .bar{height:8px;background:var(--line);border-radius:6px;overflow:hidden;margin:6px 0}.bar i{display:block;height:100%;background:var(--pri)}
 .btn{display:inline-block;padding:8px 14px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;cursor:pointer;margin:2px 0;-webkit-appearance:none}
 .btn:hover{border-color:var(--pri)}.btn.primary{background:var(--pri);border-color:var(--pri);color:#fff}.btn.sm{padding:4px 10px;font-size:13px}.btn[disabled]{opacity:.45;cursor:default}.btn.wide{display:block;width:100%;padding:12px}.btn.finish{border-color:var(--pri);color:var(--pri);font-weight:600}
@@ -528,6 +531,7 @@ function loadState() {
         applySubject();
         S.meta = docs.filter(function (d) { return d.t === 'meta'; })[0] || { t: 'meta', id: 'meta' };
         S.fc = docs.filter(function (d) { return d.t === 'fc'; })[0] || { t: 'fc', id: 'fc', known: {} };
+        USE = docs.filter(function (d) { return d.t === 'usage'; })[0] || { t: 'usage', id: 'usage', c: {}, d: {} };
     }).catch(function (e) { console.warn(e); toast('Could not load your saved progress – working offline for now.'); });
 }
 function save(doc) {
@@ -752,6 +756,63 @@ function toggleTheme() {
     }
     catch (e) { }
 }
+/* ---------------- usage tracking & flashcard stats ---------------- */
+var USE = null, USE_T = null, USE_LAST = '';
+function dayStr(t) { var d = t ? new Date(t) : new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+function track(key) {
+    if (!USE || !STORE || S.guest)
+        return;
+    var k = APP.subj + ':' + key;
+    var now = Date.now();
+    if (k === USE_LAST && now - (USE.last || 0) < 3000)
+        return;
+    USE_LAST = k;
+    USE.c = USE.c || {};
+    USE.c[k] = (USE.c[k] || 0) + 1;
+    USE.d = USE.d || {};
+    var dk = dayStr();
+    USE.d[dk] = (USE.d[dk] || 0) + 1;
+    USE.last = now;
+    clearTimeout(USE_T);
+    USE_T = setTimeout(flushUse, 5000);
+}
+function flushUse() { clearTimeout(USE_T); USE_T = null; if (USE && STORE && !S.guest)
+    save(USE); }
+function fcMark(c) {
+    S.fc.seen = S.fc.seen || {};
+    S.fc.seen[c.k] = APP.subj;
+    S.fc.days = S.fc.days || {};
+    var dk = APP.subj + '|' + dayStr();
+    S.fc.days[dk] = (S.fc.days[dk] || 0) + 1;
+}
+function fcStats(fc, subj) {
+    fc = fc || {};
+    var seen = fc.seen || {}, known = fc.known || {}, days = fc.days || {};
+    var r = { seen: 0, known: 0, rev: 0, today: 0, week: 0, last: {} };
+    var td = dayStr(), lim = Date.now() - 6.5 * 864e5;
+    Object.keys(seen).forEach(function (x) { if (seen[x] === subj) {
+        r.seen++;
+        if (known[x])
+            r.known++;
+    } });
+    Object.keys(days).forEach(function (x) { var p = x.split('|'); if (p[0] !== subj)
+        return; var n = days[x]; r.rev += n; r.last[p[1]] = n; if (p[1] === td)
+        r.today += n; if (new Date(p[1] + 'T12:00:00').getTime() >= lim)
+        r.week += n; });
+    return r;
+}
+function fcTotal() { return buildDeck('', '').length + (typeof xCount === 'function' ? xCount() : 0); }
+function miniBars(last, n) {
+    var ds = [];
+    for (var i = n - 1; i >= 0; i--)
+        ds.push(dayStr(Date.now() - i * 864e5));
+    var mx = Math.max.apply(Math, __spreadArray([1], ds.map(function (d) { return last[d] || 0; }), false));
+    return "<div class=\"mbars\">".concat(ds.map(function (d) { return "<i title=\"".concat(d, ": ").concat(last[d] || 0, "\" style=\"height:").concat(Math.max(2, Math.round(36 * (last[d] || 0) / mx)), "px\"></i>"); }).join(''), "</div>");
+}
+function fcStatsCard() {
+    var f = fcStats(S.fc, APP.subj), tot = fcTotal();
+    return "<div class=\"card fcst\"><div><div class=\"k\">Flashcards seen</div><div class=\"v\">".concat(f.seen, "<span class=\"muted small\"> / ").concat(tot, "</span></div><div class=\"bar\"><i style=\"width:").concat(tot ? Math.min(100, 100 * f.seen / tot) : 0, "%\"></i></div></div>\n  <div><div class=\"k\">Known</div><div class=\"v\">").concat(f.known, "</div><div class=\"muted small\">").concat(f.seen ? Math.round(100 * f.known / f.seen) : 0, "% of seen</div></div>\n  <div><div class=\"k\">Today</div><div class=\"v\">").concat(f.today, "</div><div class=\"muted small\">").concat(f.week, " this week \u00B7 ").concat(f.rev, " reviews in total</div></div>\n  <div><div class=\"k\">Last 14 days</div>").concat(miniBars(f.last, 14), "</div></div>");
+}
 /* ---------------- admin (site creator) ---------------- */
 var ADMIN_EMAIL = 'nathanaeldalbis@gmail.com';
 function isAdmin() { return S.mode === 'web' && S.user && (S.user.email || '').toLowerCase() === ADMIN_EMAIL; }
@@ -802,7 +863,9 @@ function adminSummary(u) {
         var jury = S.jury.map(function (j) { return ({ label: j.label, date: j.date, s: j.score10 }); });
         var weak = ids.filter(function (k) { return st[k].done >= 3; }).sort(function (a, b) { return st[a].pct - st[b].pct; }).slice(0, 3);
         var lastAct = Math.max.apply(Math, __spreadArray(__spreadArray([prof.lastSeen || 0], S.attempts.map(function (a) { return a.date || 0; }), false), S.jury.map(function (j) { return j.date || 0; }), false));
-        return { uid: u.uid, email: prof.email || '', name: prof.name || '', lastSeen: lastAct || null, done: done, total: APP.core.questions.length,
+        var fcd = u.docs.filter(function (d) { return d.t === 'fc'; })[0] || {};
+        var use = u.docs.filter(function (d) { return d.t === 'usage'; })[0] || {};
+        return { uid: u.uid, email: prof.email || '', name: prof.name || '', lastSeen: Math.max(lastAct || 0, use.last || 0) || null, done: done, total: APP.core.questions.length, fc: fcStats(fcd, APP.subj), use: use.c || {}, useD: use.d || {},
             pct: done ? 100 * sum / done : null, st: st, sets: sets, jury: jury, juryAvg: jury.length ? jury.reduce(function (a, j) { return a + j.s; }, 0) / jury.length : null, weak: weak };
     });
 }
@@ -821,8 +884,29 @@ function vAdmin() {
     var who = function (x) { return x.email ? h(x.email) + (x.name ? " <span class=\"muted small\">".concat(h(x.name), "</span>") : '') : "<span class=\"muted small\">account ".concat(h(x.uid.slice(0, 8)), "\u2026 (not signed in since the update)</span>"); };
     var detail = '';
     if (u)
-        detail = "<div class=\"card\"><h3>".concat(who(u), "</h3>\n    <table class=\"tbl\"><tr><th>Lecture</th><th>Answered</th><th>Grade</th></tr>").concat(L.filter(function (l) { return u.st[l.id] && u.st[l.id].total; }).map(function (l) { return "<tr><td>".concat(h(l.title), "</td><td>").concat(u.st[l.id].done, "/").concat(u.st[l.id].total, "</td><td>").concat(gradeBadge(u.st[l.id].pct), "</td></tr>"); }).join(''), "</table>\n    <h4>Sets (").concat(u.sets.length, ")</h4>").concat(u.sets.length ? "<table class=\"tbl\"><tr><th>Date</th><th>Set</th><th>Grade</th></tr>".concat(u.sets.slice().reverse().map(function (x) { return "<tr><td>".concat(fmtDate(x.date), "</td><td>").concat(h(x.label), "</td><td>").concat(gradeBadge(x.pct), "</td></tr>"); }).join(''), "</table>") : '<p class="muted">No finished set.</p>', "\n    <h4>Clinical cases (").concat(u.jury.length, ")</h4>").concat(u.jury.length ? "<table class=\"tbl\"><tr><th>Date</th><th>Case</th><th>Grade</th></tr>".concat(u.jury.slice().reverse().map(function (j) { return "<tr><td>".concat(fmtDate(j.date), "</td><td>").concat(h(j.label), "</td><td>").concat(gradeBadge(j.s * 10), " <span class=\"muted small\">").concat(j.s.toFixed(1), "/10</span></td></tr>"); }).join(''), "</table>") : '<p class="muted">No case yet.</p>', "</div>");
-    return "<div class=\"page-h\"><h1>Students \u2013 progress & results</h1><p class=\"muted\">Subject: <b>".concat(h(SUBJ[APP.subj].title), "</b> (switch subject to see the others) \u00B7 ").concat(list.length, " account").concat(list.length === 1 ? '' : 's', " \u00B7 guests are not tracked. <a href=\"#\" data-act=\"admReload\">Refresh</a></p></div>").concat(detail, "\n  <div class=\"card\"><table class=\"tbl\"><tr><th>Student</th><th>Last activity</th><th>MCQs answered</th><th>Average</th><th>Sets</th><th>Cases</th><th>Weakest lectures</th></tr>\n  ").concat(list.map(function (x) { return "<tr><td><a href=\"#\" data-act=\"admSel\" data-id=\"".concat(h(x.uid), "\">").concat(who(x), "</a></td><td>").concat(x.lastSeen ? fmtDate(x.lastSeen) : '–', "</td><td>").concat(x.done, "/").concat(x.total, " <span class=\"muted small\">(").concat(Math.round(100 * x.done / x.total), "%)</span></td><td>").concat(gradeBadge(x.pct), "</td><td>").concat(x.sets.length).concat(x.sets.length ? ' · last ' + gradeBadge(x.sets[x.sets.length - 1].pct) : '', "</td><td>").concat(x.jury.length).concat(x.juryAvg != null ? ' · ' + x.juryAvg.toFixed(1) + '/10' : '', "</td><td class=\"small\">").concat(x.weak.map(function (k) { return h(APP.lById[k] ? APP.lById[k].title : k); }).join(', ') || '–', "</td></tr>"); }).join(''), "</table></div>");
+        detail = "<div class=\"card\"><h3>".concat(who(u), "</h3>\n    <table class=\"tbl\"><tr><th>Lecture</th><th>Answered</th><th>Grade</th></tr>").concat(L.filter(function (l) { return u.st[l.id] && u.st[l.id].total; }).map(function (l) { return "<tr><td>".concat(h(l.title), "</td><td>").concat(u.st[l.id].done, "/").concat(u.st[l.id].total, "</td><td>").concat(gradeBadge(u.st[l.id].pct), "</td></tr>"); }).join(''), "</table>\n    <p><b>Flashcards:</b> ").concat(u.fc.seen, " seen \u00B7 ").concat(u.fc.known, " known \u00B7 ").concat(u.fc.rev, " reviews (").concat(u.fc.week, " this week)</p>").concat(miniBars(u.fc.last, 14), "\n    <h4>Sets (").concat(u.sets.length, ")</h4>").concat(u.sets.length ? "<table class=\"tbl\"><tr><th>Date</th><th>Set</th><th>Grade</th></tr>".concat(u.sets.slice().reverse().map(function (x) { return "<tr><td>".concat(fmtDate(x.date), "</td><td>").concat(h(x.label), "</td><td>").concat(gradeBadge(x.pct), "</td></tr>"); }).join(''), "</table>") : '<p class="muted">No finished set.</p>', "\n    <h4>Clinical cases (").concat(u.jury.length, ")</h4>").concat(u.jury.length ? "<table class=\"tbl\"><tr><th>Date</th><th>Case</th><th>Grade</th></tr>".concat(u.jury.slice().reverse().map(function (j) { return "<tr><td>".concat(fmtDate(j.date), "</td><td>").concat(h(j.label), "</td><td>").concat(gradeBadge(j.s * 10), " <span class=\"muted small\">").concat(j.s.toFixed(1), "/10</span></td></tr>"); }).join(''), "</table>") : '<p class="muted">No case yet.</p>', "</div>");
+    return "<div class=\"page-h\"><h1>Students \u2013 progress & results</h1><p class=\"muted\">Subject: <b>".concat(h(SUBJ[APP.subj].title), "</b> (switch subject to see the others) \u00B7 ").concat(list.length, " account").concat(list.length === 1 ? '' : 's', " \u00B7 guests are not tracked. <a href=\"#\" data-act=\"admReload\">Refresh</a></p></div>").concat(detail, "\n  <div class=\"card\"><table class=\"tbl\"><tr><th>Student</th><th>Last activity</th><th>MCQs answered</th><th>Average</th><th>Flashcards</th><th>Sets</th><th>Cases</th><th>Weakest lectures</th></tr>\n  ").concat(list.map(function (x) { return "<tr><td><a href=\"#\" data-act=\"admSel\" data-id=\"".concat(h(x.uid), "\">").concat(who(x), "</a></td><td>").concat(x.lastSeen ? fmtDate(x.lastSeen) : '–', "</td><td>").concat(x.done, "/").concat(x.total, " <span class=\"muted small\">(").concat(Math.round(100 * x.done / x.total), "%)</span></td><td>").concat(gradeBadge(x.pct), "</td><td>").concat(x.fc.seen, " seen \u00B7 ").concat(x.fc.known, " known<br><span class=\"muted small\">").concat(x.fc.week, " this week</span></td><td>").concat(x.sets.length).concat(x.sets.length ? ' · last ' + gradeBadge(x.sets[x.sets.length - 1].pct) : '', "</td><td>").concat(x.jury.length).concat(x.juryAvg != null ? ' · ' + x.juryAvg.toFixed(1) + '/10' : '', "</td><td class=\"small\">").concat(x.weak.map(function (k) { return h(APP.lById[k] ? APP.lById[k].title : k); }).join(', ') || '–', "</td></tr>"); }).join(''), "</table></div>\n  ").concat(adminUsage(list));
+}
+function adminUsage(list) {
+    var pre = APP.subj + ':';
+    var others = list.filter(function (x) { return (x.email || '').toLowerCase() !== ADMIN_EMAIL; });
+    var agg = {};
+    var users = {};
+    others.forEach(function (x) { return Object.keys(x.use).forEach(function (k) { if (k.indexOf(pre) !== 0)
+        return; var kk = k.slice(pre.length); agg[kk] = (agg[kk] || 0) + x.use[k]; (users[kk] = users[kk] || {})[x.uid] = 1; }); });
+    var nu = function (k) { return Object.keys(users[k] || {}).length; };
+    var rows = function (prefix, label) { return Object.keys(agg).filter(function (k) { return k.indexOf(prefix) === 0; }).sort(function (a, b) { return agg[b] - agg[a]; }).map(function (k) { return "<tr><td>".concat(h(label(k.slice(prefix.length))), "</td><td>").concat(agg[k], "</td><td>").concat(nu(k), "</td></tr>"); }).join(''); };
+    var navName = function (n) { var f = NAV.filter(function (x) { return x[0] === n; })[0]; return f ? f[1] : n === 'lesson' ? 'Lesson page' : n === 'run' ? 'MCQ set (running)' : n === 'review' ? 'Set review' : n === 'case' ? 'Clinical case page' : n === 'modules' ? 'Modules & subjects' : n === 'help' ? 'Grading help' : n; };
+    var unused = NAV.filter(function (n) { return n[0] !== 'cases' || APP.core.cases.length; }).filter(function (n) { return !agg['v:' + n[0]]; }).map(function (n) { return n[1]; });
+    var lec = function (k) { return APP.lById[k] ? APP.lById[k].title : k; };
+    var tabN = { overview: 'Overview', sheets: 'Pathology sheets', course: 'Full course', book: 'Textbook', visuals: 'Drawings' };
+    var deckN = function (k) { var p = k.split(':'), K = (APP.xidx && APP.xidx.kinds) || {}; var kind = p[0] === 'x' ? (p[1] === 'all' ? 'Imported/image cards – all' : (K[p[1]] || p[1])) : ({ std: 'Site cards', mine: 'Handwritten cards', sheets: 'Pathology sheets' }[p[1]] || p[1]); return kind + ' · ' + (p[2] === 'all' || !p[2] ? 'all chapters' : lec(p[2])); };
+    var fcRev = others.reduce(function (n, x) { return n + x.fc.rev; }, 0), fcWeek = others.reduce(function (n, x) { return n + x.fc.week; }, 0);
+    var days = {};
+    others.forEach(function (x) { return Object.keys(x.useD).forEach(function (d) { days[d] = (days[d] || 0) + x.useD[d]; }); });
+    var act7 = others.filter(function (x) { return x.lastSeen && Date.now() - x.lastSeen < 7 * 864e5; }).length;
+    var T = function (title, body) { return "<div class=\"card\"><h3>".concat(title, "</h3>").concat(body ? "<table class=\"tbl\"><tr><th></th><th>Opens</th><th>Students</th></tr>".concat(body, "</table>") : '<p class="muted">No data yet.</p>', "</div>"); };
+    return "<div class=\"page-h\"><h2>Usage \u2013 what students use (".concat(h(SUBJ[APP.subj].title), ")</h2><p class=\"muted small\">Counts every page opened by signed-in students (you are excluded). Collected from this update on; guests are not tracked.</p></div>\n  <div class=\"grid4\"><div class=\"card stat\"><div class=\"k\">Active this week</div><div class=\"v\">").concat(act7, "</div><div class=\"muted\">of ").concat(others.length, " students</div></div>\n  <div class=\"card stat\"><div class=\"k\">Flashcard reviews</div><div class=\"v\">").concat(fcRev, "</div><div class=\"muted\">").concat(fcWeek, " in the last 7 days</div></div>\n  <div class=\"card stat\"><div class=\"k\">Sets finished</div><div class=\"v\">").concat(others.reduce(function (n, x) { return n + x.sets.length; }, 0), "</div><div class=\"muted\">MCQ sets, mocks & tests</div></div>\n  <div class=\"card stat\"><div class=\"k\">Activity \u2013 14 days</div>").concat(miniBars(days, 14), "<div class=\"muted small\">all subjects</div></div></div>\n  ").concat(unused.length ? "<div class=\"card\"><b>Never opened yet:</b> ".concat(unused.map(h).join(', '), "</div>") : '', "\n  <div class=\"grid2\">").concat(T('Sections', rows('v:', navName))).concat(T('Lesson tabs', rows('tab:', function (k) { return tabN[k] || k; })), "</div>\n  <div class=\"grid2\">").concat(T('Lessons opened', rows('lec:', lec))).concat(T('Flashcard decks started', rows('deck:', deckN)), "</div>");
 }
 /* ---------------- shell & routing ---------------- */
 var NAV = [['dash', 'Dashboard', '◉'], ['lessons', 'Lessons', '▤'], ['gallery', 'Mind maps & drawings', '✎'], ['flash', 'Flashcards', '❏'], ['practice', 'Lecture MCQs', '✓'],
@@ -842,7 +926,8 @@ function renderShell() {
         "<div class=\"nav-foot\"><div class=\"save-pill ".concat(STORE ? STORE.mode : '', "\">").concat(h(STORE ? STORE.label : ''), "</div>\n    <button class=\"btn sm\" data-act=\"theme\">\u25D0 Light / dark</button>").concat(S.mode === 'web' ? '<button class="btn sm" data-act="logout">' + (S.guest ? 'Exit guest mode' : 'Sign out') + '</button>' : '', "</div>");
     $('#tutorBtn').style.display = AI ? '' : 'none';
 }
-function go(name, arg) { VIEW = { name: name, arg: arg }; if (location.hash !== '#' + name) {
+function go(name, arg) { track('v:' + name); if (name === 'lesson' && arg)
+    track('lec:' + arg); VIEW = { name: name, arg: arg }; if (location.hash !== '#' + name) {
     try {
         history.replaceState(null, '', '#' + name);
     }
@@ -854,6 +939,7 @@ function route() {
     var n = (location.hash || '#dash').slice(1);
     var known = NAV.some(function (x) { return x[0] === n; }) || n === 'run' || n === 'review' || n === 'lesson' || n === 'case' || n === 'help' || n === 'modules' || (n === 'admin' && isAdmin());
     VIEW = { name: known && n !== 'run' && n !== 'review' && n !== 'case' && n !== 'lesson' ? n : 'dash', arg: null };
+    track('v:' + VIEW.name);
     render();
 }
 function render() {
@@ -883,7 +969,7 @@ function vDash() {
     var allDone = Object.keys(st).filter(function (k) { return st[k].done; });
     var overall = allDone.length ? allDone.reduce(function (s, k) { return s + st[k].sum; }, 0) / allDone.reduce(function (s, k) { return s + st[k].done; }, 0) * 100 : null;
     var review = L.map(function (l) { var s = st[l.id]; var freq = APP.oldFreq[l.id] || 0; var weak = s.pct == null ? 60 : (100 - s.pct); return { l: l, s: s, prio: freq * (weak + 10) }; }).filter(function (x) { return x.s.total; }).sort(function (a, b) { return b.prio - a.prio; }).slice(0, 5);
-    return "<div class=\"page-h\"><h1>Dashboard</h1><span class=\"save-pill ".concat(STORE.mode, "\">").concat(STORE.mode === 'claude' || STORE.mode === 'firebase' ? '✓ ' : '').concat(h(STORE.label), "</span></div>\n  <div class=\"grid4\">\n    <div class=\"card stat\"><div class=\"k\">Exam</div>").concat(days != null ? "<div class=\"v\">".concat(days >= 0 ? days : 0, "</div><div class=\"muted\">day").concat(days === 1 ? '' : 's', " left \u00B7 ").concat(h(exam), "</div>") : '<div class="muted">Set your exam date</div>', "\n      <input type=\"date\" id=\"examDate\" value=\"").concat(h(exam || ''), "\" data-change=\"examDate\" class=\"inp\"></div>\n    <div class=\"card stat\"><div class=\"k\">Progress</div><div class=\"v\">").concat(Math.round(100 * done / total), "%</div><div class=\"bar\"><i style=\"width:").concat(100 * done / total, "%\"></i></div><div class=\"muted\">").concat(done, " / ").concat(total, " questions tried</div></div>\n    <div class=\"card stat\"><div class=\"k\">Current grade</div><div class=\"v\">").concat(gradeBadge(overall, true), "</div><div class=\"muted\">").concat(overall == null ? 'Answer some questions' : Math.round(overall) + '% · ' + (passed(overall) ? 'on track to pass' : 'keep going – pass mark 45%'), "</div></div>\n    <div class=\"card stat\"><div class=\"k\">Best set</div><div class=\"v\">").concat(best ? gradeBadge(best.pct, true) : '–', "</div><div class=\"muted\">").concat(best ? h(best.a.label) : 'No set finished yet', "</div></div>\n  </div>\n  <div class=\"grid2\">\n    <div class=\"card\"><h3>What to review first</h3><p class=\"muted small\">Lectures the old exams ask most, weighted by how you are doing.</p>\n      ").concat(review.map(function (x) { return "<div class=\"rev-row\"><b>".concat(h(x.l.title), "</b> <span class=\"muted small\">").concat(APP.oldFreq[x.l.id] || 0, " old-exam Qs</span> ").concat(gradeBadge(x.s.pct), "\n      <span class=\"right\"><button class=\"btn sm\" data-act=\"openLesson\" data-id=\"").concat(x.l.id, "\">Lesson</button> <button class=\"btn sm primary\" data-act=\"startLecture\" data-id=\"").concat(x.l.id, "\">MCQs</button></span></div>"); }).join(''), "</div>\n    <div class=\"card\"><h3>Grade per lecture</h3><table class=\"tbl\"><tr><th>Lecture</th><th>Tried</th><th>Grade</th></tr>\n      ").concat(L.filter(function (l) { return st[l.id].total; }).map(function (l) { return "<tr><td><a href=\"#\" data-act=\"openLesson\" data-id=\"".concat(l.id, "\">").concat(h(l.title), "</a></td><td>").concat(st[l.id].done, "/").concat(st[l.id].total, "</td><td>").concat(gradeBadge(st[l.id].pct), "</td></tr>"); }).join(''), "</table></div>\n  </div>\n  <div class=\"grid2\">\n    <div class=\"card\"><h3>My grades</h3>").concat(sets.length ? "<table class=\"tbl\"><tr><th>Date</th><th>Set</th><th>Grade</th><th></th></tr>".concat(sets.slice().reverse().slice(0, 25).map(function (x) { return "<tr><td>".concat(fmtDate(x.a.date), "</td><td><a href=\"#\" data-act=\"openReview\" data-id=\"").concat(x.a.id, "\">").concat(h(x.a.label), "</a></td><td>").concat(gradeBadge(x.pct), "</td><td>").concat(passTag(x.pct), "</td></tr>"); }).join(''), "</table>") : '<p class="muted">Your finished sets will appear here.</p>', "</div>\n    <div class=\"card\"><h3>").concat(APP.core.cases.length ? 'Clinical cases – jury' : 'Grading', "</h3>").concat(!APP.core.cases.length ? '' : S.jury.length ? "<table class=\"tbl\"><tr><th>Date</th><th>Case</th><th>Grade</th></tr>".concat(S.jury.slice().reverse().slice(0, 15).map(function (j) { return "<tr><td>".concat(fmtDate(j.date), "</td><td>").concat(h(j.label), "</td><td>").concat(gradeBadge(j.score10 * 10), " <span class=\"muted small\">").concat(j.score10.toFixed(1), "/10</span></td></tr>"); }).join(''), "</table>") : '<p class="muted">Practise a clinical case to see your jury grades here.</p>', "\n    <p class=\"small muted\">Grades: F &lt;45% \u00B7 E 45\u201354 \u00B7 D 55\u201364 \u00B7 C 65\u201374 \u00B7 B 75\u201384 \u00B7 A 85\u201394 \u00B7 A+ \u226595. Pass = E or better. <a href=\"#\" data-act=\"help\">How grading works</a></p></div>\n  </div>");
+    return "<div class=\"page-h\"><h1>Dashboard</h1><span class=\"save-pill ".concat(STORE.mode, "\">").concat(STORE.mode === 'claude' || STORE.mode === 'firebase' ? '✓ ' : '').concat(h(STORE.label), "</span></div>\n  <div class=\"grid4\">\n    <div class=\"card stat\"><div class=\"k\">Exam</div>").concat(days != null ? "<div class=\"v\">".concat(days >= 0 ? days : 0, "</div><div class=\"muted\">day").concat(days === 1 ? '' : 's', " left \u00B7 ").concat(h(exam), "</div>") : '<div class="muted">Set your exam date</div>', "\n      <input type=\"date\" id=\"examDate\" value=\"").concat(h(exam || ''), "\" data-change=\"examDate\" class=\"inp\"></div>\n    <div class=\"card stat\"><div class=\"k\">Progress</div><div class=\"v\">").concat(Math.round(100 * done / total), "%</div><div class=\"bar\"><i style=\"width:").concat(100 * done / total, "%\"></i></div><div class=\"muted\">").concat(done, " / ").concat(total, " questions tried</div></div>\n    <div class=\"card stat\"><div class=\"k\">Current grade</div><div class=\"v\">").concat(gradeBadge(overall, true), "</div><div class=\"muted\">").concat(overall == null ? 'Answer some questions' : Math.round(overall) + '% · ' + (passed(overall) ? 'on track to pass' : 'keep going – pass mark 45%'), "</div></div>\n    <div class=\"card stat\"><div class=\"k\">Best set</div><div class=\"v\">").concat(best ? gradeBadge(best.pct, true) : '–', "</div><div class=\"muted\">").concat(best ? h(best.a.label) : 'No set finished yet', "</div></div>\n  </div>\n  <a href=\"#\" class=\"fclink\" data-act=\"nav\" data-id=\"flash\">").concat(fcStatsCard(), "</a>\n  <div class=\"grid2\">\n    <div class=\"card\"><h3>What to review first</h3><p class=\"muted small\">Lectures the old exams ask most, weighted by how you are doing.</p>\n      ").concat(review.map(function (x) { return "<div class=\"rev-row\"><b>".concat(h(x.l.title), "</b> <span class=\"muted small\">").concat(APP.oldFreq[x.l.id] || 0, " old-exam Qs</span> ").concat(gradeBadge(x.s.pct), "\n      <span class=\"right\"><button class=\"btn sm\" data-act=\"openLesson\" data-id=\"").concat(x.l.id, "\">Lesson</button> <button class=\"btn sm primary\" data-act=\"startLecture\" data-id=\"").concat(x.l.id, "\">MCQs</button></span></div>"); }).join(''), "</div>\n    <div class=\"card\"><h3>Grade per lecture</h3><table class=\"tbl\"><tr><th>Lecture</th><th>Tried</th><th>Grade</th></tr>\n      ").concat(L.filter(function (l) { return st[l.id].total; }).map(function (l) { return "<tr><td><a href=\"#\" data-act=\"openLesson\" data-id=\"".concat(l.id, "\">").concat(h(l.title), "</a></td><td>").concat(st[l.id].done, "/").concat(st[l.id].total, "</td><td>").concat(gradeBadge(st[l.id].pct), "</td></tr>"); }).join(''), "</table></div>\n  </div>\n  <div class=\"grid2\">\n    <div class=\"card\"><h3>My grades</h3>").concat(sets.length ? "<table class=\"tbl\"><tr><th>Date</th><th>Set</th><th>Grade</th><th></th></tr>".concat(sets.slice().reverse().slice(0, 25).map(function (x) { return "<tr><td>".concat(fmtDate(x.a.date), "</td><td><a href=\"#\" data-act=\"openReview\" data-id=\"").concat(x.a.id, "\">").concat(h(x.a.label), "</a></td><td>").concat(gradeBadge(x.pct), "</td><td>").concat(passTag(x.pct), "</td></tr>"); }).join(''), "</table>") : '<p class="muted">Your finished sets will appear here.</p>', "</div>\n    <div class=\"card\"><h3>").concat(APP.core.cases.length ? 'Clinical cases – jury' : 'Grading', "</h3>").concat(!APP.core.cases.length ? '' : S.jury.length ? "<table class=\"tbl\"><tr><th>Date</th><th>Case</th><th>Grade</th></tr>".concat(S.jury.slice().reverse().slice(0, 15).map(function (j) { return "<tr><td>".concat(fmtDate(j.date), "</td><td>").concat(h(j.label), "</td><td>").concat(gradeBadge(j.score10 * 10), " <span class=\"muted small\">").concat(j.score10.toFixed(1), "/10</span></td></tr>"); }).join(''), "</table>") : '<p class="muted">Practise a clinical case to see your jury grades here.</p>', "\n    <p class=\"small muted\">Grades: F &lt;45% \u00B7 E 45\u201354 \u00B7 D 55\u201364 \u00B7 C 65\u201374 \u00B7 B 75\u201384 \u00B7 A 85\u201394 \u00B7 A+ \u226595. Pass = E or better. <a href=\"#\" data-act=\"help\">How grading works</a></p></div>\n  </div>");
 }
 function vHelp() {
     return "<div class=\"page-h\"><h1>How grading works</h1></div><div class=\"card prose\">\n  <p><b>Each question:</b> all propositions judged right = full point. Questions marked \u2605 have exactly one answer: one tick only, all-or-nothing. On multiple-answer questions, each wrong tick or missed true answer is one mistake: 1 mistake = 0.8 point, 2 mistakes = 0.4, 3 or more = 0.</p>\n  <p><b>Each set:</b> the percentage of points becomes a letter: <b>F</b> &lt;45% (not passed) \u00B7 <b>E</b> 45\u201354 \u00B7 <b>D</b> 55\u201364 \u00B7 <b>C</b> 65\u201374 \u00B7 <b>B</b> 75\u201384 \u00B7 <b>A</b> 85\u201394 \u00B7 <b>A+</b> \u226595. E or better = PASSED.</p>\n  <p><b>Mock exam:</b> 75% MCQs + 25% clinical case, and both parts must reach 45%.</p>\n  <p>Your ticked answers are stored, not just the scores, so every grade is recalculated from them.</p></div>";
@@ -1018,6 +1104,7 @@ function xDecksHtml() {
 function startXDeck(kind, topic) {
     var T = (APP.xidx && APP.xidx.topics) || {};
     var ts = Object.keys(T).filter(function (t) { return (!topic || t === topic) && (!kind || T[t][kind]); });
+    track('deck:x:' + (kind || 'all') + ':' + (topic || 'all'));
     toast('Loading cards…');
     Promise.all(ts.map(function (t) { return APP.xcache[t] ? Promise.resolve(APP.xcache[t]) : getJSON('data/cards/' + APP.subj + '-' + t + '.json').then(function (d) { APP.xcache[t] = d; return d; }); })).then(function (rs) {
         var deck = [].concat.apply([], rs).filter(function (c) { return !kind || c.kind === kind; }).map(function (c) { return ({ k: c.id, html: 1, q: c.q, a: c.a, sub: (APP.lById[c.topic] ? APP.lById[c.topic].title : c.topic) + ' · ' + c.src }); });
@@ -1030,7 +1117,7 @@ function startXDeck(kind, topic) {
 function vFlash(arg) {
     if (!FC || arg === 'pick') {
         var mine = (APP.core.cards || []).length;
-        return "<div class=\"page-h\"><h1>Flashcards</h1><p class=\"muted\">Tap a card to flip it, then say whether you knew it. Unknown cards come back first next time; your progress is saved.</p></div>\n    <div class=\"cards\">".concat(deckCard('', '', 'All cards', 'everything')).concat(mine ? deckCard('', 'mine', 'My handwritten cards', mine + ' cards from your own maps') : '').concat(deckCard('', 'sheets', 'Pathology sheets only', ''), "</div>\n    ").concat(xDecksHtml(), "\n    <h3 style=\"margin:16px 0 8px\">By lecture</h3><div class=\"cards\">").concat(APP.core.lectures.filter(function (l) { return buildDeck(l.id).length; }).map(function (l) { return deckCard(l.id, '', l.title, ''); }).join(''), "</div>\n    <p class=\"muted small\">Reset a deck by marking cards \"Again\"; the counter shows how many you already know.</p>");
+        return "<div class=\"page-h\"><h1>Flashcards</h1><p class=\"muted\">Tap a card to flip it, then say whether you knew it. Unknown cards come back first next time; your progress is saved.</p></div>\n    ".concat(fcStatsCard(), "\n    <div class=\"cards\">").concat(deckCard('', '', 'All cards', 'everything')).concat(mine ? deckCard('', 'mine', 'My handwritten cards', mine + ' cards from your own maps') : '').concat(deckCard('', 'sheets', 'Pathology sheets only', ''), "</div>\n    ").concat(xDecksHtml(), "\n    <h3 style=\"margin:16px 0 8px\">By lecture</h3><div class=\"cards\">").concat(APP.core.lectures.filter(function (l) { return buildDeck(l.id).length; }).map(function (l) { return deckCard(l.id, '', l.title, ''); }).join(''), "</div>\n    <p class=\"muted small\">Reset a deck by marking cards \"Again\"; the counter shows how many you already know.</p>");
     }
     var c = FC.cards[FC.i];
     if (!c && FC.x)
@@ -1042,6 +1129,7 @@ function vFlash(arg) {
     return "<div class=\"page-h\"><a href=\"#\" data-act=\"flashPick\" class=\"back\">\u2190 Decks</a><h1>Flashcards</h1><span class=\"muted\">".concat(FC.i + 1, " / ").concat(FC.cards.length, "</span></div>\n  <div class=\"flash ").concat(FC.flip ? 'flip' : '', "\" data-act=\"flip\"><div class=\"face front\"><div class=\"muted small\">").concat(h(c.sub), "</div><h2>").concat(h(c.front), "</h2><p class=\"muted small\">Tap to reveal</p></div>\n  <div class=\"face back\"><div class=\"muted small\">").concat(h(c.front), " \u00B7 ").concat(h(c.sub), "</div><ul>").concat(c.back.map(function (b) { return "<li>".concat(h(b), "</li>"); }).join(''), "</ul></div></div>\n  <div class=\"row center\"><button class=\"btn\" data-act=\"fcAgain\">Again</button> <button class=\"btn primary\" data-act=\"fcKnow\">I knew it</button></div>");
 }
 function startFlash(topic, mode) {
+    track('deck:' + (mode || 'std') + ':' + (topic || 'all'));
     var deck = buildDeck(topic || null, mode || '');
     var known = (S.fc && S.fc.known) || {};
     var cards = shuffle(deck.filter(function (c) { return !known[c.k]; })).concat(shuffle(deck.filter(function (c) { return known[c.k]; })));
@@ -1403,6 +1491,7 @@ document.addEventListener('click', function (ev) {
             break;
         case 'ltab':
             LTAB = id;
+            track('tab:' + id);
             render();
             break;
         case 'subject':
@@ -1467,6 +1556,7 @@ document.addEventListener('click', function (ev) {
         case 'fcAgain': {
             var c = FC.cards[FC.i];
             S.fc.known = S.fc.known || {};
+            fcMark(c);
             if (act === 'fcKnow')
                 S.fc.known[c.k] = 1;
             else
@@ -1668,6 +1758,8 @@ function dictate(btn) {
             b.textContent = dictOn ? '■ Stop' : '🎤 Dictate'; });
     }
 }
+document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden' && USE_T)
+    flushUse(); });
 window.addEventListener('hashchange', function () { var n = location.hash.slice(1); if (n !== VIEW.name && NAV.some(function (x) { return x[0] === n; }))
     go(n); });
 if (document.readyState === 'loading')

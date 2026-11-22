@@ -1,1 +1,1 @@
-{"kinds": {"img": "Image flashcards – exam pictures (image → diagnosis)", "ortho": "Ortho lab X-rays (image → diagnosis)"}, "topics": {"msk1": {"img": 23, "ortho": 84}, "msk2": {"img": 47}, "urinary": {"img": 44}, "retro": {"img": 38}}}
+{"kinds": {"img": "Image flashcards – exam pictures (image → diagnosis)"}, "topics": {"msk1": {"img": 23}, "msk2": {"img": 47}, "urinary": {"img": 44}, "retro": {"img": 38}}}
