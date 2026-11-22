@@ -67,7 +67,7 @@ h2.ch{margin:0 0 4px;font-size:21px}details.pm{margin-top:8px}details.pm>summary
 .svgwrap{overflow-x:auto;margin:6px 0}.svgwrap svg{width:100%;min-width:560px;height:auto;display:block}
 .mm-root{fill:var(--pri)}.mm-root-t{fill:#fff;font-weight:700;font-size:15px}.mm-edge,.edge{stroke:var(--muted);stroke-width:1.5;fill:none}.mm-node{stroke:var(--line)}.c0{fill:var(--c0)}.c1{fill:var(--c1)}.c2{fill:var(--c2)}.c3{fill:var(--c3)}.c4{fill:var(--c4)}.c5{fill:var(--c5)}
 .mm-node-t{fill:var(--ink);font-weight:600;font-size:13px}.mm-leaf{fill:var(--card);stroke:var(--line)}.mm-leaf-t{fill:var(--ink);font-size:12.5px}
-.dr-title{fill:var(--ink);font-weight:700;font-size:15px}.box{fill:var(--card);stroke:var(--line)}.box.hl{fill:var(--hl)}.box-t,.lbl{fill:var(--ink);font-size:13px}.lbl.sm{font-size:12px}.lbl.b{font-weight:700}
+.dr-title{fill:var(--ink);font-weight:700;font-size:15px}.box{fill:var(--card);stroke:var(--line)}.box.hl{fill:var(--hl)}.box-t,.lbl{fill:var(--ink);font-size:13px}.lbl.sm{font-size:12px}svg.dr text.lbl{paint-order:stroke;stroke:var(--card);stroke-width:3.5px;stroke-linejoin:round}.lbl.b{font-weight:700}
 .lv{stroke:none}.lv0{fill:#2f9e6e}.lv1{fill:#7aa83a}.lv2{fill:#c79a1c}.lv3{fill:#d97a1c}.lv4{fill:#c23b2e}.lv5{fill:#7d3c98}.lv-t{fill:#fff;font-weight:700;font-size:14px}
 .fq{fill:var(--hl);stroke:var(--warn)}.fa{fill:var(--card);stroke:var(--pri)}.fe{fill:var(--pri2);stroke:var(--pri)}.fside{fill:var(--c1);stroke:var(--line)}.f-t{fill:var(--ink);font-size:13px}.f-t.sm{font-size:12px}.arrowhead{fill:var(--muted)}
 .organ{fill:var(--c4);stroke:var(--muted);stroke-width:1.5}.pin{stroke:#fff;stroke-width:2}.p1{fill:#c23b2e}.p2{fill:#7d3c98}.p3{fill:#d97a1c}.p4{fill:#0f6e6e}.p5{fill:#c79a1c}
@@ -390,6 +390,229 @@ function drawing(id) { try {
 catch (e) {
     return '';
 } }
+/* ---------- Endocrinology schemas: metro maps of axes, feedback loops, pathways, grids, algorithms ---------- */
+var MC = { thy: '#1f9d8f', adr: '#e0663a', gon: '#8a55d0', gh: '#2b74d1', prl: '#d6336c', adh: '#0f9fbf', ca: '#c7921a', raas: '#5a8f29', inh: '#c23b2e' };
+function mDefs() {
+    return "<defs><marker id=\"mar\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0 0L10 5L0 10z\" fill=\"currentColor\"/></marker>\n  ".concat(Object.keys(MC).map(function (k) { return "<marker id=\"ma_".concat(k, "\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0 0L10 5L0 10z\" fill=\"").concat(MC[k], "\"/></marker>"); }).join(''), "</defs>");
+}
+function mLine(pts, col, opt) {
+    opt = opt || {};
+    var d = pts.map(function (p, i) { return (i ? 'L' : 'M') + p[0] + ' ' + p[1]; }).join(' ');
+    return "<path d=\"".concat(d, "\" fill=\"none\" stroke=\"").concat(MC[col] || col, "\" stroke-width=\"").concat(opt.w || 6, "\" stroke-linecap=\"round\" stroke-linejoin=\"round\"").concat(opt.dash ? ' stroke-dasharray="7 6"' : '').concat(opt.arrow ? " marker-end=\"url(#ma_".concat(col, ")\"") : '', " opacity=\"").concat(opt.op || 1, "\"/>");
+}
+function mSt(x, y, label, opt) {
+    opt = opt || {};
+    var r = opt.hub ? 11 : 7;
+    var pos = opt.pos || 'r';
+    var lines = wrapText(label, opt.wrap || 18);
+    var lh = 14;
+    var tx = x + r + 6, ty = y + 4, anc = 'start';
+    if (pos === 'l') {
+        tx = x - r - 6;
+        anc = 'end';
+    }
+    if (pos === 't') {
+        tx = x;
+        ty = y - r - 6 - (lines.length - 1) * lh;
+        anc = 'middle';
+    }
+    if (pos === 'b') {
+        tx = x;
+        ty = y + r + 14;
+        anc = 'middle';
+    }
+    if (pos === 'r' || pos === 'l')
+        ty = y + 4 - (lines.length - 1) * lh / 2;
+    return "<circle cx=\"".concat(x, "\" cy=\"").concat(y, "\" r=\"").concat(r, "\" fill=\"var(--card)\" stroke=\"var(--ink)\" stroke-width=\"").concat(opt.hub ? 3 : 2.5, "\"/>") +
+        "<text text-anchor=\"".concat(anc, "\" class=\"lbl").concat(opt.hub ? ' b' : '').concat(opt.sm ? ' sm' : '', "\">").concat(tspans(lines, tx, ty, lh), "</text>") +
+        (opt.sub ? "<text x=\"".concat(tx, "\" y=\"").concat(ty + lines.length * lh, "\" text-anchor=\"").concat(anc, "\" class=\"lbl sm\" fill=\"var(--muted)\" style=\"fill:var(--muted)\">").concat(esc(opt.sub), "</text>") : '');
+}
+function mTag(x, y, t, col) { return "<g><rect x=\"".concat(x - 13, "\" y=\"").concat(y - 11, "\" width=\"26\" height=\"20\" rx=\"10\" fill=\"").concat(MC[col] || col, "\"/><text x=\"").concat(x, "\" y=\"").concat(y + 4, "\" text-anchor=\"middle\" style=\"fill:#fff;font-weight:800;font-size:14px\">").concat(esc(t), "</text></g>"); }
+function mLegend(x, y, items) { return items.map(function (it, i) { return "<line x1=\"".concat(x, "\" y1=\"").concat(y + i * 20, "\" x2=\"").concat(x + 34, "\" y2=\"").concat(y + i * 20, "\" stroke=\"").concat(MC[it[0]] || it[0], "\" stroke-width=\"6\" stroke-linecap=\"round\"").concat(it[2] ? ' stroke-dasharray="7 6"' : '', "/><text x=\"").concat(x + 42, "\" y=\"").concat(y + i * 20 + 4, "\" class=\"lbl sm\">").concat(esc(it[1]), "</text>"); }).join(''); }
+function svgOpen(w, h, title, sub) { return "<svg viewBox=\"0 0 ".concat(w, " ").concat(h, "\" class=\"dr\" xmlns=\"").concat(SVGNS, "\">").concat(mDefs(), "<text x=\"14\" y=\"26\" class=\"dr-title\">").concat(esc(title), "</text>").concat(sub ? "<text x=\"14\" y=\"44\" class=\"lbl sm\" style=\"fill:var(--muted)\">".concat(esc(sub), "</text>") : ''); }
+function grid(title, rowHead, colHead, rows, cols, cells, sub) {
+    var cw = 150, rw = 120, top = sub ? 70 : 58;
+    var W = rw + cols.length * cw + 20;
+    var hs = cells.map(function (r) { return Math.max.apply(Math, r.map(function (c) { return wrapText(c[0], 20).length; })) * 15 + 18; });
+    var H = top + 34 + hs.reduce(function (a, b) { return a + b; }, 0) + 16;
+    var s = svgOpen(W, H, title, sub).replace('class="dr"', "class=\"dr\" style=\"max-width:".concat(W * 1.25, "px\""));
+    s += "<text x=\"".concat(rw + 12, "\" y=\"").concat(top - 6, "\" class=\"lbl b\">").concat(esc(colHead), " \u2192</text><text x=\"14\" y=\"").concat(top + 22, "\" class=\"lbl b\">").concat(esc(rowHead), " \u2193</text>");
+    cols.forEach(function (c, j) { s += "<rect x=\"".concat(rw + 12 + j * cw, "\" y=\"").concat(top, "\" width=\"").concat(cw - 4, "\" height=\"30\" rx=\"6\" class=\"lv lv").concat(j % 6, "\"/><text x=\"").concat(rw + 12 + j * cw + cw / 2 - 2, "\" y=\"").concat(top + 20, "\" text-anchor=\"middle\" class=\"lv-t\" style=\"font-size:13px\">").concat(esc(c), "</text>"); });
+    var y = top + 34;
+    rows.forEach(function (r, i) {
+        s += "<rect x=\"12\" y=\"".concat(y, "\" width=\"").concat(rw - 4, "\" height=\"").concat(hs[i] - 4, "\" rx=\"6\" class=\"fe\"/><text text-anchor=\"middle\" class=\"lbl b\">").concat(tspans(wrapText(r, 14), 12 + (rw - 4) / 2, y + hs[i] / 2 - (wrapText(r, 14).length - 1) * 7 + 2, 14), "</text>");
+        cols.forEach(function (c, j) {
+            var cell = cells[i][j];
+            var ls = wrapText(cell[0], 20);
+            s += "<rect x=\"".concat(rw + 12 + j * cw, "\" y=\"").concat(y, "\" width=\"").concat(cw - 4, "\" height=\"").concat(hs[i] - 4, "\" rx=\"6\" class=\"box").concat(cell[1] ? ' hl' : '', "\"/><text text-anchor=\"middle\" class=\"box-t\" style=\"font-size:12.5px\">").concat(tspans(ls, rw + 12 + j * cw + cw / 2 - 2, y + hs[i] / 2 - (ls.length - 1) * 7.5 + 2, 15), "</text>");
+        });
+        y += hs[i];
+    });
+    return s + '</svg>';
+}
+Object.assign(DRAW, {
+    /* ===== the big metro map of all hypothalamic-pituitary axes ===== */
+    metroAxes: function () {
+        var s = svgOpen(980, 760, 'Metro map of the hypothalamic–pituitary axes', 'Solid line = stimulation (the hormone travels down); dashed line = negative feedback (back up); ⊖ = inhibition');
+        var H = [490, 95], AP = [400, 230], PP = [760, 230];
+        // lines down (stimulation)
+        s += mLine([[H[0] - 200, H[1]], [AP[0] - 230, AP[1]], [110, 380], [110, 560]], 'thy', { arrow: 1 });
+        s += mLine([[H[0] - 110, H[1]], [AP[0] - 120, AP[1]], [270, 380], [270, 560]], 'adr', { arrow: 1 });
+        s += mLine([[H[0] - 20, H[1]], [AP[0], AP[1]], [430, 380], [430, 560]], 'gon', { arrow: 1 });
+        s += mLine([[H[0] + 70, H[1]], [AP[0] + 120, AP[1]], [590, 380], [590, 560]], 'gh', { arrow: 1 });
+        s += mLine([[H[0] + 150, H[1]], [AP[0] + 230, AP[1]], [740, 380], [740, 470]], 'prl', { arrow: 1, dash: 0 });
+        s += mLine([[H[0] + 240, H[1]], [PP[0] + 90, PP[1]], [900, 380], [900, 560]], 'adh', { arrow: 1 });
+        // feedback (dashed, back up)
+        s += mLine([[85, 560], [85, 400], [150, 250], [AP[0] - 245, AP[1] + 4]], 'thy', { dash: 1, w: 3.5, op: .8 }) + mLine([[60, 560], [60, 120], [H[0] - 215, H[1] - 6]], 'thy', { dash: 1, w: 3.5, op: .8 });
+        s += mLine([[245, 560], [245, 260], [AP[0] - 135, AP[1] + 8]], 'adr', { dash: 1, w: 3.5, op: .8 }) + mLine([[225, 560], [225, 140], [H[0] - 125, H[1] + 4]], 'adr', { dash: 1, w: 3.5, op: .8 });
+        s += mLine([[455, 560], [455, 400], [AP[0] + 18, AP[1] + 10]], 'gon', { dash: 1, w: 3.5, op: .8 });
+        s += mLine([[615, 560], [615, 400], [AP[0] + 138, AP[1] + 10]], 'gh', { dash: 1, w: 3.5, op: .8 }) + mLine([[640, 560], [640, 150], [H[0] + 85, H[1] + 6]], 'gh', { dash: 1, w: 3.5, op: .8 });
+        s += mLine([[H[0] + 150, H[1]], [H[0] + 210, 150], [AP[0] + 245, AP[1] - 14]], 'inh', { dash: 1, w: 3.5 });
+        // stations
+        s += "<rect x=\"".concat(H[0] - 230, "\" y=\"").concat(H[1] - 26, "\" width=\"500\" height=\"52\" rx=\"26\" fill=\"var(--c1)\" stroke=\"var(--line)\"/>") + "<text x=\"".concat(H[0] + 20, "\" y=\"").concat(H[1] - 32, "\" text-anchor=\"middle\" class=\"lbl b\">HYPOTHALAMUS (releasing / inhibiting hormones)</text>");
+        s += mSt(H[0] - 200, H[1], 'TRH', { pos: 'b' }) + mSt(H[0] - 110, H[1], 'CRH (+ADH)', { pos: 'b', wrap: 10 }) + mSt(H[0] - 20, H[1], 'GnRH pulses', { pos: 'b', wrap: 8 }) + mSt(H[0] + 70, H[1], 'GHRH / SST', { pos: 'b', wrap: 7 }) + mSt(H[0] + 150, H[1], 'Dopamine (PIF)', { pos: 'b', wrap: 9 }) + mSt(H[0] + 240, H[1], 'ADH, oxytocin (made here)', { pos: 'b', wrap: 12 });
+        s += "<rect x=\"".concat(AP[0] - 250, "\" y=\"").concat(AP[1] - 24, "\" width=\"500\" height=\"48\" rx=\"24\" fill=\"var(--c0)\" stroke=\"var(--line)\"/><text x=\"").concat(AP[0] - 245, "\" y=\"").concat(AP[1] - 30, "\" class=\"lbl b\">ANTERIOR PITUITARY (portal blood)</text>");
+        s += "<rect x=\"".concat(PP[0] + 40, "\" y=\"").concat(PP[1] - 24, "\" width=\"110\" height=\"48\" rx=\"24\" fill=\"var(--c2)\" stroke=\"var(--line)\"/><text x=\"").concat(PP[0] + 40, "\" y=\"").concat(PP[1] - 30, "\" class=\"lbl b\">POSTERIOR (axons)</text>");
+        s += mSt(AP[0] - 230, AP[1], 'TSH', { pos: 'r' }) + mSt(AP[0] - 120, AP[1], 'ACTH', { pos: 'r' }) + mSt(AP[0], AP[1], 'LH + FSH', { pos: 'r' }) + mSt(AP[0] + 120, AP[1], 'GH', { pos: 'r' }) + mSt(AP[0] + 230, AP[1], 'PRL', { pos: 'r' }) + mSt(PP[0] + 90, PP[1], 'ADH', { pos: 'r' });
+        s += mSt(110, 380, 'Thyroid', { hub: 1, pos: 'r' }) + mSt(270, 380, 'Adrenal cortex (fasciculata)', { hub: 1, pos: 'r', wrap: 12 }) + mSt(430, 380, 'Gonads', { hub: 1, pos: 'r' }) + mSt(590, 380, 'Liver (+ bone, all tissues)', { hub: 1, pos: 'r', wrap: 12 }) + mSt(740, 380, 'Breast', { hub: 1, pos: 'r' }) + mSt(900, 380, 'Kidney (V2, collecting duct)', { hub: 1, pos: 'l', wrap: 12 });
+        s += mSt(110, 560, 'T4 → T3', { pos: 'b' }) + mSt(270, 560, 'Cortisol', { pos: 'b' }) + mSt(430, 560, 'Sex steroids, inhibin', { pos: 'b', wrap: 12 }) + mSt(590, 560, 'IGF-1', { pos: 'b' }) + mSt(740, 470, 'Milk (lactation)', { pos: 'b' }) + mSt(900, 560, 'Water reabsorption', { pos: 'b', wrap: 12 });
+        s += mTag(AP[0] + 262, AP[1] - 40, '⊖', 'inh');
+        s += "<text x=\"14\" y=\"712\" class=\"lbl sm\" style=\"fill:var(--muted)\">PRL is the only pituitary hormone under TONIC INHIBITION (dopamine): stalk section \u2192 PRL \u2191, all others \u2193.</text><text x=\"14\" y=\"732\" class=\"lbl sm\" style=\"fill:var(--muted)\">GnRH must be PULSATILE (continuous GnRH agonist \u2192 down-regulation). Oestradiol gives POSITIVE feedback at mid-cycle \u2192 LH surge. Inhibin selectively inhibits FSH.</text>";
+        s += mLegend(14, 640, [['thy', 'Thyroid axis'], ['adr', 'Adrenal (corticotroph) axis']]) + mLegend(250, 640, [['gon', 'Gonadal axis'], ['gh', 'Somatotroph (GH/IGF-1) axis']]) + mLegend(520, 640, [['prl', 'Lactotroph'], ['adh', 'Posterior pituitary']]);
+        return s + '</svg>';
+    },
+    /* ===== single axes with feedback, as mini metro lines ===== */
+    axisThyroid: function () { return axisMap('Thyroid axis (HPT)', 'thy', ['Hypothalamus: TRH', 'Pituitary: TSH', 'Thyroid: T4 (90 %) + T3', 'Tissues: T4 → T3 (D1, D2 deiodinases)'], ['FT4/FT3 inhibit TSH and TRH', 'Somatostatin, dopamine, glucocorticoids ↓ TSH'], 'Primary hypothyroidism: TSH ↑ FT4 ↓ · Primary hyperthyroidism: TSH ↓ FT4 ↑ · Central: TSH low/normal with FT4 ↓'); },
+    axisAdrenal: function () { return axisMap('Corticotroph axis (HPA)', 'adr', ['Hypothalamus: CRH (+ ADH)', 'Pituitary: ACTH (from POMC → also MSH)', 'Adrenal fasciculata: cortisol (+ reticularis androgens)', 'Tissues: metabolic, anti-inflammatory, BP'], ['Cortisol inhibits ACTH and CRH', 'Circadian rhythm: peak 8 a.m., nadir midnight; stress overrides'], 'Addison: cortisol ↓ ACTH ↑ (pigmentation) · Secondary: cortisol ↓ ACTH ↓ (pallor) · Cushing disease: ACTH ↑/N · Adrenal Cushing: ACTH ↓'); },
+    axisGonadM: function () { return axisMap('Male gonadal axis (HPG)', 'gon', ['Hypothalamus: pulsatile GnRH', 'Pituitary: LH + FSH', 'Testis: LH → Leydig → testosterone; FSH → Sertoli → spermatogenesis + inhibin B', 'Tissues: testosterone → DHT (5α-reductase), oestradiol (aromatase)'], ['Testosterone inhibits LH (and GnRH)', 'Inhibin B inhibits FSH'], 'Primary (Klinefelter): T ↓ LH/FSH ↑ · Secondary (Kallmann, PRL ↑): T ↓ LH/FSH ↓/N'); },
+    axisGonadF: function () { return axisMap('Female gonadal axis (HPO)', 'gon', ['Hypothalamus: pulsatile GnRH', 'Pituitary: FSH + LH', 'Ovary: follicle → oestradiol, inhibin; corpus luteum → progesterone', 'Endometrium, breast, bone, LH surge'], ['Oestradiol + progesterone + inhibin: negative feedback', 'High sustained oestradiol (mid-cycle): POSITIVE feedback → LH surge → ovulation'], 'Menopause / POI: E2 ↓ FSH ↑↑ · Hypothalamic amenorrhoea, hyperprolactinaemia: E2 ↓ FSH/LH ↓/N'); },
+    axisGH: function () { return axisMap('Somatotroph axis (GH / IGF-1)', 'gh', ['Hypothalamus: GHRH (+) / somatostatin (−); ghrelin (+)', 'Pituitary: GH (pulsatile, sleep)', 'Liver: IGF-1 (somatomedin C)', 'Bone, cartilage, muscle: growth; anti-insulin effects'], ['IGF-1 inhibits GH and stimulates somatostatin', 'Glucose ↑ suppresses GH (OGTT); hypoglycaemia stimulates GH (ITT)'], 'Acromegaly: IGF-1 ↑ and GH NOT suppressed < 1 ng/mL on OGTT · GH deficiency: IGF-1 ↓ and peak < 7–10 ng/mL on stimulation'); },
+    axisPRL: function () { return axisMap('Lactotroph axis (prolactin)', 'prl', ['Hypothalamus: DOPAMINE (tonic inhibition) – TRH, oestrogens, suckling stimulate', 'Pituitary: prolactin', 'Breast: milk production', 'Hypothalamus: PRL ↑ inhibits GnRH → hypogonadism'], ['Dopamine is the brake: stalk compression, D2 blockers → PRL ↑', 'PRL stimulates dopamine (short loop)'], 'Treatment uses the brake: dopamine agonists (cabergoline, bromocriptine)'); },
+    /* ===== water & ADH ===== */
+    adhMap: function () {
+        var s = svgOpen(800, 420, 'ADH (vasopressin) – water metro line', 'Osmoreceptors are the main trigger; volume/pressure receptors are secondary');
+        s += mLine([[80, 130], [250, 130], [440, 130], [620, 130], [700, 220], [700, 320]], 'adh', { arrow: 1 });
+        s += mLine([[700, 320], [430, 320], [250, 320], [80, 320], [80, 150]], 'adh', { dash: 1, w: 3.5 });
+        s += mSt(80, 130, 'Plasma osmolality ↑ / volume ↓', { pos: 't', wrap: 18 }) + mSt(250, 130, 'Hypothalamus (supraoptic, paraventricular): ADH synthesis', { pos: 't', wrap: 22 }) + mSt(440, 130, 'Posterior pituitary: release', { pos: 't', wrap: 16 }) + mSt(620, 130, 'V2 receptor → aquaporin-2', { pos: 't', wrap: 14 }) + mSt(700, 220, 'Collecting duct: water reabsorption', { pos: 'l', wrap: 16 }) + mSt(700, 320, 'Concentrated urine', { pos: 'b' });
+        s += mSt(430, 320, 'Osmolality falls', { pos: 'b' }) + mSt(250, 320, 'ADH secretion stops (−)', { pos: 'b', wrap: 14 });
+        s += "<text x=\"14\" y=\"385\" class=\"lbl sm\" style=\"fill:var(--muted)\">Central DI: no ADH (break at the hypothalamus/pituitary station) \u00B7 Nephrogenic DI: V2/aquaporin does not answer (lithium, Ca \u2191, K \u2193).</text><text x=\"14\" y=\"405\" class=\"lbl sm\" style=\"fill:var(--muted)\">SIADH: ADH secreted despite low osmolality \u2192 hyponatraemia with concentrated urine.</text>";
+        return s + '</svg>';
+    },
+    /* ===== calcium metro map ===== */
+    calciumMap: function () {
+        var s = svgOpen(960, 540, 'Calcium & phosphate metro map', 'PTH line (gold) · vitamin D line (green) · dashed = feedback');
+        s += mLine([[100, 110], [300, 110], [520, 110], [760, 110]], 'ca', { arrow: 1 });
+        s += mLine([[300, 110], [300, 260], [520, 260]], 'ca', { arrow: 1 });
+        s += mLine([[110, 400], [300, 400], [520, 400], [520, 300], [760, 300], [760, 400]], 'raas', { arrow: 1 });
+        s += mLine([[760, 110], [880, 110], [880, 480], [60, 480], [60, 110], [92, 110]], 'ca', { dash: 1, w: 3.5 });
+        s += mSt(100, 110, 'Low serum Ca²⁺ sensed by CaSR', { pos: 't', wrap: 16 }) + mSt(300, 110, 'Parathyroids: PTH', { pos: 't', hub: 1 }) + mSt(520, 110, 'Bone: resorption (osteoclasts via RANKL) → Ca + P out', { pos: 't', wrap: 22 }) + mSt(760, 110, 'Serum Ca ↑', { pos: 't' });
+        s += mSt(520, 260, 'Kidney: Ca reabsorption ↑ (distal), phosphate excretion ↑, 1α-hydroxylase ↑', { pos: 'r', wrap: 26 });
+        s += mSt(110, 400, 'Skin: 7-dehydrocholesterol + UVB → D3 (or diet D2/D3)', { pos: 'b', wrap: 20 }) + mSt(300, 400, 'Liver: 25-OH-D (storage form – the one we measure)', { pos: 'b', wrap: 20 }) + mSt(520, 400, '', {}) + mSt(760, 300, 'Calcitriol 1,25(OH)2-D (active)', { pos: 'r', wrap: 14, hub: 1 }) + mSt(760, 400, 'Gut: Ca + P absorption ↑', { pos: 'b', wrap: 14 });
+        s += "<text x=\"14\" y=\"505\" class=\"lbl sm\">Ca\u00B2\u207A \u2191 and calcitriol inhibit PTH (dashed). Calcitonin (C cells) lowers Ca \u2013 minor role in humans.</text><text x=\"14\" y=\"525\" class=\"lbl sm\">FGF23 (bone) lowers phosphate and calcitriol.</text>";
+        s += mLegend(600, 30, [['ca', 'PTH pathway'], ['raas', 'Vitamin D pathway'], ['ca', 'Negative feedback', 1]]);
+        return s + '</svg>';
+    },
+    /* ===== RAAS ===== */
+    raasMap: function () {
+        var s = svgOpen(1010, 440, 'Renin–angiotensin–aldosterone metro line', 'Aldosterone is regulated by RENIN/angiotensin II and potassium – ACTH only minor');
+        s += mLine([[60, 120], [220, 120], [380, 120], [540, 120], [700, 120], [840, 120], [840, 250], [600, 250], [380, 250]], 'raas', { arrow: 1 });
+        s += mLine([[380, 250], [60, 250], [60, 140]], 'raas', { dash: 1, w: 3.5 });
+        s += mLine([[540, 330], [700, 330], [700, 140]], 'adr', { arrow: 1 });
+        s += mSt(60, 120, 'Renal perfusion ↓, Na ↓, sympathetic', { pos: 't', wrap: 14 }) + mSt(220, 120, 'Juxtaglomerular cells: RENIN', { pos: 't', wrap: 14 }) + mSt(380, 120, 'Angiotensinogen (liver) → Ang I', { pos: 't', wrap: 16 }) + mSt(540, 120, 'ACE (lung) → Angiotensin II', { pos: 't', wrap: 14 }) + mSt(700, 120, 'Zona glomerulosa: ALDOSTERONE', { pos: 't', wrap: 14, hub: 1 }) + mSt(840, 120, 'Kidney (ENaC): Na + water retained, K⁺ and H⁺ excreted', { pos: 'r', wrap: 14 }) + mSt(600, 250, 'BP and volume ↑, K⁺ ↓', { pos: 'b', wrap: 14 }) + mSt(380, 250, 'Renin falls (−)', { pos: 'b' });
+        s += mSt(540, 330, 'Serum K⁺ ↑ (direct stimulus)', { pos: 'b', wrap: 16 });
+        s += "<text x=\"14\" y=\"405\" class=\"lbl sm\" style=\"fill:var(--muted)\">Primary aldosteronism (Conn): aldosterone \u2191 with renin SUPPRESSED (high ARR), hypokalaemia.</text><text x=\"14\" y=\"425\" class=\"lbl sm\" style=\"fill:var(--muted)\">Secondary: renin \u2191 (renal artery stenosis, diuretics) \u00B7 Addison: aldosterone \u2193 renin \u2191.</text>";
+        return s + '</svg>';
+    },
+    /* ===== steroidogenesis ===== */
+    steroidMap: function () {
+        var s = svgOpen(940, 470, 'Adrenal steroidogenesis – the three lines', 'Columns: zona glomerulosa (mineralo-) · fasciculata (gluco-) · reticularis (androgens); enzymes on the connections');
+        var X = [150, 450, 760], Y = [110, 200, 290, 380];
+        s += mLine([[X[0], 70], [X[0], Y[3]]], 'raas', { arrow: 1 }) + mLine([[X[1], Y[0]], [X[1], Y[3]]], 'adr', { arrow: 1 }) + mLine([[X[2], Y[0]], [X[2], Y[2]]], 'gon', { arrow: 1 });
+        s += mLine([[X[0], Y[0]], [X[1], Y[0]], [X[2], Y[0]]], '#888', { w: 3, dash: 1 }) + mLine([[X[0], Y[1]], [X[1], Y[1]], [X[2], Y[1]]], '#888', { w: 3, dash: 1 });
+        s += mSt(X[0], 70, 'Cholesterol (StAR, side-chain cleavage)', { pos: 'r', wrap: 22 });
+        s += mSt(X[0], Y[0], 'Pregnenolone', { pos: 'l' }) + mSt(X[1], Y[0], '17-OH-pregnenolone', { pos: 'r' }) + mSt(X[2], Y[0], 'DHEA (→ DHEA-S)', { pos: 'r' });
+        s += mSt(X[0], Y[1], 'Progesterone', { pos: 'l' }) + mSt(X[1], Y[1], '17-OH-PROGESTERONE', { pos: 'r', hub: 1 }) + mSt(X[2], Y[1], 'Androstenedione', { pos: 'r' });
+        s += mSt(X[0], Y[2], '11-deoxycorticosterone (DOC)', { pos: 'l', wrap: 14 }) + mSt(X[1], Y[2], '11-deoxycortisol', { pos: 'r' }) + mSt(X[2], Y[2], 'Testosterone (→ DHT, → oestradiol by aromatase)', { pos: 'r', wrap: 16 });
+        s += mSt(X[0], Y[3], 'Corticosterone → ALDOSTERONE (aldosterone synthase)', { pos: 'r', wrap: 20, hub: 1 }) + mSt(X[1], Y[3], 'CORTISOL', { pos: 'r', hub: 1 });
+        s += "<text x=\"".concat(X[0] + 8, "\" y=\"").concat((Y[0] + Y[1]) / 2 + 4, "\" class=\"lbl sm\">3\u03B2-HSD</text><text x=\"").concat(X[0] + 8, "\" y=\"").concat((Y[1] + Y[2]) / 2 + 4, "\" class=\"lbl sm b\" style=\"fill:").concat(MC.inh, "\">21-OH</text><text x=\"").concat(X[0] + 8, "\" y=\"").concat((Y[2] + Y[3]) / 2 + 4, "\" class=\"lbl sm\">11\u03B2-OH</text>");
+        s += "<text x=\"".concat(X[1] + 8, "\" y=\"").concat((Y[1] + Y[2]) / 2 + 4, "\" class=\"lbl sm b\" style=\"fill:").concat(MC.inh, "\">21-OH \u2716 (CAH 95 %)</text><text x=\"").concat(X[1] + 8, "\" y=\"").concat((Y[2] + Y[3]) / 2 + 4, "\" class=\"lbl sm\">11\u03B2-OH</text><text x=\"").concat((X[0] + X[1]) / 2 - 20, "\" y=\"").concat(Y[0] - 8, "\" class=\"lbl sm\">17\u03B1-OH</text><text x=\"").concat((X[1] + X[2]) / 2 - 20, "\" y=\"").concat(Y[0] - 8, "\" class=\"lbl sm\">17,20-lyase</text>");
+        s += "<text x=\"14\" y=\"440\" class=\"lbl sm\">21-OH deficiency: cortisol \u2193 (+ aldosterone \u2193 = salt wasting) \u2192 ACTH \u2191 \u2192 17-OH-progesterone \u2191\u2191 shunted to ANDROGENS (virilisation of girls).</text><text x=\"14\" y=\"458\" class=\"lbl sm\">11\u03B2-OH deficiency: DOC \u2191 \u2192 HYPERtension + virilisation \u00B7 17\u03B1-OH deficiency: hypertension + sexual infantilism.</text>";
+        return s + '</svg>';
+    },
+    /* ===== thyroid hormone synthesis + drug sites ===== */
+    thyroidSynth: function () {
+        var s = svgOpen(920, 400, 'Thyroid hormone synthesis – stations and where drugs act', 'Blood → follicular cell → colloid → back to blood');
+        s += mLine([[60, 130], [210, 130], [370, 130], [530, 130], [690, 130], [690, 260], [520, 260], [360, 260], [200, 260]], 'thy', { arrow: 1 });
+        s += mSt(60, 130, 'Iodide I⁻ in blood (diet ≥ 150 µg/day)', { pos: 't', wrap: 14 }) + mSt(210, 130, 'NIS symporter (TSH ↑) – trap', { pos: 't', wrap: 14 }) + mSt(370, 130, 'Pendrin → colloid', { pos: 't', wrap: 12 }) + mSt(530, 130, 'TPO: oxidation + organification of thyroglobulin (MIT, DIT)', { pos: 't', wrap: 18, hub: 1 }) + mSt(690, 130, 'TPO: coupling → T4, T3 stored on Tg', { pos: 't', wrap: 14 });
+        s += mSt(690, 260, 'Endocytosis + proteolysis', { pos: 'r', wrap: 12 }) + mSt(520, 260, 'Release T4 (≈ 90 %) > T3', { pos: 'b', wrap: 14 }) + mSt(360, 260, 'Bound to TBG (99.9 %); free fraction acts', { pos: 'b', wrap: 16 }) + mSt(200, 260, 'Tissues: D1/D2 T4 → T3 (active); D3 → rT3', { pos: 'b', wrap: 16, hub: 1 });
+        s += mTag(210, 170, '⊖', 'inh') + "<text x=\"226\" y=\"186\" class=\"lbl sm\">perchlorate</text>" + mTag(530, 170, '⊖', 'inh') + "<text x=\"546\" y=\"186\" class=\"lbl sm\">thionamides (methimazole, PTU)</text>" + mTag(600, 300, '⊖', 'inh') + "<text x=\"616\" y=\"316\" class=\"lbl sm\">iodine excess (Wolff\u2013Chaikoff), lithium</text>" + mTag(200, 220, '⊖', 'inh') + "<text x=\"216\" y=\"214\" class=\"lbl sm\">PTU, propranolol, steroids, amiodarone</text>";
+        s += "<text x=\"14\" y=\"380\" class=\"lbl sm\" style=\"fill:var(--muted)\">Radioiodine uses the NIS trap (hot nodule / Graves = high uptake; thyroiditis, iodine load = LOW uptake).</text>";
+        return s + '</svg>';
+    },
+    /* ===== interpretation grids ===== */
+    gridThyroid: function () { return grid('Thyroid function – read TSH against FT4', 'TSH', 'FT4', ['TSH high', 'TSH normal', 'TSH low'], ['FT4 low', 'FT4 normal', 'FT4 high'], [[['Primary HYPOthyroidism (Hashimoto)', 1], ['Subclinical hypothyroidism', 0], ['TSHoma or thyroid hormone resistance', 1]],
+        [['Central hypothyroidism (or sick euthyroid)', 0], ['Euthyroid', 0], ['TSHoma / resistance, assay or T4 therapy', 0]],
+        [['Central hypothyroidism / severe non-thyroidal illness', 1], ['Subclinical hyperthyroidism', 0], ['Primary HYPERthyroidism (Graves, toxic nodule, thyroiditis)', 1]]]); },
+    gridCalcium: function () { return grid('Calcium against PTH', 'Calcium', 'PTH', ['Ca high', 'Ca low'], ['PTH low', 'PTH normal/high'], [[['PTH-INDEPENDENT: malignancy (PTHrP, bone metastases, myeloma), vitamin D excess, sarcoidosis, immobilisation', 1], ['PRIMARY hyperparathyroidism (adenoma); tertiary HPT; FHH (low urinary Ca)', 1]],
+        [['HYPOparathyroidism (post-surgical, autoimmune), hypomagnesaemia', 1], ['SECONDARY HPT: vitamin D deficiency, CKD; PSEUDOhypoparathyroidism (PTH resistance)', 0]]]); },
+    gridGonads: function () { return grid('Hypogonadism – sex steroid against LH/FSH', 'Sex steroid', 'LH / FSH', ['Testosterone or oestradiol LOW'], ['LH/FSH HIGH', 'LH/FSH low or normal'], [[['PRIMARY (hypergonadotropic): Klinefelter, Turner, menopause/POI, orchitis, chemo', 1], ['SECONDARY (hypogonadotropic): Kallmann, prolactinoma, pituitary tumour, anorexia, stress', 1]]]); },
+    gridAdrenal: function () { return grid('Cortisol against ACTH', 'Cortisol', 'ACTH', ['Cortisol HIGH', 'Cortisol LOW'], ['ACTH low', 'ACTH high'], [[['ACTH-INDEPENDENT Cushing: adrenal adenoma/carcinoma, nodular hyperplasia, exogenous steroids (low cortisol assay)', 1], ['ACTH-DEPENDENT: Cushing DISEASE (suppresses on high-dose DST) or ectopic ACTH (does not)', 1]],
+        [['SECONDARY insufficiency: pituitary/hypothalamic, chronic steroid withdrawal (pallor)', 0], ['PRIMARY insufficiency – Addison (pigmentation, aldosterone ↓)', 1]]]); },
+    /* ===== algorithms ===== */
+    cushingFlow: function () { return flow('Cushing syndrome – diagnostic steps', [['Clinical suspicion (stop exogenous steroids)', 'e'], ['Screen: 1-mg overnight DST (Bricaire) · 24-h UFC · late-night salivary cortisol', 'a'], ['≥ 2 abnormal = hypercortisolism', 'q', 'Confirm: low-dose DST 2 mg/d × 2 d (Liddle 2×2)'], ['Measure ACTH', 'a', 'Low → adrenal CT (adenoma, carcinoma)'], ['ACTH normal/high: high-dose DST (Liddle 2×8) + pituitary MRI', 'a', '> 50 % suppression = Cushing DISEASE'], ['No suppression / no adenoma → IPSS, CT thorax-abdomen (ectopic)', 'e']]); },
+    addisonFlow: function () { return flow('Suspected adrenal insufficiency', [['Fatigue, weight loss, hypotension, Na ↓ (K ↑)', 'e'], ['Morning cortisol', 'a', '< 3 µg/dL confirms; > 15 µg/dL excludes'], ['Synacthen 250 µg: peak < 18 µg/dL = insufficient', 'q'], ['ACTH + renin', 'a', 'ACTH ↑, renin ↑ = PRIMARY (Addison) → 21-OH antibodies, adrenal CT'], ['ACTH low/normal = SECONDARY → pituitary MRI, other axes', 'a'], ['Crisis: hydrocortisone 100 mg IV + saline + glucose – do not wait for results', 'e']]); },
+    hyperthyroidFlow: function () { return flow('Thyrotoxicosis – find the cause', [['TSH ↓, FT4/FT3 ↑', 'e'], ['TRAb positive / orbitopathy?', 'q', 'Yes → GRAVES disease'], ['Ultrasound + scintigraphy (uptake)', 'a'], ['High uptake, hot nodule(s)', 'a', 'Toxic adenoma / toxic multinodular goitre'], ['LOW uptake', 'q', 'Painful + ESR ↑ = subacute thyroiditis; painless/postpartum; iodine/amiodarone; factitious (Tg ↓)'], ['Treat: β-blocker + thionamide / radioiodine / surgery; thyroiditis: NSAID or prednisone', 'e']]); },
+    noduleFlow: function () { return flow('Thyroid nodule – work-up', [['Palpable or incidental nodule', 'e'], ['TSH', 'q', 'Low → scintigraphy: hot nodule = benign (treat hyperthyroidism)'], ['Ultrasound (TI-RADS): echogenicity, margins, calcifications, shape', 'a'], ['Suspicious + size threshold → FNA', 'a', 'Bethesda I–VI cytology'], ['Bethesda V–VI → surgery (thyroidectomy ± neck dissection)', 'a'], ['Benign → follow-up ultrasound', 'e']]); },
+    diFlow: function () { return flow('Polyuria – water deprivation test', [['Polyuria > 3 L/day, dilute urine (exclude glucose, Ca ↑, K ↓)', 'e'], ['Water deprivation 8 h (weigh, osmolality)', 'a'], ['Urine concentrates (> 600–800 mOsm/kg)?', 'q', 'Yes = PRIMARY POLYDIPSIA'], ['No: give desmopressin', 'a'], ['Urine osmolality rises > 50 %', 'q', 'CENTRAL DI → desmopressin, pituitary MRI'], ['No response = NEPHROGENIC DI → thiazide, stop lithium', 'e']]); },
+    hyperCaFlow: function () { return flow('Hypercalcaemia – approach', [['Corrected Ca ↑ (repeat, ionised Ca)', 'e'], ['PTH', 'q', 'High / normal → primary HPT (exclude FHH)'], ['PTH suppressed', 'a', 'PTHrP, SPEP, vitamin D, imaging'], ['Severe (> 14 mg/dL) or symptomatic', 'q', 'IV saline + zoledronate'], ['PHPT: surgery if symptomatic, Ca > 1 mg/dL above ULN, osteoporosis, stones, eGFR < 60, age < 50', 'e']]); },
+    amenorrheaFlow: function () { return flow('Secondary amenorrhoea – first steps', [['Amenorrhoea ≥ 3 months', 'e'], ['β-hCG (pregnancy)', 'q', 'Positive → pregnancy'], ['Prolactin + TSH', 'q', 'PRL ↑ → drugs? MRI → prolactinoma'], ['FSH, LH, oestradiol', 'a', 'FSH ↑ = ovarian insufficiency (karyotype if < 30 y)'], ['FSH/LH low-normal: hypothalamic (stress, weight, sport) or PCOS (LH/FSH ↑, androgens)', 'a'], ['Progesterone challenge: bleeding = oestrogenised; none → oestro-progestative test (uterine cause: Asherman)', 'e']]); },
+    aldoFlow: function () { return flow('Primary aldosteronism', [['Resistant HT, HT + low K, < 40 y, adrenal incidentaloma', 'e'], ['Aldosterone/renin ratio (morning, upright, K corrected)', 'a'], ['ARR high → confirmatory test', 'q', 'Saline infusion / captopril / fludrocortisone suppression'], ['Adrenal CT', 'a'], ['Adrenal vein sampling (lateralisation)', 'q', 'Unilateral → laparoscopic adrenalectomy'], ['Bilateral hyperplasia → spironolactone / eplerenone', 'e']]); },
+    pheoFlow: function () { return flow('Pheochromocytoma / paraganglioma', [['Paroxysms: headache, sweating, palpitations, HT', 'e'], ['Plasma free or 24-h urinary metanephrines', 'a'], ['Raised (> 3× ULN)?', 'q', 'Equivocal → clonidine suppression test'], ['CT/MRI abdomen; MIBG / DOTATATE-PET if needed', 'a'], ['α-blockade FIRST (phenoxybenzamine/doxazosin) 10–14 days, then β-blocker, volume', 'a'], ['Laparoscopic adrenalectomy; genetic testing (MEN2, VHL, NF1, SDH)', 'e']]); },
+    /* ===== ladders / classifications ===== */
+    werner: function () { return ladder('Werner classification of Graves orbitopathy – NO SPECS', [['0 – N', 'No signs or symptoms'], ['1 – O', 'Only signs: upper lid retraction, stare, lid lag (no symptoms)'], ['2 – S', 'Soft tissue: lid oedema, chemosis, conjunctival injection'], ['3 – P', 'Proptosis (exophthalmos ≥ 3 mm above normal, > 20 mm Hertel)'], ['4 – E', 'Extraocular muscle involvement → DIPLOPIA, restriction'], ['5 – C', 'Corneal involvement (exposure keratitis, ulcer)'], ['6 – S', 'Sight loss: compressive optic neuropathy (emergency)']]); },
+    casScore: function () { return ladder('Clinical Activity Score (CAS) – activity of orbitopathy (≥ 3/7 = active)', [['1', 'Spontaneous retrobulbar pain'], ['2', 'Pain on attempted up/down gaze'], ['3', 'Eyelid redness'], ['4', 'Eyelid swelling'], ['5', 'Conjunctival redness'], ['6', 'Chemosis'], ['7', 'Caruncle/plica inflammation']]); },
+    hypopitOrder: function () { return ladder('Hypopituitarism – order of loss & order of replacement', [['Loss', 'GH → LH/FSH → TSH → ACTH → PRL ("Go Look For The Adenoma Please")'], ['1st replace', 'CORTISOL (hydrocortisone) – before thyroxine to avoid adrenal crisis'], ['2nd', 'Levothyroxine – follow FT4, not TSH'], ['3rd', 'Sex steroids (or gonadotropins for fertility); GH in children/selected adults'], ['DI', 'Desmopressin if posterior pituitary involved']]); },
+    men: function () { return ladder('Multiple endocrine neoplasia', [['MEN 1', 'MENIN – Parathyroid hyperplasia (95 %) · Pituitary adenoma (prolactinoma) · Pancreatic/duodenal NET (gastrinoma, insulinoma) – the 3 P'], ['MEN 2A', 'RET – Medullary thyroid carcinoma (100 %) · Pheochromocytoma · Parathyroid hyperplasia'], ['MEN 2B', 'RET – MTC (early, aggressive) · Pheochromocytoma · mucosal neuromas, marfanoid habitus'], ['Rule', 'RET carriers → prophylactic thyroidectomy; always exclude pheochromocytoma before any surgery']]); },
+    goitreWHO: function () { return ladder('WHO goitre grading', [['Grade 0', 'No palpable or visible goitre'], ['Grade 1', 'Palpable but not visible with the neck in normal position'], ['Grade 2', 'Visible with the neck in normal position, consistent with palpation']]); },
+    bethesda: function () { return ladder('Bethesda system – thyroid FNA cytology', [['I', 'Non-diagnostic → repeat FNA'], ['II', 'Benign (colloid nodule, thyroiditis) → follow-up'], ['III', 'AUS/FLUS → repeat FNA, molecular testing'], ['IV', 'Follicular neoplasm → lobectomy (diagnostic)'], ['V', 'Suspicious for malignancy → surgery'], ['VI', 'Malignant (papillary 80 %, follicular, medullary, anaplastic) → thyroidectomy']]); },
+    thyroidCancer: function () { return ladder('Thyroid cancers', [['Papillary', '80 %, young women, radiation; lymphatic spread; psammoma bodies, Orphan Annie nuclei; excellent prognosis'], ['Follicular', '10–15 %, iodine deficiency; haematogenous (bone, lung); diagnosis needs capsular/vascular invasion'], ['Medullary', 'C cells → CALCITONIN, CEA; 25 % familial (MEN2, RET)'], ['Anaplastic', 'Elderly, rapidly growing hard mass, very poor prognosis'], ['Treatment', 'Thyroidectomy ± radioiodine (differentiated) + TSH-suppressive levothyroxine; thyroglobulin = tumour marker']]); },
+    prlCauses: function () { return ladder('Hyperprolactinaemia – causes', [['Physiol.', 'Pregnancy, breastfeeding, stress, sleep, nipple stimulation'], ['Drugs', 'Neuroleptics, metoclopramide, domperidone, antidepressants, opiates, oestrogens, verapamil'], ['Disconnect', 'Stalk compression by non-functioning adenoma/craniopharyngioma (PRL usually < 100 ng/mL)'], ['Systemic', 'Primary hypothyroidism (TRH), chronic renal failure, cirrhosis, PCOS, chest wall lesions'], ['Tumour', 'Prolactinoma: micro (< 10 mm) / macro – PRL often > 200 ng/mL → cabergoline']]); },
+    pituMass: function () { return ladder('Pituitary mass effects – where the tumour grows', [['Up', 'Chiasm → bitemporal hemianopia (superior quadrants first); hypothalamus → DI, obesity'], ['Lateral', 'Cavernous sinus → III, IV, V1, V2, VI palsies (diplopia, ptosis)'], ['Down', 'Sphenoid sinus → CSF rhinorrhoea'], ['Inside', 'Normal pituitary compressed → hypopituitarism; stalk → PRL ↑'], ['Sudden', 'APOPLEXY: thunderclap headache, visual loss, ophthalmoplegia → steroids, surgery']]); },
+    turnerKline: function () { return grid('Turner vs Klinefelter', 'Feature', 'Syndrome', ['Karyotype', 'Stature', 'Gonads', 'Hormones', 'Typical signs', 'Treatment'], ['Turner', 'Klinefelter'], [[['45,X (or mosaic)', 0], ['47,XXY', 0]], [['SHORT (SHOX)', 1], ['TALL, eunuchoid', 1]], [['Streak ovaries, primary amenorrhoea', 0], ['Small firm testes, azoospermia', 0]], [['E2 ↓ FSH/LH ↑', 0], ['T ↓ FSH/LH ↑, E2/T ↑', 0]],
+        [['Webbed neck, cubitus valgus, coarctation, horseshoe kidney, lymphoedema', 0], ['Gynaecomastia, sparse hair, learning issues, osteoporosis', 0]], [['GH + oestrogen–progestin; egg donation', 0], ['Testosterone; TESE + ICSI', 0]]]); },
+    menstrualCycle: function () {
+        var W = 860, H = 330, x0 = 60;
+        var li = 0, x1 = 720, yb = 270, top = 70;
+        var X = function (d) { return x0 + (x1 - x0) * d / 28; };
+        var curve = function (pts, col, lbl) { var d = pts.map(function (p, i) { return (i ? 'L' : 'M') + X(p[0]).toFixed(1) + ' ' + (yb - p[1] * (yb - top)).toFixed(1); }).join(' '); var lp = pts[pts.length - 1]; var ly = top + li++ * 22; return "<path d=\"".concat(d, "\" fill=\"none\" stroke=\"").concat(col, "\" stroke-width=\"3\"/><line x1=\"738\" y1=\"").concat(ly, "\" x2=\"762\" y2=\"").concat(ly, "\" stroke=\"").concat(col, "\" stroke-width=\"4\"/><text x=\"768\" y=\"").concat(ly + 4, "\" class=\"lbl sm b\" style=\"fill:").concat(col, "\">").concat(lbl, "</text>"); };
+        var s = svgOpen(W, H, 'Menstrual cycle – hormone curves', 'Follicular phase → LH surge (day 14, oestradiol positive feedback) → luteal phase (progesterone)');
+        s += "<line x1=\"".concat(x0, "\" y1=\"").concat(yb, "\" x2=\"").concat(x1, "\" y2=\"").concat(yb, "\" stroke=\"var(--muted)\"/><line x1=\"").concat(X(14), "\" y1=\"").concat(top - 10, "\" x2=\"").concat(X(14), "\" y2=\"").concat(yb, "\" stroke=\"var(--muted)\" stroke-dasharray=\"4 4\"/><text x=\"").concat(X(14), "\" y=\"").concat(yb + 18, "\" text-anchor=\"middle\" class=\"lbl sm\">day 14 \u2013 ovulation</text><text x=\"").concat(X(0), "\" y=\"").concat(yb + 18, "\" class=\"lbl sm\">day 1 (menses)</text><text x=\"").concat(X(28) - 40, "\" y=\"").concat(yb + 18, "\" class=\"lbl sm\">day 28</text>");
+        s += curve([[0, .25], [4, .3], [8, .22], [12, .2], [13.5, .55], [14.2, .5], [16, .15], [24, .1], [28, .2]], '#2b74d1', 'FSH');
+        s += curve([[0, .2], [10, .22], [13, .4], [14, 1], [15, .35], [18, .18], [28, .17]], '#e0663a', 'LH');
+        s += curve([[0, .12], [7, .2], [11, .5], [13, .75], [14.5, .35], [18, .35], [21, .5], [25, .3], [28, .12]], '#d6336c', 'Oestradiol');
+        s += curve([[0, .05], [13, .06], [15, .15], [19, .6], [21, .75], [24, .5], [28, .06]], '#8a55d0', 'Progesterone');
+        return s + '</svg>';
+    }
+});
+function axisMap(title, col, stations, feedback, note) {
+    var W = 820, x = 140;
+    var y = 80;
+    var ys = stations.map(function (st, i) { return 80 + i * 78; });
+    var H = ys[ys.length - 1] + 60 + feedback.length * 18 + (note ? 16 * wrapText(note, 110).length + 14 : 0);
+    var s = svgOpen(W, H, title);
+    s += mLine(ys.map(function (yy) { return [x, yy]; }), col, { arrow: 1 });
+    s += mLine([[x, ys[ys.length - 2]], [x - 70, ys[ys.length - 2]], [x - 70, ys[0]], [x - 12, ys[0]]], col, { dash: 1, w: 3.5 });
+    s += mLine([[x - 40, ys[ys.length - 2] - 10], [x - 40, ys[1]], [x - 12, ys[1]]], col, { dash: 1, w: 3.5, op: .7 });
+    s += mTag(x - 70, (ys[0] + ys[ys.length - 2]) / 2, '−', col);
+    stations.forEach(function (st, i) { s += mSt(x, ys[i], st, { pos: 'r', wrap: 60, hub: i === 2 }); });
+    var fy = ys[ys.length - 1] + 44;
+    feedback.forEach(function (f) { s += "<text x=\"14\" y=\"".concat(fy, "\" class=\"lbl sm\">\u21BA ").concat(esc(f), "</text>"); fy += 18; });
+    if (note) {
+        var nl = wrapText(note, 110);
+        s += "<text class=\"lbl sm b\">".concat(tspans(nl, 14, fy + 8, 16), "</text>");
+    }
+    return s + '</svg>';
+}
 /* General Surgery Study Platform — runs as a Claude artifact (Claude account storage + AI)
    and as a standalone web app (Google sign-in via Firebase, or guest). */
 var APP = { core: null, summary: null };
@@ -557,7 +780,7 @@ var MODULES = [
     { id: 'm2', title: 'Ophthalmology – Endocrinology – Diabetes – Haematology – Occupational medicine', subjects: [['ophtha', 'Ophthalmology', 'Oph'], ['endo', 'Endocrinology', 'En'], ['diab', 'Diabetes & nutrition', 'Di'], ['hemato', 'Haematology', 'H'], ['occup', 'Occupational medicine', 'Oc']] },
     { id: 'm0', title: 'General surgery module', subjects: [['surgery', 'General Surgery', '✚']] }
 ];
-var SUBJ = { surgery: { title: 'General Surgery', base: 'data/', book: 'Surgery for Students' }, radiology: { title: 'Radiology', base: 'data/radiology/', book: 'Radiology for Medical Students, vol. I (S. Dudea)' }, ophtha: { title: 'Ophthalmology', base: 'data/ophtha/', book: 'Ophthalmology – new book 2025 (annotated photos)' } };
+var SUBJ = { surgery: { title: 'General Surgery', base: 'data/', book: 'Surgery for Students' }, radiology: { title: 'Radiology', base: 'data/radiology/', book: 'Radiology for Medical Students, vol. I (S. Dudea)' }, ophtha: { title: 'Ophthalmology', base: 'data/ophtha/', book: 'Ophthalmology – new book 2025 (annotated photos)' }, endo: { title: 'Endocrinology', base: 'data/endo/', book: 'Introduction to Endocrinology (I. R. Ilie, Springer 2020)' } };
 function getSubj() { try {
     var v = localStorage.getItem('subj');
     return SUBJ[v] ? v : 'surgery';
@@ -1345,7 +1568,7 @@ function xDecksHtml() {
         return '';
     var K = APP.xidx.kinds, T = APP.xidx.topics;
     var tt = function (t) { return APP.lById[t] ? APP.lById[t].title : (t === 'osce' ? 'OSCE cases' : t === 'other' ? 'Other' : t); };
-    return "<h3 style=\"margin:16px 0 8px\">".concat(APP.xidx.title || (APP.subj === 'radiology' ? 'Image flashcards (oral exam): picture → diagnosis & description' : 'Imported decks'), "</h3>\n  <div class=\"cards\">").concat(Object.keys(K).map(function (k) { return "<a href=\"#\" class=\"card lc\" data-act=\"xdeck\" data-k=\"".concat(k, "\" data-id=\"\"><b>").concat(h(K[k]), "</b><span class=\"muted small\">").concat(xCount(k), " cards \u00B7 all chapters</span></a>"); }).join(''), "</div>\n  <h4 style=\"margin:12px 0 6px\">").concat(APP.xidx.byTitle || (APP.subj === 'radiology' ? 'Image cards by chapter' : 'Imported cards by chapter'), "</h4>\n  <div class=\"cards\">").concat(Object.keys(T).sort(function (a, b) { return (APP.core.lectures.findIndex(function (l) { return l.id === a; }) + 99) % 199 - (APP.core.lectures.findIndex(function (l) { return l.id === b; }) + 99) % 199; }).map(function (t) { return "<a href=\"#\" class=\"card lc\" data-act=\"xdeck\" data-k=\"\" data-id=\"".concat(t, "\"><b>").concat(h(tt(t)), "</b><span class=\"muted small\">").concat(Object.keys(T[t]).map(function (k) { return T[t][k] + ' ' + (k === 'img' ? (APP.xidx.imgWord || 'exam pictures') : k === 'ortho' ? 'ortho X-rays' : k === 'lect' ? 'lecture cards' : k === 'mcq' ? 'MCQ cards' : k === 'osce' ? 'OSCE' : k === 'open' ? 'open questions' : k); }).join(' · '), "</span></a>"); }).join(''), "</div>");
+    return "<h3 style=\"margin:16px 0 8px\">".concat(APP.xidx.title || (APP.subj === 'radiology' ? 'Image flashcards (oral exam): picture → diagnosis & description' : 'Imported decks'), "</h3>\n  <div class=\"cards\">").concat(Object.keys(K).map(function (k) { return "<a href=\"#\" class=\"card lc\" data-act=\"xdeck\" data-k=\"".concat(k, "\" data-id=\"\"><b>").concat(h(K[k]), "</b><span class=\"muted small\">").concat(xCount(k), " cards \u00B7 all chapters</span></a>"); }).join(''), "</div>\n  <h4 style=\"margin:12px 0 6px\">").concat(APP.xidx.byTitle || (APP.subj === 'radiology' ? 'Image cards by chapter' : 'Imported cards by chapter'), "</h4>\n  <div class=\"cards\">").concat(Object.keys(T).sort(function (a, b) { return (APP.core.lectures.findIndex(function (l) { return l.id === a; }) + 99) % 199 - (APP.core.lectures.findIndex(function (l) { return l.id === b; }) + 99) % 199; }).map(function (t) { return "<a href=\"#\" class=\"card lc\" data-act=\"xdeck\" data-k=\"\" data-id=\"".concat(t, "\"><b>").concat(h(tt(t)), "</b><span class=\"muted small\">").concat(Object.keys(T[t]).map(function (k) { return T[t][k] + ' ' + (k === 'anki' ? 'cards' : k === 'img' ? (APP.xidx.imgWord || 'exam pictures') : k === 'ortho' ? 'ortho X-rays' : k === 'lect' ? 'lecture cards' : k === 'mcq' ? 'MCQ cards' : k === 'osce' ? 'OSCE' : k === 'open' ? 'open questions' : k); }).join(' · '), "</span></a>"); }).join(''), "</div>");
 }
 function startXDeck(kind, topic) {
     var T = (APP.xidx && APP.xidx.topics) || {};
