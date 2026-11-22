@@ -613,6 +613,306 @@ function axisMap(title, col, stations, feedback, note) {
     }
     return s + '</svg>';
 }
+/* ---------- Diabetes & nutrition schemas: rulers, seesaw, β-cell, octet, curves, cascades, body maps, heatmaps, plate ---------- */
+var DC = { ok: '#2e9d5b', mid: '#e2a400', bad: '#d9534f', vbad: '#9c2a2a', blue: '#2b74d1', purple: '#8a55d0', teal: '#1f9d8f', orange: '#e0663a', pink: '#d6336c', grey: '#8a8f98' };
+function dTxt(x, y, t, o) {
+    o = o || {};
+    var lines = o.wrap ? wrapText(t, o.wrap) : [t];
+    var lh = o.lh || 15;
+    return "<text text-anchor=\"".concat(o.anc || 'start', "\" class=\"lbl").concat(o.b ? ' b' : '').concat(o.sm ? ' sm' : '', "\"").concat(o.col ? " style=\"fill:".concat(o.col, "\"") : '', ">").concat(tspans(lines, x, y, lh), "</text>");
+}
+function dBox(x, y, w, h, col, op) { return "<rect x=\"".concat(x, "\" y=\"").concat(y, "\" width=\"").concat(w, "\" height=\"").concat(h, "\" rx=\"8\" fill=\"").concat(col, "\" fill-opacity=\"").concat(op == null ? .16 : op, "\" stroke=\"").concat(col, "\" stroke-width=\"1.5\"/>"); }
+function dArrow(x1, y1, x2, y2, col, w) { return "<line x1=\"".concat(x1, "\" y1=\"").concat(y1, "\" x2=\"").concat(x2, "\" y2=\"").concat(y2, "\" stroke=\"").concat(col || 'var(--muted)', "\" stroke-width=\"").concat(w || 2, "\" marker-end=\"url(#mar)\" style=\"color:").concat(col || 'var(--muted)', "\"/>"); }
+function dPill(x, y, t, col) { var w = t.length * 6.6 + 16; return "<g><rect x=\"".concat(x, "\" y=\"").concat(y - 12, "\" width=\"").concat(w, "\" height=\"18\" rx=\"9\" fill=\"").concat(col, "\"/><text x=\"").concat(x + w / 2, "\" y=\"").concat(y + 1, "\" text-anchor=\"middle\" style=\"fill:#fff;font-size:11px;font-weight:700\">").concat(esc(t), "</text></g>"); }
+function pillW(t) { return t.length * 6.6 + 16; }
+/* horizontal threshold ruler: segs [[from,to,col,label]], ticks [[v,label]] */
+function ruler(y, x0, x1, min, max, title, segs, ticks) {
+    var X = function (v) { return x0 + (x1 - x0) * (v - min) / (max - min); };
+    var s = dTxt(x0, y - 22, title, { b: 1 });
+    segs.forEach(function (g) { s += "<rect x=\"".concat(X(g[0]), "\" y=\"").concat(y - 10, "\" width=\"").concat(X(g[1]) - X(g[0]), "\" height=\"22\" fill=\"").concat(g[2], "\" fill-opacity=\".8\"/>") + "<text x=\"".concat((X(g[0]) + X(g[1])) / 2, "\" y=\"").concat(y + 5, "\" text-anchor=\"middle\" style=\"fill:#fff;font-size:11.5px;font-weight:700\">").concat(esc(g[3]), "</text>"); });
+    ticks.forEach(function (t) { s += "<line x1=\"".concat(X(t[0]), "\" y1=\"").concat(y - 14, "\" x2=\"").concat(X(t[0]), "\" y2=\"").concat(y + 18, "\" stroke=\"var(--ink)\" stroke-width=\"1.5\"/><text x=\"").concat(X(t[0]), "\" y=\"").concat(y + 32, "\" text-anchor=\"middle\" class=\"lbl sm b\">").concat(esc(t[1]), "</text>"); });
+    return s;
+}
+/* smooth-ish curve from points in data space */
+function dCurve(pts, X, Y, col, w, dash) { var d = pts.map(function (p, i) { return (i ? 'L' : 'M') + X(p[0]).toFixed(1) + ' ' + Y(p[1]).toFixed(1); }).join(' '); return "<path d=\"".concat(d, "\" fill=\"none\" stroke=\"").concat(col, "\" stroke-width=\"").concat(w || 3, "\" stroke-linejoin=\"round\"").concat(dash ? ' stroke-dasharray="6 5"' : '', "/>"); }
+function bell(t0, onset, peak, end, h, step) { var out = []; step = step || .25; for (var t = 0; t <= end + .01; t += step) {
+    var v = 0;
+    if (t > onset) {
+        v = t <= peak ? h * Math.sin(Math.PI / 2 * (t - onset) / (peak - onset)) : h * Math.cos(Math.PI / 2 * Math.min(1, (t - peak) / (end - peak)));
+    }
+    out.push([t0 + t, Math.max(0, v)]);
+} return out; }
+Object.assign(DRAW, {
+    /* ===== diagnosis thresholds ===== */
+    glucoseRulers: function () {
+        var s = svgOpen(820, 350, 'Glycaemic status – where does the value fall?', 'Diabetes needs 2 abnormal results (or 1 + typical symptoms / hyperglycaemic crisis)');
+        s += ruler(100, 40, 780, 50, 200, 'Fasting plasma glucose (mg/dL) – ≥ 8 h fast', [[50, 100, DC.ok, 'Normal'], [100, 126, DC.mid, 'IFG'], [126, 200, DC.bad, 'Diabetes']], [[70, '70'], [100, '100 (ADA) / 110 (WHO)'], [126, '126']]);
+        s += ruler(185, 40, 780, 50, 300, '2-h glucose after 75 g OGTT (mg/dL)', [[50, 140, DC.ok, 'Normal'], [140, 200, DC.mid, 'IGT'], [200, 300, DC.bad, 'Diabetes']], [[140, '140'], [200, '200']]);
+        s += ruler(270, 40, 780, 4, 9, 'HbA1c (%) – standardised (NGSP/DCCT) method', [[4, 5.7, DC.ok, 'Normal'], [5.7, 6.5, DC.mid, 'Prediabetes'], [6.5, 9, DC.bad, 'Diabetes']], [[5.7, '5.7'], [6.5, '6.5']]);
+        s += "<text x=\"40\" y=\"318\" class=\"lbl sm\" style=\"fill:var(--muted)\">Random glucose \u2265 200 mg/dL + polyuria, polydipsia, weight loss = diabetes (no confirmation needed).</text><text x=\"40\" y=\"336\" class=\"lbl sm\" style=\"fill:var(--muted)\">GDM (75 g OGTT, 24\u201328 weeks): fasting \u2265 92, 1 h \u2265 180, 2 h \u2265 153 mg/dL \u2013 any one value.</text>";
+        return s + '</svg>';
+    },
+    dxFlow: function () { return flow('Diagnosis of diabetes – step by step', [['Suspicion: symptoms (3 P + weight loss) or screening (risk factors, age ≥ 35–45)', 'e'], ['Typical symptoms + random glucose ≥ 200 mg/dL?', 'q', 'Yes → DIABETES (no 2nd test)'], ['FPG, OGTT or HbA1c', 'a'], ['Value in the diabetes range?', 'q', 'Below → normal or prediabetes (IFG / IGT / HbA1c 5.7–6.4) → lifestyle, yearly test'], ['Confirm: same test again or a second, different test', 'a'], ['Both abnormal → diabetes; discordant → repeat the abnormal test', 'a'], ['Classify: T1D / T2D / GDM / other (MODY, pancreatic, drugs, endocrine) → C-peptide, antibodies if doubt', 'e']]); },
+    /* ===== insulin / glucagon seesaw ===== */
+    seesaw: function () {
+        var s = svgOpen(860, 400, 'Insulin–glucagon seesaw: fed vs fasting state', 'The ratio between the two hormones, not each alone, sets the direction of fuel traffic');
+        var panel = function (x, title, tilt, big, small, items, col) {
+            var g = "<text x=\"".concat(x + 200, "\" y=\"82\" text-anchor=\"middle\" class=\"lbl b\">").concat(esc(title), "</text>");
+            g += "<polygon points=\"".concat(x + 200, ",190 ").concat(x + 180, ",222 ").concat(x + 220, ",222\" fill=\"var(--muted)\"/>");
+            var dy = tilt * 34;
+            g += "<line x1=\"".concat(x + 50, "\" y1=\"").concat(190 + dy, "\" x2=\"").concat(x + 350, "\" y2=\"").concat(190 - dy, "\" stroke=\"var(--ink)\" stroke-width=\"5\" stroke-linecap=\"round\"/>");
+            var r1 = tilt > 0 ? 34 : 20, r2 = tilt > 0 ? 20 : 34;
+            g += "<circle cx=\"".concat(x + 70, "\" cy=\"").concat(190 + dy - r1 - 3, "\" r=\"").concat(r1, "\" fill=\"").concat(DC.blue, "\" fill-opacity=\".85\"/><text x=\"").concat(x + 70, "\" y=\"").concat(190 + dy - r1 + 1, "\" text-anchor=\"middle\" style=\"fill:#fff;font-size:").concat(r1 > 25 ? 11 : 8, "px;font-weight:800\">INSULIN</text>");
+            g += "<circle cx=\"".concat(x + 330, "\" cy=\"").concat(190 - dy - r2 - 3, "\" r=\"").concat(r2, "\" fill=\"").concat(DC.orange, "\" fill-opacity=\".85\"/><text x=\"").concat(x + 330, "\" y=\"").concat(190 - dy - r2 + 1, "\" text-anchor=\"middle\" style=\"fill:#fff;font-size:").concat(r2 > 25 ? 11 : 8, "px;font-weight:800\">GLUCAGON</text>");
+            var y = 248;
+            items.forEach(function (it) { g += dBox(x + 10, y, 380, 26, col, .12) + dTxt(x + 20, y + 17, it[0] + ': ', { b: 1, sm: 1 }) + dTxt(x + 20 + it[0].length * 7 + 12, y + 17, it[1], { sm: 1 }); y += 30; });
+            return g;
+        };
+        s += panel(20, 'FED (after a meal): insulin ↑ glucagon ↓', 1, 1, 0, [['Liver', 'glycogen synthesis, ↓ glucose output, lipogenesis'], ['Muscle', 'GLUT4 glucose uptake, glycogen, protein synthesis'], ['Fat', 'TG storage (LPL), lipolysis blocked'], ['Net', 'blood glucose falls back to normal']], DC.blue);
+        s += panel(440, 'FASTING / STRESS: insulin ↓ glucagon ↑', -1, 0, 1, [['Liver', 'glycogenolysis → gluconeogenesis → KETOGENESIS'], ['Muscle', 'proteolysis → amino acids for gluconeogenesis'], ['Fat', 'lipolysis → free fatty acids + glycerol'], ['Extreme', 'no insulin at all = ketoacidosis (T1D)']], DC.orange);
+        return s + '</svg>';
+    },
+    /* ===== β-cell secretion pathway ===== */
+    betaCell: function () {
+        var s = svgOpen(880, 470, 'Inside the β-cell: how glucose triggers insulin – and where drugs plug in', 'Follow the line from blood glucose to insulin exocytosis');
+        s += "<rect x=\"40\" y=\"70\" width=\"800\" height=\"320\" rx=\"40\" fill=\"var(--c0)\" stroke=\"var(--line)\" stroke-width=\"2\"/><text x=\"60\" y=\"96\" class=\"lbl b\">\u03B2-CELL (islet of Langerhans)</text>";
+        var pts = [[60, 200], [170, 200], [290, 200], [400, 200], [520, 200], [520, 300], [660, 300], [780, 300], [780, 160]];
+        s += mLine(pts, DC.teal, { arrow: 1, w: 7 });
+        s += mSt(60, 200, 'Blood glucose ↑', { pos: 't', wrap: 10 }) + mSt(170, 200, 'GLUT2 (glucose enters)', { pos: 'b', wrap: 12 }) + mSt(290, 200, 'Glucokinase (glucose sensor; MODY 2)', { pos: 't', wrap: 14 }) + mSt(400, 200, 'Glycolysis → ATP/ADP ↑', { pos: 'b', wrap: 12 }) + mSt(520, 200, 'K-ATP channel CLOSES (Kir6.2/SUR1)', { pos: 't', wrap: 16, hub: 1 }) + mSt(520, 300, 'Membrane depolarisation', { pos: 'l', wrap: 14 }) + mSt(660, 300, 'Voltage-gated Ca²⁺ channels open → Ca²⁺ influx', { pos: 'b', wrap: 18 }) + mSt(780, 160, 'INSULIN exocytosis (+ C-peptide 1:1)', { pos: 'l', wrap: 14, hub: 1 });
+        s += dPill(545, 240, 'Sulfonylureas, glinides', DC.orange) + dTxt(545, 262, 'close K-ATP even at LOW glucose', { sm: 1, col: DC.orange }) + dTxt(545, 277, '→ hypoglycaemia, weight gain', { sm: 1, col: DC.orange });
+        s += dTxt(80, 330, 'GLP-1 receptor → cAMP AMPLIFIES glucose-triggered secretion', { sm: 1, b: 1 }) + dPill(80, 356, 'GLP-1 RA, DPP-4 inhibitors → no hypo alone', DC.purple);
+        s += "<text x=\"40\" y=\"420\" class=\"lbl sm\" style=\"fill:var(--muted)\">First phase (minutes, stored granules) is lost early in T2D; second phase = new synthesis.</text><text x=\"40\" y=\"440\" class=\"lbl sm\" style=\"fill:var(--muted)\">C-peptide is secreted 1:1 with insulin \u2192 marker of ENDOGENOUS secretion (low in T1D and with injected insulin).</text>";
+        return s + '</svg>';
+    },
+    /* ===== ominous octet with the drug that fixes each defect ===== */
+    octet: function () {
+        var s = svgOpen(960, 660, 'T2D "ominous octet": 8 defects – and the drug that corrects each', 'Centre = hyperglycaemia; every spoke is an organ that pushes glucose up');
+        var cx = 480, cy = 350;
+        s += "<circle cx=\"".concat(cx, "\" cy=\"").concat(cy, "\" r=\"70\" fill=\"").concat(DC.bad, "\" fill-opacity=\".18\" stroke=\"").concat(DC.bad, "\" stroke-width=\"3\"/><text x=\"").concat(cx, "\" y=\"").concat(cy - 4, "\" text-anchor=\"middle\" class=\"lbl b\">HYPER-</text><text x=\"").concat(cx, "\" y=\"").concat(cy + 14, "\" text-anchor=\"middle\" class=\"lbl b\">GLYCAEMIA</text>");
+        var sp = [['Pancreas β-cell', '↓ insulin secretion', 'SU, GLP-1 RA, DPP-4i, insulin', DC.blue], ['Pancreas α-cell', '↑ glucagon', 'GLP-1 RA, DPP-4i', DC.orange], ['Liver', '↑ hepatic glucose output', 'METFORMIN, pioglitazone', DC.teal], ['Muscle', '↓ glucose uptake (insulin resistance)', 'Pioglitazone, exercise, metformin', DC.purple], ['Adipose tissue', '↑ lipolysis → FFA (lipotoxicity)', 'Pioglitazone, weight loss', DC.mid], ['Gut', '↓ incretin effect', 'GLP-1 RA, DPP-4i (acarbose: ↓ absorption)', DC.pink], ['Kidney', '↑ glucose reabsorption (SGLT2)', 'SGLT2 inhibitors (gliflozins)', DC.ok], ['Brain', 'neurotransmitter dysfunction, appetite ↑', 'GLP-1 RA, bromocriptine', DC.grey]];
+        sp.forEach(function (p, i) {
+            var a = -Math.PI / 2 + i * Math.PI / 4;
+            var x2 = cx + Math.cos(a) * 300, y2 = cy + Math.sin(a) * 235;
+            s += "<line x1=\"".concat(cx + Math.cos(a) * 72, "\" y1=\"").concat(cy + Math.sin(a) * 72, "\" x2=\"").concat(x2, "\" y2=\"").concat(y2, "\" stroke=\"").concat(p[3], "\" stroke-width=\"5\" stroke-linecap=\"round\"/>");
+            var dl = wrapText('➜ ' + p[2], 32);
+            var bw = 230, bh = 50 + dl.length * 14, bx = Math.min(950 - bw, Math.max(10, x2 - bw / 2)), by = Math.min(652 - bh, Math.max(54, y2 - bh / 2));
+            s += "<rect x=\"".concat(bx, "\" y=\"").concat(by, "\" width=\"").concat(bw, "\" height=\"").concat(bh, "\" rx=\"10\" fill=\"var(--card)\" stroke=\"").concat(p[3], "\" stroke-width=\"2\"/>") + dTxt(bx + 10, by + 18, p[0], { b: 1, sm: 1 }) + dTxt(bx + 10, by + 34, p[1], { sm: 1 }) + "<text class=\"lbl sm b\" style=\"fill:".concat(p[3], "\">").concat(tspans(dl, bx + 10, by + 52, 14), "</text>");
+        });
+        return s + '</svg>';
+    },
+    /* ===== natural history ===== */
+    naturalHistory: function () {
+        var W = 860, H = 400, x0 = 70, x1 = 800, yb = 290, top = 60;
+        var X = function (t) { return x0 + (x1 - x0) * (t + 10) / 25; }, Y = function (v) { return yb - v * (yb - top); };
+        var s = svgOpen(W, H, 'Natural history of type 2 diabetes', 'Insulin resistance comes first; diabetes appears when the β-cell can no longer compensate');
+        s += "<line x1=\"".concat(x0, "\" y1=\"").concat(yb, "\" x2=\"").concat(x1, "\" y2=\"").concat(yb, "\" stroke=\"var(--muted)\"/><line x1=\"").concat(X(0), "\" y1=\"").concat(top - 10, "\" x2=\"").concat(X(0), "\" y2=\"").concat(yb, "\" stroke=\"var(--muted)\" stroke-dasharray=\"4 4\"/>");
+        s += "<rect x=\"".concat(X(-10), "\" y=\"").concat(yb + 6, "\" width=\"").concat(X(-5) - X(-10), "\" height=\"18\" fill=\"").concat(DC.ok, "\" fill-opacity=\".25\"/><rect x=\"").concat(X(-5), "\" y=\"").concat(yb + 6, "\" width=\"").concat(X(0) - X(-5), "\" height=\"18\" fill=\"").concat(DC.mid, "\" fill-opacity=\".3\"/><rect x=\"").concat(X(0), "\" y=\"").concat(yb + 6, "\" width=\"").concat(X(15) - X(0), "\" height=\"18\" fill=\"").concat(DC.bad, "\" fill-opacity=\".25\"/>");
+        s += dTxt(X(-7.5), yb + 19, 'Obesity, IR', { anc: 'middle', sm: 1 }) + dTxt(X(-2.5), yb + 19, 'Prediabetes', { anc: 'middle', sm: 1 }) + dTxt(X(7.5), yb + 19, 'Diabetes (complications already at diagnosis in ~50 %)', { anc: 'middle', sm: 1 }) + dTxt(X(0), yb + 44, 'Diagnosis (year 0)', { anc: 'middle', sm: 1, b: 1 });
+        s += dCurve([[-10, .3], [-5, .55], [0, .7], [5, .72], [15, .72]], X, Y, DC.purple, 3.5);
+        s += dCurve([[-10, .4], [-6, .75], [-3, .8], [0, .55], [5, .4], [10, .28], [15, .18]], X, Y, DC.blue, 3.5);
+        s += dCurve([[-10, .12], [-5, .18], [-2, .3], [0, .5], [5, .62], [15, .8]], X, Y, DC.bad, 3.5);
+        s += dCurve([[-10, .08], [-4, .1], [-1, .2], [0, .32], [5, .48], [15, .7]], X, Y, DC.orange, 3, 1);
+        [['Insulin resistance', DC.purple], ['Insulin secretion (β-cell function)', DC.blue], ['Post-prandial glucose', DC.bad], ['Fasting glucose', DC.orange]].forEach(function (l, i) { var lx = x0 + (i % 2) * 330, ly = 352 + Math.floor(i / 2) * 18; s += "<line x1=\"".concat(lx, "\" y1=\"").concat(ly, "\" x2=\"").concat(lx + 22, "\" y2=\"").concat(ly, "\" stroke=\"").concat(l[1], "\" stroke-width=\"4\"/>") + dTxt(lx + 28, ly + 4, l[0], { sm: 1 }); });
+        return s + '</svg>';
+    },
+    t1t2Grid: function () { return grid('T1D vs T2D vs LADA vs MODY', 'Feature', 'Type', ['Age / onset', 'Body weight', 'Ketosis', 'C-peptide', 'Antibodies', 'Family history', 'Treatment'], ['T1D', 'T2D', 'LADA', 'MODY'], [[['Child/young, abrupt (weeks)', 1], ['> 40 y (younger if obese), insidious', 0], ['Adult > 30 y, slow', 0], ['< 25 y, mild', 0]],
+        [['Normal, recent weight loss', 0], ['Overweight / obese', 1], ['Usually normal', 0], ['Normal', 0]],
+        [['Spontaneous DKA', 1], ['Rare (only if stressor)', 0], ['Late', 0], ['Absent', 0]],
+        [['Low / undetectable', 1], ['Normal or high', 0], ['Low, declining', 0], ['Preserved', 0]],
+        [['GAD, IA-2, ICA, ZnT8 +', 1], ['Negative', 0], ['GAD + (often only)', 1], ['Negative', 0]],
+        [['Weak', 0], ['Strong', 0], ['Variable', 0], ['3 generations (AD)', 1]],
+        [['Insulin from day 1 (basal-bolus / pump)', 1], ['Lifestyle + metformin…', 0], ['Insulin early', 0], ['SU (HNF1A) / none (GCK)', 0]]]); },
+    /* ===== acute complications ===== */
+    dkaHhs: function () {
+        var s = svgOpen(900, 560, 'DKA vs HHS – two cascades from insulin deficiency', 'Absolute deficiency → ketones (left) · relative deficiency → only hyperglycaemia & hyperosmolality (right)');
+        var box = function (x, y, w, t, col, h) { var ls = wrapText(t, Math.floor(w / 7)); h = h || ls.length * 15 + 14; return dBox(x, y, w, h, col) + "<text text-anchor=\"middle\" class=\"lbl sm b\">".concat(tspans(ls, x + w / 2, y + 18, 15), "</text>"); };
+        s += box(250, 62, 400, 'Insulin deficiency + ↑ counter-regulatory hormones (glucagon, cortisol, catecholamines, GH) – trigger: infection, missed insulin, new T1D, MI, SGLT2i', DC.grey, 54);
+        s += dArrow(330, 118, 220, 150) + dArrow(570, 118, 680, 150);
+        s += dTxt(120, 146, 'DKA (T1D, young)', { b: 1, col: DC.bad }) + dTxt(600, 146, 'HHS (T2D, elderly)', { b: 1, col: DC.purple });
+        // left: two branches
+        s += box(30, 160, 190, 'Lipolysis → FFA → liver β-oxidation', DC.orange) + dArrow(125, 208, 125, 232) + box(30, 234, 190, 'KETONES (β-hydroxybutyrate, acetoacetate)', DC.orange) + dArrow(125, 282, 125, 306) + box(30, 308, 190, 'Metabolic acidosis: pH < 7.3, HCO₃ < 18, anion gap > 12', DC.bad) + dArrow(125, 372, 125, 396) + box(30, 398, 190, 'Kussmaul breathing, fruity breath, abdominal pain, vomiting', DC.bad);
+        s += box(240, 160, 190, '↑ hepatic glucose output + ↓ uptake', DC.blue) + dArrow(335, 208, 335, 232) + box(240, 234, 190, 'Hyperglycaemia 250–600 mg/dL', DC.blue) + dArrow(335, 268, 335, 292) + box(240, 294, 190, 'Osmotic diuresis → loss of water, Na, K, phosphate', DC.blue) + dArrow(335, 344, 335, 368) + box(240, 370, 190, 'Dehydration (~6 L); K normal/high in blood but TOTAL deficit', DC.blue);
+        // right
+        s += box(470, 160, 200, 'Some insulin left → lipolysis blocked → no/little ketones', DC.purple) + box(690, 160, 190, 'Slow onset (days–weeks), poor fluid intake', DC.purple);
+        s += dArrow(675, 214, 675, 236) + box(560, 238, 230, 'Severe hyperglycaemia > 600 mg/dL', DC.blue) + dArrow(675, 272, 675, 296) + box(560, 298, 230, 'Profound osmotic diuresis → dehydration ~9 L', DC.blue) + dArrow(675, 348, 675, 372) + box(560, 374, 230, 'Effective osmolality > 320 mOsm/kg, pH > 7.3', DC.purple) + dArrow(675, 422, 675, 446) + box(560, 448, 230, 'Obtundation → coma, seizures, thrombosis; mortality 10–20 %', DC.bad);
+        s += box(30, 470, 400, 'Treatment (both): FLUIDS first (0.9 % NaCl) → POTASSIUM (if K < 3.3 hold insulin) → IV INSULIN 0.1 U/kg/h → add dextrose when glucose < 250 (DKA) / 300 (HHS) → treat trigger', DC.ok, 70);
+        s += "<text x=\"560\" y=\"540\" class=\"lbl sm\" style=\"fill:var(--muted)\">Osm eff = 2 \u00D7 Na + glucose/18</text>";
+        return s + '</svg>';
+    },
+    dkaTimeline: function () {
+        var s = svgOpen(920, 340, 'DKA protocol as a metro line (first hours → resolution)', 'Stations above = actions; below = what to check');
+        var xs = [60, 200, 350, 500, 650, 820];
+        s += mLine(xs.map(function (x) { return [x, 170]; }), DC.bad, { arrow: 1, w: 7 });
+        var top = ['H0: 0.9 % NaCl 1 L in the 1st hour (15–20 mL/kg)', 'Check K⁺: < 3.3 → give K, HOLD insulin', 'IV insulin 0.1 U/kg/h (± 0.1 U/kg bolus)', 'KCl 20–30 mmol per litre if K 3.3–5.2', 'Glucose < 250 → add 5 % dextrose, insulin 0.02–0.05 U/kg/h', 'Resolved → SC basal-bolus, overlap IV 1–2 h'];
+        var bot = ['Glucose, ketones, pH, HCO₃, Na, K, osmolality, anion gap, ECG', 'Bicarbonate only if pH < 6.9–7.0', 'Glucose ↓ 50–75 mg/dL/h', 'Hourly glucose, K every 2–4 h', 'Never stop insulin while ketotic', 'pH > 7.3, HCO₃ ≥ 15–18, AG ≤ 12; find & treat trigger'];
+        xs.forEach(function (x, i) { s += mSt(x, 170, top[i], { pos: 't', wrap: 17, hub: i == 0 || i == 5 }); s += dTxt(x, 200, bot[i], { anc: 'middle', sm: 1, wrap: 20, lh: 13, col: 'var(--muted)' }); });
+        s += "<text x=\"40\" y=\"320\" class=\"lbl sm\" style=\"fill:var(--muted)\">Treatment complications: hypokalaemia, hypoglycaemia, cerebral oedema (children \u2013 too fast correction), hyperchloraemic acidosis.</text>";
+        return s + '</svg>';
+    },
+    rule15: function () {
+        var s = svgOpen(880, 370, 'Hypoglycaemia: the "rule of 15" loop', 'Glucose < 70 mg/dL (level 1), < 54 (level 2), needs help from others (level 3 = severe)');
+        s += mLine([[60, 150], [250, 150], [440, 150], [630, 150]], DC.blue, { arrow: 1, w: 7 }) + mLine([[630, 150], [630, 250], [250, 250], [250, 172]], DC.blue, { dash: 1, w: 4, arrow: 1 }) + mLine([[630, 150], [820, 150]], DC.ok, { arrow: 1, w: 7 });
+        s += mSt(60, 150, 'Symptoms: sweats, tremor, hunger, confusion', { pos: 't', wrap: 18 }) + mSt(250, 150, 'Take 15 g fast sugar', { pos: 't', hub: 1 }) + dTxt(250, 196, '3–4 glucose tablets · 150 mL juice/soda · 1 tbsp sugar', { anc: 'middle', sm: 1, wrap: 26, lh: 13, col: 'var(--muted)' }) + mSt(440, 150, 'Wait 15 min', { pos: 't' }) + mSt(630, 150, 'Re-check glucose', { pos: 't', hub: 1 }) + mSt(820, 150, '≥ 70 → snack / meal (slow carbs)', { pos: 't', wrap: 14 });
+        s += dTxt(440, 270, 'Still < 70 → repeat (up to 3 times)', { anc: 'middle', sm: 1, b: 1 });
+        s += dBox(40, 300, 820, 48, DC.bad) + dTxt(50, 320, 'Unconscious / cannot swallow: glucagon 1 mg IM/SC (or 3 mg nasal) by family · in hospital IV 20–30 % glucose.', { sm: 1, b: 1 }) + dTxt(50, 338, 'Sulfonylurea hypoglycaemia is prolonged → hospital observation 24–48 h. Never give food by mouth to an unconscious patient.', { sm: 1 });
+        return s + '</svg>';
+    },
+    hypoSigns: function () { return grid('Hypoglycaemia vs hyperglycaemic coma at the bedside', 'Sign', 'Coma', ['Onset', 'Skin', 'Breathing', 'Tone / reflexes', 'BP / pulse', 'Capillary glucose'], ['Hypoglycaemic', 'Ketoacidotic', 'Hyperosmolar'], [[['Minutes, abrupt', 1], ['Hours–1 day', 0], ['Days', 0]], [['Pale, SWEATY', 1], ['Dry, dehydrated', 0], ['Very dry', 0]], [['Normal', 0], ['Kussmaul, fruity breath', 1], ['Normal / shallow', 0]], [['Agitation, hypertonia, Babinski, seizures', 1], ['Hypotonia', 0], ['Focal signs possible', 0]], [['Tachycardia, BP ↑', 0], ['Tachycardia, BP ↓', 0], ['Shock', 1]], [['< 70 → glucose NOW', 1], ['250–600', 0], ['> 600', 0]]]); },
+    /* ===== chronic complications ===== */
+    complicBody: function () {
+        var s = svgOpen(900, 600, 'Chronic complications – body map & yearly screening', 'Blue = microvascular · red = macrovascular · purple = neuropathy/foot');
+        var cx = 450; // silhouette
+        s += "<g fill=\"var(--c0)\" stroke=\"var(--line)\" stroke-width=\"2\"><circle cx=\"".concat(cx, "\" cy=\"110\" r=\"42\"/><rect x=\"").concat(cx - 70, "\" y=\"160\" width=\"140\" height=\"190\" rx=\"40\"/><rect x=\"").concat(cx - 112, "\" y=\"170\" width=\"36\" height=\"170\" rx=\"18\"/><rect x=\"").concat(cx + 76, "\" y=\"170\" width=\"36\" height=\"170\" rx=\"18\"/><rect x=\"").concat(cx - 60, "\" y=\"340\" width=\"50\" height=\"210\" rx=\"22\"/><rect x=\"").concat(cx + 10, "\" y=\"340\" width=\"50\" height=\"210\" rx=\"22\"/></g>");
+        var cal = function (px, py, bx, by, title, txt, col) {
+            var w = 250;
+            var ls = wrapText(txt, 38);
+            var h = ls.length * 14 + 30;
+            return "<line x1=\"".concat(px, "\" y1=\"").concat(py, "\" x2=\"").concat(bx < px ? bx + w : bx, "\" y2=\"").concat(by + 14, "\" stroke=\"").concat(col, "\" stroke-width=\"2\"/><circle cx=\"").concat(px, "\" cy=\"").concat(py, "\" r=\"6\" fill=\"").concat(col, "\"/>") + "<rect x=\"".concat(bx, "\" y=\"").concat(by, "\" width=\"").concat(w, "\" height=\"").concat(h, "\" rx=\"10\" fill=\"var(--card)\" stroke=\"").concat(col, "\" stroke-width=\"2\"/>") + dTxt(bx + 10, by + 18, title, { b: 1, sm: 1, col: col }) + "<text class=\"lbl sm\">".concat(tspans(ls, bx + 10, by + 34, 14), "</text>");
+        };
+        s += cal(cx - 16, 104, 20, 60, 'RETINOPATHY', 'Fundus / retinal photo yearly (T2D from diagnosis, T1D after 5 y; every 1–2 y if none). Laser, anti-VEGF.', DC.blue);
+        s += cal(cx + 20, 80, 630, 60, 'STROKE', 'Macrovascular: BP, LDL, antiplatelet in secondary prevention.', DC.bad);
+        s += cal(cx + 20, 205, 630, 150, 'HEART', 'Coronary disease (silent ischaemia!), heart failure → ECG yearly; SGLT2i / GLP-1 RA with CV benefit.', DC.bad);
+        s += cal(cx - 30, 265, 20, 190, 'KIDNEY (DKD)', 'UACR + eGFR yearly. ACEi/ARB if albuminuria, SGLT2i, finerenone; BP < 130/80.', DC.blue);
+        s += cal(cx + 35, 420, 630, 270, 'PERIPHERAL ARTERIES', 'Claudication, absent pulses → ABI (< 0.9; > 1.3 = calcified arteries).', DC.bad);
+        s += cal(cx - 92, 300, 20, 330, 'AUTONOMIC NEUROPATHY', 'Resting tachycardia, orthostatic hypotension, gastroparesis, ED, bladder, hypoglycaemia unawareness.', DC.purple);
+        s += cal(cx - 35, 530, 20, 460, 'FOOT', 'Sensory neuropathy (monofilament 10 g, tuning fork, reflexes) yearly; inspect at every visit → ulcer, Charcot, amputation.', DC.purple);
+        s += cal(cx + 35, 540, 630, 400, 'OTHER', 'Periodontal disease, infections, NAFLD, cognitive decline, depression.', DC.grey);
+        return s + '</svg>';
+    },
+    kdigoHeat: function () {
+        var s = svgOpen(760, 404, 'KDIGO heat map – CKD risk by eGFR (G) and albuminuria (A)', 'Green low · yellow moderate · orange high · red very high risk (number = suggested checks per year)');
+        var cols = ['A1  < 30 mg/g', 'A2  30–300 mg/g', 'A3  > 300 mg/g'], rows = [['G1', '≥ 90'], ['G2', '60–89'], ['G3a', '45–59'], ['G3b', '30–44'], ['G4', '15–29'], ['G5', '< 15 (failure)']];
+        var M = [[0, 1, 2], [0, 1, 2], [1, 2, 3], [2, 3, 3], [3, 3, 3], [3, 3, 3]], N = [['1', '1', '2'], ['1', '1', '2'], ['1', '2', '3'], ['2', '3', '3'], ['3', '3', '4+'], ['4+', '4+', '4+']];
+        var C = [DC.ok, DC.mid, DC.orange, DC.bad];
+        s += cols.map(function (c, j) { return dTxt(240 + j * 170 + 80, 76, c, { anc: 'middle', b: 1, sm: 1 }); }).join('');
+        rows.forEach(function (r, i) {
+            var y = 88 + i * 46;
+            s += dTxt(40, y + 28, r[0], { b: 1 }) + dTxt(90, y + 28, r[1] + ' mL/min', { sm: 1 });
+            M[i].forEach(function (m, j) { s += "<rect x=\"".concat(240 + j * 170, "\" y=\"").concat(y, "\" width=\"164\" height=\"42\" rx=\"6\" fill=\"").concat(C[m], "\" fill-opacity=\".85\"/><text x=\"").concat(240 + j * 170 + 82, "\" y=\"").concat(y + 27, "\" text-anchor=\"middle\" style=\"fill:#fff;font-weight:800\">").concat(N[i][j], "</text>"); });
+        });
+        s += "<text x=\"40\" y=\"372\" class=\"lbl sm\" style=\"fill:var(--muted)\">CKD = eGFR < 60 or UACR \u2265 30 mg/g for > 3 months.</text><text x=\"40\" y=\"390\" class=\"lbl sm\" style=\"fill:var(--muted)\">Confirm albuminuria on 2 of 3 samples (exercise, infection, fever, menstruation give false positives).</text>";
+        return s + '</svg>';
+    },
+    retinoLadder: function () { return ladder('Diabetic retinopathy – stages', [['No DR', 'Normal fundus → re-check every 1–2 years'], ['Mild NPDR', 'Microaneurysms only'], ['Moderate', 'Dot-blot haemorrhages, hard exudates, cotton-wool spots'], ['Severe NPDR', '4-2-1 rule: haemorrhages in 4 quadrants, venous beading in 2, IRMA in 1 → consider laser'], ['PDR', 'Neovascularisation (disc/elsewhere) → vitreous haemorrhage, tractional detachment, neovascular glaucoma → pan-retinal photocoagulation ± anti-VEGF, vitrectomy'], ['Macular oedema', 'At ANY stage – main cause of visual loss → intravitreal anti-VEGF, focal laser']]); },
+    neuroLadder: function () { return ladder('Diabetic neuropathies – classification', [['Distal symmetric', 'Commonest (> 50 %): "stocking-glove" numbness, burning, tingling, night pain; loss of ankle reflexes, vibration, monofilament'], ['Autonomic', 'Cardiac (resting tachycardia, orthostatic hypotension), GI (gastroparesis, diarrhoea), genitourinary (ED, neurogenic bladder), sudomotor'], ['Focal / mono', 'Cranial nerve III (pupil-sparing), median nerve (carpal tunnel), mononeuritis multiplex'], ['Radiculo-plexus', 'Diabetic amyotrophy: painful proximal weakness of the thigh, weight loss'], ['Treatment', 'Glycaemic control, foot care; pain: duloxetine, pregabalin/gabapentin, amitriptyline; alpha-lipoic acid, benfotiamine']]); },
+    wagner: function () { return ladder('Diabetic foot ulcer – Wagner grades', [['0', 'At-risk foot, no ulcer (deformity, callus) → education, footwear'], ['1', 'Superficial ulcer (skin) → off-loading, debridement'], ['2', 'Deep ulcer to tendon, capsule or bone, no abscess'], ['3', 'Deep ulcer with abscess or OSTEOMYELITIS (probe-to-bone, X-ray/MRI)'], ['4', 'Localised gangrene (toes, forefoot)'], ['5', 'Whole-foot gangrene → major amputation']]); },
+    footFlow: function () { return flow('Diabetic foot – screening and action', [['Every visit: inspect feet, shoes; yearly: monofilament 10 g, 128 Hz tuning fork, pulses, ABI', 'e'], ['Loss of protective sensation or PAD or deformity?', 'q', 'No → yearly check (risk 0)'], ['Risk 1–3 → podiatry every 1–6 months, therapeutic footwear, education', 'a'], ['Ulcer present?', 'q', 'Infected / ischaemic → urgent multidisciplinary team'], ['Off-loading (total contact cast), debridement, glycaemic control', 'a'], ['Revascularisation if ischaemia; antibiotics for infection; amputation last', 'e']]); },
+    /* ===== treatment ===== */
+    insulinCurves: function () {
+        var W = 880, H = 420, x0 = 70, x1 = 820, yb = 300, top = 80;
+        var X = function (t) { return x0 + (x1 - x0) * t / 30; }, Y = function (v) { return yb - v * (yb - top); };
+        var s = svgOpen(W, H, 'Insulin action profiles over 30 hours', 'Clear solutions except NPH and premixes (cloudy – roll before injecting)');
+        s += "<line x1=\"".concat(x0, "\" y1=\"").concat(yb, "\" x2=\"").concat(x1, "\" y2=\"").concat(yb, "\" stroke=\"var(--muted)\"/>") + [0, 4, 8, 12, 16, 20, 24, 28].map(function (t) { return "<line x1=\"".concat(X(t), "\" y1=\"").concat(yb, "\" x2=\"").concat(X(t), "\" y2=\"").concat(yb + 5, "\" stroke=\"var(--muted)\"/><text x=\"").concat(X(t), "\" y=\"").concat(yb + 18, "\" text-anchor=\"middle\" class=\"lbl sm\">").concat(t, " h</text>"); }).join('');
+        var cv = [[bell(0, .2, 1.2, 4.5, .95, .1), DC.pink, 'Rapid analogue (lispro, aspart, glulisine): 10–15 min · peak 1–2 h · 3–5 h'], [bell(0, .5, 3, 8, .75, .1), DC.orange, 'Regular human: 30 min · peak 2–4 h · 6–8 h (only one used IV)'], [bell(0, 1.5, 6, 16, .55, .2), DC.blue, 'NPH (cloudy): 1–2 h · peak 4–8 h · 12–16 h'], [[[0, 0], [1.5, .2], [3, .28], [22, .3], [24, .25], [26, .05], [27, 0]], DC.teal, 'Glargine U100 / detemir: flat ~20–24 h'], [[[0, 0], [2, .15], [4, .2], [30, .21]], DC.purple, 'Degludec / glargine U300: flat > 36–42 h']];
+        cv.forEach(function (c, i) { s += dCurve(c[0], X, Y, c[1], 3.5); s += "<line x1=\"".concat(x0, "\" y1=\"").concat(330 + i * 17, "\" x2=\"").concat(x0 + 24, "\" y2=\"").concat(330 + i * 17, "\" stroke=\"").concat(c[1], "\" stroke-width=\"4\"/>") + dTxt(x0 + 32, 334 + i * 17, c[2], { sm: 1 }); });
+        s += dTxt(x0 - 8, top + 4, 'effect', { anc: 'end', sm: 1 });
+        return s + '</svg>';
+    },
+    basalBolus: function () {
+        var W = 880, H = 360, x0 = 70, x1 = 830, yb = 260, top = 70;
+        var X = function (t) { return x0 + (x1 - x0) * (t - 6) / 24; }, Y = function (v) { return yb - v * (yb - top); };
+        var s = svgOpen(W, H + 6, 'Basal-bolus: mimicking the pancreas over one day', 'Basal ≈ 50 % of total daily dose (once daily) + 3 prandial boluses ≈ 50 % (adjusted to carbohydrates)');
+        s += "<line x1=\"".concat(x0, "\" y1=\"").concat(yb, "\" x2=\"").concat(x1, "\" y2=\"").concat(yb, "\" stroke=\"var(--muted)\"/>") + [6, 9, 12, 15, 18, 21, 24, 27, 30].map(function (t) { return "<text x=\"".concat(X(t), "\" y=\"").concat(yb + 18, "\" text-anchor=\"middle\" class=\"lbl sm\">").concat((t % 24) || 0, ":00</text>"); }).join('');
+        [[8, 'Breakfast'], [13, 'Lunch'], [19, 'Dinner']].forEach(function (m) { s += "<line x1=\"".concat(X(m[0]), "\" y1=\"").concat(top - 10, "\" x2=\"").concat(X(m[0]), "\" y2=\"").concat(yb, "\" stroke=\"var(--muted)\" stroke-dasharray=\"3 4\"/>") + dTxt(X(m[0]), top - 16, m[1], { anc: 'middle', sm: 1, b: 1 }); });
+        s += "<path d=\"M".concat(X(6), " ").concat(Y(.18), " L").concat(X(30), " ").concat(Y(.18), " L").concat(X(30), " ").concat(yb, " L").concat(X(6), " ").concat(yb, "Z\" fill=\"").concat(DC.teal, "\" fill-opacity=\".25\"/>");
+        [8, 13, 19].forEach(function (m) { s += dCurve(bell(m, .2, 1.2, 4.5, .62, .1).map(function (p) { return [p[0], p[1] + .18]; }), X, Y, DC.pink, 3.5); });
+        s += dCurve([[6, .5], [8, .45], [9, .75], [11, .5], [13, .48], [14, .78], [16, .5], [19, .48], [20, .8], [23, .5], [30, .45]], X, Y, DC.bad, 2.5, 1);
+        s += "<line x1=\"".concat(x0, "\" y1=\"300\" x2=\"").concat(x0 + 24, "\" y2=\"300\" stroke=\"").concat(DC.teal, "\" stroke-width=\"8\" stroke-opacity=\".5\"/>") + dTxt(x0 + 32, 304, 'Basal analogue (fasting / between-meal glucose)', { sm: 1 }) + "<line x1=\"".concat(x0 + 360, "\" y1=\"300\" x2=\"").concat(x0 + 384, "\" y2=\"300\" stroke=\"").concat(DC.pink, "\" stroke-width=\"4\"/>") + dTxt(x0 + 392, 304, 'Rapid analogue boluses (meals)', { sm: 1 }) + "<line x1=\"".concat(x0 + 600, "\" y1=\"300\" x2=\"").concat(x0 + 624, "\" y2=\"300\" stroke=\"").concat(DC.bad, "\" stroke-width=\"3\" stroke-dasharray=\"6 5\"/>") + dTxt(x0 + 632, 304, 'Glucose', { sm: 1 });
+        s += "<text x=\"".concat(x0, "\" y=\"332\" class=\"lbl sm\" style=\"fill:var(--muted)\">Start T1D: 0.4\u20130.5 U/kg/day. T2D basal start: 10 U or 0.1\u20130.2 U/kg at bedtime, +2 U every 3 days until fasting 80\u2013130 mg/dL.</text><text x=\"").concat(x0, "\" y=\"350\" class=\"lbl sm\" style=\"fill:var(--muted)\">Sites: abdomen (fastest) \u2192 arm \u2192 thigh/buttock (slowest, NPH). Rotate sites to avoid lipohypertrophy.</text>");
+        return s + '</svg>';
+    },
+    drugGrid: function () { return grid('Glucose-lowering drugs at a glance', 'Class', 'Property', ['Metformin', 'Sulfonylureas', 'DPP-4 inhibitors', 'GLP-1 RA', 'SGLT2 inhibitors', 'Pioglitazone', 'Insulin'], ['Hypo', 'Weight', 'CV / renal', 'Watch out'], [[['No', 0], ['Neutral / ↓', 0], ['Neutral (UKPDS benefit)', 0], ['GI upset, B12 ↓, lactic acidosis; stop eGFR < 30', 1]],
+        [['YES', 1], ['↑', 1], ['Neutral', 0], ['Elderly, renal failure', 0]],
+        [['No', 0], ['Neutral', 0], ['Neutral (saxagliptin: HF)', 0], ['Pancreatitis (rare)', 0]],
+        [['No', 0], ['↓↓', 1], ['MACE ↓, kidney ↓', 1], ['Nausea, vomiting; SC weekly/daily', 0]],
+        [['No', 0], ['↓', 0], ['HF ↓, CKD ↓, MACE ↓', 1], ['Genital mycosis, volume loss, euglycaemic DKA', 1]],
+        [['No', 0], ['↑', 1], ['Stroke ↓? HF ↑', 0], ['Oedema, HEART FAILURE, fractures', 1]],
+        [['YES', 1], ['↑', 1], ['Neutral', 0], ['Most potent, titrate', 0]]]); },
+    t2dStair: function () {
+        var s = svgOpen(900, 450, 'T2D treatment staircase (ADA/EASD logic)', 'Climb a step every 3 months if HbA1c is not at target; organ protection decides the 2nd drug, not glucose');
+        var st = [['Lifestyle: diet, ≥ 150 min/week activity, 5–10 % weight loss, education', DC.ok], ['+ METFORMIN (500 → 2000 mg) unless contraindicated', DC.teal], ['ASCVD / HF / CKD? → + SGLT2i or GLP-1 RA REGARDLESS of HbA1c', DC.blue], ['Dual / triple therapy: add DPP-4i, SU, pioglitazone (cost, hypo, weight)', DC.purple], ['Basal insulin (10 U at night, titrate) or GLP-1 RA first', DC.orange], ['Basal-plus → basal-bolus / premix; HbA1c > 10 % or catabolism → insulin early', DC.bad]];
+        st.forEach(function (t, i) { var x = 30 + i * 36, y = 360 - i * 54, w = 700; s += "<rect x=\"".concat(x, "\" y=\"").concat(y, "\" width=\"").concat(w - 10, "\" height=\"48\" rx=\"8\" fill=\"").concat(t[1], "\" fill-opacity=\".18\" stroke=\"").concat(t[1], "\" stroke-width=\"2\"/>") + dTxt(x + 14, y + 29, (i + 1) + '.  ' + t[0], { sm: 1, b: 1 }) + (i ? "<path d=\"M".concat(x - 20, " ").concat(y + 48, " L").concat(x - 20, " ").concat(y + 24, " L").concat(x, " ").concat(y + 24, "\" fill=\"none\" stroke=\"var(--muted)\" stroke-width=\"2\" marker-end=\"url(#mar)\" style=\"color:var(--muted)\"/>") : ''); });
+        s += "<text x=\"30\" y=\"436\" class=\"lbl sm\" style=\"fill:var(--muted)\">Targets: HbA1c < 7 % (6.5 % young, \u2264 8 % elderly/frail), fasting 80\u2013130 mg/dL, post-prandial < 180, BP < 130/80, LDL by CV risk.</text>";
+        return s + '</svg>';
+    },
+    /* ===== obesity ===== */
+    bmiScale: function () {
+        var s = svgOpen(860, 300, 'BMI scale & when to treat', 'BMI = weight (kg) / height² (m²); waist circumference adds the metabolic risk');
+        s += ruler(110, 40, 820, 15, 45, 'Body mass index (kg/m²)', [[15, 18.5, DC.grey, 'Under'], [18.5, 25, DC.ok, 'Normal'], [25, 30, DC.mid, 'Overweight'], [30, 35, DC.orange, 'Ob. I'], [35, 40, DC.bad, 'Ob. II'], [40, 45, DC.vbad, 'Ob. III']], [[18.5, '18.5'], [25, '25'], [27, '27'], [30, '30'], [35, '35'], [40, '40']]);
+        s += dBox(40, 170, 380, 70, DC.blue) + dTxt(50, 190, 'Anti-obesity DRUGS', { b: 1, sm: 1 }) + dTxt(50, 208, 'BMI ≥ 30, or ≥ 27 with a comorbidity: orlistat, liraglutide, semaglutide, tirzepatide, naltrexone-bupropion', { sm: 1, wrap: 58, lh: 14 });
+        s += dBox(440, 170, 380, 70, DC.bad) + dTxt(450, 190, 'BARIATRIC / METABOLIC SURGERY', { b: 1, sm: 1 }) + dTxt(450, 208, 'BMI ≥ 40, or ≥ 35 with comorbidity (T2D, OSA, HT); T2D with BMI 30–35 poorly controlled', { sm: 1, wrap: 58, lh: 14 });
+        s += "<text x=\"40\" y=\"270\" class=\"lbl sm\" style=\"fill:var(--muted)\">Abdominal obesity (Europeans, IDF): waist \u2265 80 cm women, \u2265 94 cm men (ATP III: 88 / 102 cm). Goal: \u22125\u201310 % in 3\u20136 months, then maintenance.</text>";
+        return s + '</svg>';
+    },
+    metSynd: function () {
+        var s = svgOpen(860, 520, 'Metabolic syndrome – 3 of 5 criteria', 'Harmonised definition (IDF / AHA / NHLBI 2009)');
+        var cx = 430, cy = 285, R = 185;
+        var it = [['Waist', '≥ 80 / 94 cm (EU) · ≥ 88 / 102 (ATP III)', DC.orange], ['Triglycerides', '≥ 150 mg/dL or treated', DC.mid], ['HDL', '< 40 (men) / < 50 (women) mg/dL or treated', DC.blue], ['Blood pressure', '≥ 130 / 85 mmHg or treated', DC.bad], ['Fasting glucose', '≥ 100 mg/dL or treated', DC.purple]];
+        s += "<circle cx=\"".concat(cx, "\" cy=\"").concat(cy, "\" r=\"62\" fill=\"").concat(DC.bad, "\" fill-opacity=\".15\" stroke=\"").concat(DC.bad, "\" stroke-width=\"3\"/><text x=\"").concat(cx, "\" y=\"").concat(cy - 6, "\" text-anchor=\"middle\" class=\"lbl b\">\u2265 3 of 5</text><text x=\"").concat(cx, "\" y=\"").concat(cy + 12, "\" text-anchor=\"middle\" class=\"lbl sm\">= metabolic</text><text x=\"").concat(cx, "\" y=\"").concat(cy + 27, "\" text-anchor=\"middle\" class=\"lbl sm\">syndrome</text>");
+        it.forEach(function (p, i) {
+            var a = -Math.PI / 2 + i * 2 * Math.PI / 5;
+            var x = cx + Math.cos(a) * R, y = cy + Math.sin(a) * R;
+            s += "<line x1=\"".concat(cx + Math.cos(a) * 64, "\" y1=\"").concat(cy + Math.sin(a) * 64, "\" x2=\"").concat(x, "\" y2=\"").concat(y, "\" stroke=\"").concat(p[2], "\" stroke-width=\"4\"/>");
+            var bw = 210, bx = Math.max(10, Math.min(850 - bw, x - bw / 2)), by = Math.max(54, Math.min(510 - 56, y - 28));
+            s += "<rect x=\"".concat(bx, "\" y=\"").concat(by, "\" width=\"").concat(bw, "\" height=\"56\" rx=\"10\" fill=\"var(--card)\" stroke=\"").concat(p[2], "\" stroke-width=\"2\"/>") + dTxt(bx + 10, by + 18, p[0], { b: 1, sm: 1, col: p[2] }) + dTxt(bx + 10, by + 34, p[1], { sm: 1, wrap: 30, lh: 13 });
+        });
+        return s + '</svg>';
+    },
+    obesityTx: function () { return ladder('Obesity management – stepwise', [['Assess', 'BMI, waist, comorbidities (T2D, HT, OSA, NAFLD, arthrosis), secondary causes ONLY if suggestive (TSH, cortisol if Cushing signs), motivation, eating disorders'], ['Diet', 'Deficit 500–750 kcal/day (≈ 1200–1500 women, 1500–1800 men), Mediterranean / balanced; avoid < 800 kcal without supervision'], ['Activity', '150–300 min/week moderate + resistance training; ↓ sitting time; sleep'], ['Behaviour', 'Self-monitoring, goal setting, CBT; expect weight regain → long-term follow-up'], ['Drugs', 'BMI ≥ 30 or ≥ 27 + comorbidity; stop if < 5 % loss at 3 months'], ['Surgery', 'Sleeve gastrectomy, Roux-en-Y gastric bypass (irreversible), band; lifelong vitamin/iron/B12 follow-up']]); },
+    /* ===== metabolic: hypoglycaemia, malnutrition ===== */
+    hypoGrid: function () { return grid('Fasting hypoglycaemia in a non-diabetic: read insulin against C-peptide', 'Insulin', 'C-peptide', ['Insulin HIGH', 'Insulin LOW'], ['C-peptide HIGH', 'C-peptide LOW'], [[['INSULINOMA (proinsulin ↑) or sulfonylurea/glinide intake (drug screen +)', 1], ['EXOGENOUS insulin (factitious, error)', 1]], [['— (not expected)', 0], ['Non-insulin: adrenal/pituitary insufficiency, liver/renal failure, alcohol, sepsis, IGF-2 tumours, starvation', 0]]], 'Sample during the episode (72-h fast) with glucose < 55 mg/dL; insulinoma → localise (CT/MRI, EUS) → enucleation'); },
+    malnGrid: function () { return grid('Malnutrition types', 'Feature', 'Type', ['Deficit', 'Appearance', 'Albumin', 'Course'], ['Marasmus', 'Kwashiorkor', 'Cachexia'], [[['Energy (global)', 1], ['PROTEIN', 1], ['Disease-related (cancer, HF, COPD)', 1]], [['Wasting, "skin and bones", no oedema', 0], ['OEDEMA, ascites, skin/hair changes; weight loss masked', 0], ['Muscle loss (sarcopenia) ± fat loss', 0]], [['Near normal', 0], ['LOW', 1], ['Low (inflammation)', 0]], [['Responds to feeding', 0], ['Responds to protein', 0], ['Refractory stage: survival < 3 months', 0]]], 'Grade by BMI: < 18.5 malnutrition, < 17 moderate, < 15–16 severe; weight loss > 5 % in 1 month or > 10 % in 6 months'); },
+    uricMap: function () {
+        var s = svgOpen(880, 330, 'Uric acid metro line – production, excretion, drugs', 'Purines → uric acid (final product); hyperuricaemia > 7 mg/dL (men), > 6 mg/dL (women)');
+        s += mLine([[60, 140], [230, 140], [400, 140], [570, 140]], DC.orange, { arrow: 1, w: 7 }) + mLine([[570, 140], [700, 90], [830, 90]], DC.blue, { arrow: 1, w: 6 }) + mLine([[570, 140], [700, 190], [830, 190]], DC.grey, { arrow: 1, w: 4 });
+        s += mSt(60, 140, 'Diet purines (meat, offal, seafood, beer, fructose)', { pos: 'b', wrap: 18 }) + mSt(230, 140, 'Cell turnover (2/3 endogenous)', { pos: 'b', wrap: 14 }) + mSt(400, 140, 'Xanthine → XANTHINE OXIDASE', { pos: 'b', wrap: 14, hub: 1 }) + mSt(570, 140, 'Uric acid (blood)', { pos: 'b', hub: 1 }) + mSt(830, 90, 'Kidney ~70 % (under-excretion = 90 % of cases)', { pos: 'l', wrap: 18 }) + mSt(830, 190, 'Gut ~30 %', { pos: 'l' });
+        s += dPill(330, 82, 'Allopurinol, febuxostat block', DC.purple) + dPill(640, 40, 'Probenecid ↑ excretion', DC.purple);
+        s += "<text x=\"40\" y=\"290\" class=\"lbl sm\" style=\"fill:var(--muted)\">Secondary causes: CKD, diuretics, alcohol, low-dose aspirin, tumour lysis, psoriasis. Only ~20 % develop gout; also urate stones. Asymptomatic hyperuricaemia: usually lifestyle only.</text><text x=\"40\" y=\"310\" class=\"lbl sm\" style=\"fill:var(--muted)\">Gout flare: colchicine, NSAID, steroid; urate-lowering therapy after \u2265 2 flares/year, tophi, stones \u2192 target < 6 mg/dL.</text>";
+        return s + '</svg>';
+    },
+    /* ===== lipids ===== */
+    ldlTargets: function () { return ladder('CV risk category → LDL-cholesterol target (ESC/EAS)', [['Very high', 'ASCVD; diabetes + target-organ damage or ≥ 3 major RF or T1D > 20 y; eGFR < 30; SCORE2 ≥ 10 % → LDL < 55 mg/dL AND ≥ 50 % reduction'], ['High', 'Diabetes ≥ 10 y without TOD + 1 RF; eGFR 30–59; FH; TC > 310 or BP ≥ 180/110; SCORE2 5–10 % → LDL < 70 mg/dL'], ['Moderate', 'Young diabetics (T1D < 35 y, T2D < 50 y) < 10 y duration, no RF; SCORE2 2.5–5 % → LDL < 100 mg/dL'], ['Low', 'SCORE2 < 2.5 % → LDL < 116 mg/dL'], ['Others', 'Non-HDL: target = LDL + 30 mg/dL; TG < 150 desirable; HDL is NOT a treatment target']]); },
+    lipidDrugs: function () {
+        var s = svgOpen(880, 360, 'Where lipid-lowering drugs act', 'Liver makes cholesterol and clears LDL through the LDL receptor');
+        s += "<rect x=\"330\" y=\"80\" width=\"240\" height=\"200\" rx=\"30\" fill=\"var(--c0)\" stroke=\"var(--line)\" stroke-width=\"2\"/><text x=\"450\" y=\"104\" text-anchor=\"middle\" class=\"lbl b\">HEPATOCYTE</text>";
+        s += mLine([[360, 150], [540, 150]], DC.blue, { w: 5 }) + mSt(360, 150, 'Acetyl-CoA', { pos: 't' }) + mSt(450, 150, 'HMG-CoA reductase', { pos: 'b', wrap: 12, hub: 1 }) + mSt(540, 150, 'Cholesterol', { pos: 't' });
+        s += mSt(450, 245, 'LDL receptor (recycled)', { pos: 't', wrap: 14, hub: 1 });
+        s += mLine([[60, 245], [436, 245]], DC.orange, { w: 5, arrow: 1 }) + dTxt(80, 235, 'Blood LDL → taken up', { sm: 1, b: 1 });
+        s += mLine([[60, 320], [330, 320], [360, 280]], DC.teal, { w: 4, dash: 1 }) + dTxt(60, 312, 'Gut: dietary & biliary cholesterol (NPC1L1)', { sm: 1 });
+        var pills = [[620, 130, 'STATINS block HMG-CoA reductase → ↑ LDL-R', DC.blue], [620, 175, 'Bempedoic acid (ACL, upstream)', DC.purple], [620, 220, 'PCSK9 inhibitors (SC) save the LDL-R', DC.pink], [620, 265, 'Fibrates (PPAR-α): ↓ TG, ↑ HDL', DC.mid], [60, 345, 'EZETIMIBE blocks intestinal absorption', DC.teal], [620, 310, 'Omega-3 (icosapent ethyl): ↓ TG', DC.ok]];
+        pills.forEach(function (p) { s += dPill(p[0], p[1], p[2], p[3]); });
+        return s + '</svg>';
+    },
+    lipidFlow: function () { return flow('Dyslipidaemia – practical approach', [['Lipid panel (fasting if TG high): TC, HDL, TG, LDL (Friedewald valid if TG < 400 mg/dL)', 'e'], ['Exclude secondary causes: hypothyroidism, nephrotic syndrome, cholestasis, diabetes, alcohol, drugs', 'a'], ['TG > 500–880 mg/dL?', 'q', 'Yes → treat TG first (fibrate, omega-3, no alcohol/sugar) – pancreatitis risk'], ['Estimate CV risk (SCORE2 / SCORE2-Diabetes) → LDL target', 'a'], ['Lifestyle + high-intensity statin (atorvastatin 40–80, rosuvastatin 20–40)', 'a'], ['Target not reached → + ezetimibe → + PCSK9i (or bempedoic acid)', 'e']]); },
+    cvRiskFactors: function () { return ladder('Cardiovascular risk factors', [['Non-modifiable', 'Age (men ≥ 55, women ≥ 65), male sex, family history of premature CVD (men < 55, women < 65)'], ['Major modifiable', 'Smoking, hypertension, LDL ↑ / HDL ↓, diabetes'], ['Predisposing', 'Obesity (abdominal), sedentary lifestyle, atherogenic diet, psychosocial stress'], ['Emerging', 'Lp(a), hs-CRP, CKD, inflammatory diseases, pre-eclampsia, early menopause'], ['Scores', 'SCORE2 (40–69 y), SCORE2-OP (≥ 70), SCORE2-Diabetes; UKPDS risk engine = diabetes-specific']]); },
+    /* ===== nutrition ===== */
+    plate: function () {
+        var s = svgOpen(820, 380, 'The healthy plate (diabetes plate method)', 'Fill half the plate with non-starchy vegetables');
+        var cx = 260, cy = 215, R = 140;
+        var arc = function (a0, a1, col, lab, sub) {
+            var p = function (a) { return [cx + R * Math.cos(a), cy + R * Math.sin(a)]; };
+            var _a = p(a0), x0 = _a[0], y0 = _a[1], _b = p(a1), x1 = _b[0], y1 = _b[1];
+            var big = a1 - a0 > Math.PI ? 1 : 0;
+            var am = (a0 + a1) / 2;
+            return "<path d=\"M".concat(cx, " ").concat(cy, " L").concat(x0, " ").concat(y0, " A").concat(R, " ").concat(R, " 0 ").concat(big, " 1 ").concat(x1, " ").concat(y1, "Z\" fill=\"").concat(col, "\" fill-opacity=\".8\" stroke=\"var(--card)\" stroke-width=\"4\"/>") + "<text x=\"".concat(cx + R * .55 * Math.cos(am), "\" y=\"").concat(cy + R * .55 * Math.sin(am) - 4, "\" text-anchor=\"middle\" style=\"fill:#fff;font-weight:800;font-size:14px\">").concat(esc(lab), "</text><text x=\"").concat(cx + R * .55 * Math.cos(am), "\" y=\"").concat(cy + R * .55 * Math.sin(am) + 13, "\" text-anchor=\"middle\" style=\"fill:#fff;font-size:11px\">").concat(esc(sub), "</text>");
+        };
+        s += "<circle cx=\"".concat(cx, "\" cy=\"").concat(cy, "\" r=\"").concat(R + 14, "\" fill=\"var(--c0)\" stroke=\"var(--line)\" stroke-width=\"2\"/>");
+        s += arc(Math.PI / 2, 3 * Math.PI / 2, DC.ok, '½ VEGETABLES', 'non-starchy') + arc(-Math.PI / 2, 0, DC.orange, '¼ PROTEIN', 'fish, legumes') + arc(0, Math.PI / 2, DC.mid, '¼ CARBS', 'whole grains');
+        s += "<circle cx=\"470\" cy=\"110\" r=\"26\" fill=\"".concat(DC.blue, "\" fill-opacity=\".7\"/><text x=\"470\" y=\"115\" text-anchor=\"middle\" style=\"fill:#fff;font-weight:700;font-size:11px\">WATER</text>");
+        var tips = ['Olive oil, nuts (unsaturated fats); saturated < 10 % of energy, trans < 1 %', 'Fibre 25–30 g/day; fruit 2–3 portions; dairy low-fat', 'Salt < 5 g/day (Na < 2 g); added sugar < 10 % (ideally < 5 %)', 'Alcohol: none is safest; never on an empty stomach under insulin/SU', 'Energy: carbs 45–60 %, protein 15–20 % (0.8 g/kg), fat 25–35 %'];
+        tips.forEach(function (t, i) { s += "<circle cx=\"520\" cy=\"".concat(180 + i * 40, "\" r=\"5\" fill=\"").concat(DC.teal, "\"/>") + dTxt(534, 184 + i * 40, t, { sm: 1, wrap: 40, lh: 14 }); });
+        return s + '</svg>';
+    },
+    macroBars: function () {
+        var s = svgOpen(760, 300, 'Energy density of nutrients (kcal per gram)', 'Vitamins, minerals, water and fibre provide (almost) no energy');
+        var it = [['Lipids', 9, DC.orange], ['Alcohol', 7, DC.purple], ['Carbohydrates', 4, DC.mid], ['Proteins', 4, DC.blue], ['Fibre', 2, DC.ok]];
+        it.forEach(function (r, i) { var y = 70 + i * 42; s += dTxt(150, y + 20, r[0], { anc: 'end', b: 1 }) + "<rect x=\"165\" y=\"".concat(y, "\" width=\"").concat(r[1] * 50, "\" height=\"30\" rx=\"6\" fill=\"").concat(r[2], "\" fill-opacity=\".85\"/><text x=\"").concat(172 + r[1] * 50, "\" y=\"").concat(y + 21, "\" class=\"lbl b\">").concat(r[1], " kcal/g</text>"); });
+        s += "<text x=\"20\" y=\"288\" class=\"lbl sm\" style=\"fill:var(--muted)\">Energy need \u2248 25\u201330 kcal/kg/day (sedentary adult), \u2191 35\u201340 with activity; weight loss: \u2212 500 to \u2212 750 kcal/day.</text>";
+        return s + '</svg>';
+    },
+    giLadder: function () { return ladder('Glycaemic index (GI) – glucose = 100', [['Low ≤ 55', 'Legumes (lentils, beans), most fruit (apple, orange), milk/yogurt, whole grains, pasta al dente, nuts → slower rise, satiety, ↓ CV risk'], ['Medium 56–69', 'Whole-wheat bread, basmati rice, sweet potato, honey, pineapple'], ['High ≥ 70', 'White bread, baked potatoes, cornflakes, white rice, sugary drinks, watermelon → insulin peaks, ↑ TG, insulin resistance, obesity'], ['Glycaemic load', 'GI × grams of carbohydrate / 100 – what actually matters for a portion'], ['Lowers GI', 'Fibre, fat and protein in the meal, cooking less, acidity (vinegar), whole (not juiced) fruit']]); },
+    nutriAssess: function () { return ladder('Nutritional status assessment', [['History', 'Weight loss (> 5 % in 1 month / > 10 % in 6 months), appetite, food diary, 24-h recall, food-frequency questionnaire'], ['Anthropometry', 'BMI, waist, mid-arm circumference, skinfolds, bio-impedance, DXA'], ['Clinical', 'Muscle wasting, oedema (protein deficit), dry skin, hair loss, amenorrhoea, poor healing'], ['Biology', 'Albumin (t½ 20 d), prealbumin/transthyretin (t½ 2 d), transferrin, lymphocytes, CRP (inflammation confounds)'], ['Screening tools', 'NRS-2002, MUST, MNA (elderly), GLIM criteria'], ['Support', 'Oral supplements → ENTERAL (if the gut works) → parenteral (catheter infections, refeeding syndrome: watch phosphate, K, Mg, thiamine)']]); },
+});
 /* General Surgery Study Platform — runs as a Claude artifact (Claude account storage + AI)
    and as a standalone web app (Google sign-in via Firebase, or guest). */
 var APP = { core: null, summary: null };
@@ -780,7 +1080,7 @@ var MODULES = [
     { id: 'm2', title: 'Ophthalmology – Endocrinology – Diabetes – Haematology – Occupational medicine', subjects: [['ophtha', 'Ophthalmology', 'Oph'], ['endo', 'Endocrinology', 'En'], ['diab', 'Diabetes & nutrition', 'Di'], ['hemato', 'Haematology', 'H'], ['occup', 'Occupational medicine', 'Oc']] },
     { id: 'm0', title: 'General surgery module', subjects: [['surgery', 'General Surgery', '✚']] }
 ];
-var SUBJ = { surgery: { title: 'General Surgery', base: 'data/', book: 'Surgery for Students' }, radiology: { title: 'Radiology', base: 'data/radiology/', book: 'Radiology for Medical Students, vol. I (S. Dudea)' }, ophtha: { title: 'Ophthalmology', base: 'data/ophtha/', book: 'Ophthalmology – new book 2025 (annotated photos)' }, endo: { title: 'Endocrinology', base: 'data/endo/', book: 'Introduction to Endocrinology (I. R. Ilie, Springer 2020)' } };
+var SUBJ = { surgery: { title: 'General Surgery', base: 'data/', book: 'Surgery for Students' }, radiology: { title: 'Radiology', base: 'data/radiology/', book: 'Radiology for Medical Students, vol. I (S. Dudea)' }, ophtha: { title: 'Ophthalmology', base: 'data/ophtha/', book: 'Ophthalmology – new book 2025 (annotated photos)' }, endo: { title: 'Endocrinology', base: 'data/endo/', book: 'Introduction to Endocrinology (I. R. Ilie, Springer 2020)' }, diab: { title: 'Diabetes & nutrition', base: 'data/diab/', book: 'Diabetes, nutrition & metabolic diseases – course book 2025 (scanned)' } };
 function getSubj() { try {
     var v = localStorage.getItem('subj');
     return SUBJ[v] ? v : 'surgery';
