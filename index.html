@@ -146,7 +146,7 @@ h2.ch{margin:0 0 4px;font-size:21px}details.pm{margin-top:8px}details.pm>summary
 .cxtests{display:flex;flex-direction:column;gap:6px;margin:10px 0}.cxt{display:flex;gap:8px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:8px 10px;cursor:pointer}.cxt input{margin-top:3px}
 .note.ok{background:var(--okbg);border-color:var(--ok)}
 .teacher.model{border-left:4px solid var(--pri);background:var(--pri2)}.teacher.model p{margin:6px 0 0}
-.s5c .small{display:block;margin:6px 0}
+.s5c .small{display:block;margin:6px 0}.s5ban{display:flex;flex-direction:column;gap:4px;text-decoration:none;color:inherit;border:2px solid var(--pri);background:var(--pri2)}.s5ban b{font-size:17px;color:var(--pri)}
 /* surgery atlas */
 .sat-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
 .sat-2{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:14px;align-items:start}@media(max-width:900px){.sat-2{grid-template-columns:1fr}}
@@ -182,7 +182,7 @@ h2.ch{margin:0 0 4px;font-size:21px}details.pm{margin-top:8px}details.pm>summary
 .posvg .po{cursor:pointer}.posvg .po rect{opacity:.75}.posvg .po.on rect,.posvg .po:hover rect{opacity:1;stroke:#000;stroke-width:1.5}.po-n{font-size:12px;fill:var(--ink)}.po-g{stroke:var(--line)}.po-tk{font-size:11px;fill:var(--muted)}
 /* endo metro */
 .em-legend{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}.em-lg{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:20px;padding:6px 11px;cursor:pointer;font:inherit;font-size:13px}.em-lg i{width:22px;height:6px;border-radius:3px;background:var(--c)}.em-lg.on{border-color:var(--c);box-shadow:inset 0 0 0 2px var(--c)}
-.emsvg{max-height:82vh;width:100%}.em-body{fill:#f3e5dc;stroke:#d7b8a5;stroke-width:2}[data-theme=dark] .em-body{fill:#2a2f38;stroke:#465062}
+.emsvg{max-height:82vh;width:100%}.em-zoom{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:8px}.emsvg.zoomed .em-hl{font-size:calc(10px * var(--fs))}.emsvg.zoomed .em-on{font-size:calc(9.5px * var(--fs))}.emsvg.zoomed .em-fbt{font-size:calc(9px * var(--fs))}.em-body{fill:#f3e5dc;stroke:#d7b8a5;stroke-width:2}[data-theme=dark] .em-body{fill:#2a2f38;stroke:#465062}
 .em-line{fill:none;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;opacity:.35;cursor:pointer}.em-line.on{stroke-width:8;opacity:1}.em-line.dim{opacity:.08}
 .em-train{stroke:#fff;stroke-width:2}.em-fb{fill:none;stroke:#e53935;stroke-width:2;stroke-dasharray:5 4}.em-fbt{font-size:9px;fill:#e53935;font-weight:600}
 .em-st{cursor:pointer}.em-ic .em-bg{fill:#fff;stroke:#b0bec5;stroke-width:1.5}.em-ic path,.em-ic circle:not(.em-bg),.em-ic ellipse{fill:#cfd8dc;stroke:#78909c;stroke-width:1.2}.em-ic.on .em-bg{stroke:#263238;stroke-width:2.5}.em-ic.on path,.em-ic.on circle:not(.em-bg),.em-ic.on ellipse{fill:#ffcc80;stroke:#e65100}
@@ -2037,7 +2037,35 @@ document.addEventListener('change', function (ev) {
     }
 });
 /* ---------- Endocrinology: body metro map ---------- */
-var EM = { sel: {}, st: null, fault: null };
+var EM = { sel: {}, st: null, fault: null, auto: true, reg: null, z: 1 };
+var EM_REG = { head: ['Head & neck', [90, 0, 320, 230]], thorax: ['Thorax', [40, 110, 400, 300]], abd: ['Abdomen', [40, 250, 400, 300]], pelvis: ['Pelvis & limbs', [40, 400, 400, 250]] };
+function emBox(sel) {
+    var b = null;
+    if (EM.reg) {
+        var r = EM_REG[EM.reg][1];
+        b = r.slice();
+    }
+    else if (EM.auto && sel.length) {
+        var x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+        sel.forEach(function (id) { EM_L.filter(function (l) { return l.id === id; })[0].p.forEach(function (o) { var q = EM_O[o]; x0 = Math.min(x0, q[0]); y0 = Math.min(y0, q[1]); x1 = Math.max(x1, q[0]); y1 = Math.max(y1, q[1]); }); });
+        x0 -= 90;
+        x1 += 190;
+        y0 -= 45;
+        y1 += 50;
+        var w = Math.max(300, x1 - x0), hh = Math.max(240, y1 - y0);
+        b = [x0, y0, w, hh];
+    }
+    else
+        b = [0, 0, 470, 640];
+    if (EM.z !== 1) {
+        var cx = b[0] + b[2] / 2, cy = b[1] + b[3] / 2;
+        b[2] /= EM.z;
+        b[3] /= EM.z;
+        b[0] = cx - b[2] / 2;
+        b[1] = cy - b[3] / 2;
+    }
+    return b;
+}
 var EM_O = {
     hyp: [200, 44, 'Hypothalamus', 'brain', 'l'], pit: [200, 96, 'Pituitary', 'pit', 'l'], thy: [200, 150, 'Thyroid', 'thy'], para: [232, 160, 'Parathyroids', 'para'],
     lung: [150, 215, 'Lungs', 'lung'], heart: [210, 238, 'Heart', 'heart'], breast: [265, 222, 'Breast', 'breast'], skin: [320, 170, 'Skin (UVB)', 'skin'],
@@ -2120,6 +2148,8 @@ function emPath(pts, off) {
 function vEMetro() {
     var sel = Object.keys(EM.sel).filter(function (k) { return EM.sel[k]; }), any = sel.length > 0;
     var used = {}, hTag = {};
+    var box = emBox(sel), zoomed = box[2] < 460 || box[3] < 630;
+    var fs = Math.max(0.75, Math.min(1, box[2] / 470));
     var lines = EM_L.map(function (L, i) {
         var on = !!EM.sel[L.id], off = (i - 5) * 2.6, d = emPath(L.p, off);
         if (on)
@@ -2127,7 +2157,7 @@ function vEMetro() {
         var s = '<path d="' + d + '" class="em-line' + (on ? ' on' : any ? ' dim' : '') + '" stroke="' + L.c + '" data-act="emLine" data-id="' + L.id + '"/>';
         if (on) {
             s += '<circle r="6" class="em-train" fill="' + L.c + '"><animateMotion dur="' + (2 + L.p.length * 0.8) + 's" repeatCount="indefinite" path="' + d + '"/></circle>';
-            if (sel.length <= 2)
+            if (sel.length <= 2 || (zoomed && sel.length <= 4))
                 L.fb.forEach(function (f) { var a = EM_O[f[0]], b = EM_O[f[1]]; if (!a || !b)
                     return; var mx = Math.min(a[0], b[0]) - 60 - i * 4, my = (a[1] + b[1]) / 2; s += '<path d="M' + a[0] + ' ' + a[1] + ' Q ' + mx + ' ' + my + ' ' + b[0] + ' ' + b[1] + '" class="em-fb" marker-end="url(#emArr)"/><text x="' + (mx + 6) + '" y="' + my + '" class="em-fbt">' + h(f[2]) + '</text>'; });
         }
@@ -2136,7 +2166,7 @@ function vEMetro() {
     var F = EM.fault ? EM_L.filter(function (l) { return l.id === EM.fault[0]; })[0] : null, Fd = F ? F.f[EM.fault[1]] : null;
     var organs = Object.keys(EM_O).map(function (k) {
         var o = EM_O[k], on = used[k], lab = '';
-        if (on && sel.length <= 2) {
+        if (on && (sel.length <= 2 || (zoomed && sel.length <= 4))) {
             lab = (hTag[k] || []).map(function (t, j) { var eff = Fd && t[0].id === F.id && Fd[2][t[1]]; return '<tspan x="' + (o[0] + 22) + '" dy="' + (j ? 12 : 0) + '" fill="' + t[0].c + '">' + h(emShort(t[1])) + (eff ? ' <tspan class="em-eff">' + h(eff) + '</tspan>' : '') + '</tspan>'; }).join('');
             lab = '<text x="' + (o[0] + 22) + '" y="' + (o[1] + 4) + '" class="em-hl">' + lab + '</text>';
         }
@@ -2144,7 +2174,7 @@ function vEMetro() {
         return '<g data-act="emSt" data-id="' + k + '" class="em-st">' + bad + emIcon(o[3], o[0], o[1], on) + (o[4] === 'l' ? '<text x="' + (o[0] - 22) + '" y="' + (o[1] + 4) + '" text-anchor="end" class="em-on' : '<text x="' + o[0] + '" y="' + (o[1] + 30) + '" text-anchor="middle" class="em-on') + (on ? ' on' : any ? ' dim' : '') + '">' + h(o[2]) + '</text>' + lab + '</g>';
     }).join('');
     var body = '<path class="em-body" d="M200 10 C 168 10 152 34 152 66 C 152 92 166 112 180 120 L 178 132 C 150 138 110 150 100 175 C 88 210 78 270 70 330 C 66 360 62 390 66 410 L 84 410 C 86 380 92 330 104 290 L 112 300 C 112 360 120 420 128 470 C 128 520 134 580 140 630 L 186 630 L 196 470 L 204 470 L 214 630 L 260 630 C 266 580 272 520 272 470 C 280 420 288 360 288 300 L 296 290 C 308 330 314 380 316 410 L 334 410 C 338 390 334 360 330 330 C 322 270 312 210 300 175 C 290 150 250 138 222 132 L 220 120 C 234 112 248 92 248 66 C 248 34 232 10 200 10 Z"/>';
-    var svg = '<svg viewBox="0 0 470 640" class="emsvg"><defs><marker id="emArr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#e53935"/></marker></defs>' + body + lines + organs + '</svg>';
+    var svg = '<svg viewBox="' + box.map(function (v) { return Math.round(v); }).join(' ') + '" class="emsvg' + (zoomed ? ' zoomed' : '') + '" style="--fs:' + fs.toFixed(2) + '"><defs><marker id="emArr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#e53935"/></marker></defs>' + body + lines + organs + '</svg>';
     var legend = EM_L.map(function (L) { return '<button class="em-lg' + (EM.sel[L.id] ? ' on' : '') + '" data-act="emLine" data-id="' + L.id + '" style="--c:' + L.c + '"><i></i>' + h(L.n) + '</button>'; }).join('');
     var side = '';
     if (sel.length === 1) {
@@ -2165,7 +2195,9 @@ function vEMetro() {
     }
     return '<div class="page-h"><h1>Endocrine metro map</h1><p class="muted">Each hormonal axis is a metro line drawn on the body. Tap one or several lines.</p></div>' +
         '<div class="em-legend">' + legend + '<button class="btn sm" data-act="emAll">All lines</button><button class="btn sm" data-act="emNone">Clear</button></div>' +
-        '<div class="sat-2 em-wrap"><div class="card">' + svg + '</div><div class="card">' + side + '</div></div>';
+        '<div class="sat-2 em-wrap"><div class="card"><div class="em-zoom"><label class="small"><input type="checkbox" data-act="emAuto" ' + (EM.auto ? 'checked' : '') + '> Auto-zoom on the chosen line</label><span class="grow"></span>' +
+        Object.keys(EM_REG).map(function (k) { return '<button class="btn sm' + (EM.reg === k ? ' primary' : '') + '" data-act="emReg" data-id="' + k + '">' + EM_REG[k][0] + '</button>'; }).join('') +
+        '<button class="btn sm" data-act="emZ" data-id="1.4">＋</button><button class="btn sm" data-act="emZ" data-id="0.7">－</button><button class="btn sm" data-act="emZ" data-id="0">Whole body</button></div>' + svg + '</div><div class="card">' + side + '</div></div>';
 }
 function emAct(act, el, id) {
     switch (act) {
@@ -2189,6 +2221,24 @@ function emAct(act, el, id) {
         case 'emNone':
             EM.sel = {};
             EM.fault = null;
+            break;
+        case 'emAuto':
+            EM.auto = el.checked;
+            EM.reg = null;
+            EM.z = 1;
+            break;
+        case 'emReg':
+            EM.reg = EM.reg === id ? null : id;
+            EM.z = 1;
+            break;
+        case 'emZ':
+            if (id === '0') {
+                EM.reg = null;
+                EM.auto = false;
+                EM.z = 1;
+            }
+            else
+                EM.z = Math.max(1, Math.min(3, EM.z * +id));
             break;
     }
     render();
@@ -2231,19 +2281,20 @@ function vCases() {
     APP.core.cases.forEach(function (c) { (c.s5 || []).forEach(function (m) { nS5++; if (st[m.code])
         nDone++; }); });
     var tabs = '<div class="cxtabs"><button class="btn' + (CXT === 'ix' ? ' primary' : '') + '" data-act="cxTab" data-id="ix">▶ Interactive cases (' + APP.core.cases.length + ')</button><button class="btn' + (CXT === 's5' ? ' primary' : '') + '" data-act="cxTab" data-id="s5">⚕ Station 5 – Diagnosis & treatment (' + nS5 + ')</button></div>';
-    var head = '<div class="page-h"><h1>Clinical cases (oral / OSCE)</h1><p class="muted">' + (CXT === 'ix' ? 'Work up each patient like on the ward: history → examination → most likely diagnosis → order tests → management. You can switch any case to the classic oral mode (free answers' + (AI ? ' graded by the AI jury' : '') + ').' : 'The short "Diagnosis and treatment" station of every chapter of the OSCE book. The book gives only the questions: the model answers were written for this platform – check them against your course.') + '</p></div>' + tabs;
+    var head = '<div class="page-h"><h1>' + (CXT === 's5' ? 'OSCE station 5 – Diagnosis & treatment' : 'Clinical cases (oral / OSCE)') + '</h1><p class="muted">' + (CXT === 'ix' ? 'Work up each patient like on the ward: history → examination → most likely diagnosis → order tests → management. You can switch any case to the classic oral mode (free answers' + (AI ? ' graded by the AI jury' : '') + ').' : 'The short "Diagnosis and treatment" station of every chapter of the OSCE book. The book gives only the questions: the model answers were written for this platform – check them against your course.') + '</p></div>' + tabs;
     if (CXT === 's5') {
-        return head + APP.core.cases.filter(function (c) { return c.s5 && c.s5.length; }).map(function (c) {
+        return head + '<div class="card s5ban" style="cursor:default"><b>🎲 Random case</b><span>Draw a station-5 case at random, with no chapter title (like on exam day). The topic is revealed only at the end.</span><div class="row"><button class="btn primary" data-act="cxS5Rand" data-id="all">🎲 Any case</button><button class="btn" data-act="cxS5Rand" data-id="new">🎲 A case I have not done yet</button><button class="btn" data-act="cxS5Rand" data-id="redo">🎲 A case to redo</button></div></div>' + APP.core.cases.filter(function (c) { return c.s5 && c.s5.length; }).map(function (c) {
             return '<div class="card"><h3>' + h(c.title) + ' <span class="muted small">· ' + h(c.dx) + '</span></h3><div class="cards">' + c.s5.map(function (m) {
                 var d = st[m.code];
                 return '<a href="#" class="card lc s5c" data-act="cxS5" data-id="' + c.id + '|' + m.code + '"><span class="tag">' + h(m.code) + '</span>' + (d ? ' <span class="tag ok">' + (d === 3 ? '✓ mastered' : d === 2 ? '~ partly' : '↺ redo') + '</span>' : '') + '<span class="small">' + h(m.scenario.slice(0, 150)) + '…</span><span class="muted small">' + m.qa.length + ' questions</span></a>';
             }).join('') + '</div></div>';
         }).join('') + '<p class="muted small">' + nDone + ' / ' + nS5 + ' done.</p>';
     }
-    return head + '<div class="cards">' + APP.core.cases.map(function (c) {
+    return head + '<a href="#" class="card s5ban" data-act="cxTab" data-id="s5"><b>⚕ OSCE station 5 – Diagnosis & treatment</b><span>' + nS5 + ' short cases from the OSCE book (' + nDone + ' done) – scenario + questions + model answers →</span></a><div class="cards">' + APP.core.cases.map(function (c) {
         return '<a href="#" class="card lc" data-act="openCase" data-id="' + c.id + '"><span class="tag teach">OSCE book</span><b>' + h(c.title) + '</b><span class="muted small">' + h(APP.lById[c.topic] ? APP.lById[c.topic].title : '') + (c.s5 && c.s5.length ? ' · +' + c.s5.length + ' station-5 cases' : '') + '</span>' + (best[c.id] != null ? gradeBadge(best[c.id] * 10) : '') + '</a>';
     }).join('') + '</div>';
 }
+function vOsce5() { CXT = 's5'; return vCases(); }
 function vCase() {
     if (!CASE)
         return vCases();
@@ -2347,7 +2398,8 @@ function vCaseIx() {
 function vS5() {
     var c = CASE.c, m = CASE.s5, st = cxStore(), R = CASE.s5r || (CASE.s5r = {});
     var idx = c.s5.indexOf(m), nxt = c.s5[idx + 1];
-    return '<div class="page-h"><a href="#" data-act="cxBackS5" class="back">← Station 5 list</a><h1>Station 5 · ' + h(m.code) + '</h1><p class="muted">' + h(c.title) + '</p></div>' +
+    var blind = CASE.blind && !CASE.revealed;
+    return '<div class="page-h"><a href="#" data-act="cxBackS5" class="back">← Station 5 list</a><h1>' + (CASE.blind ? '🎲 Random station 5' + (blind ? '' : ' · ' + h(m.code)) : 'Station 5 · ' + h(m.code)) + '</h1><p class="muted">' + (blind ? 'Topic hidden – <a href="#" data-act="cxS5Reveal">reveal the chapter</a>' : h(c.title)) + '</p></div>' +
         '<div class="card"><span class="tag">Diagnosis & treatment</span><p class="stem">' + h(m.scenario) + '</p></div>' +
         m.qa.map(function (qa, i) {
             var r = R[i] || {};
@@ -2357,7 +2409,7 @@ function vS5() {
                 (r.shown || r.jury ? '<div class="teacher model"><b>Model answer</b><p>' + qa.a + '</p></div>' : '') + '</div>';
         }).join('') +
         '<div class="card"><b>How did it go?</b><div class="row">' + [[3, '✓ I knew it'], [2, '~ Partly'], [1, '↺ Redo later']].map(function (x) { return '<button class="btn sm' + (st[m.code] === x[0] ? ' primary' : '') + '" data-act="cxS5Grade" data-id="' + x[0] + '">' + x[1] + '</button>'; }).join('') + '<span class="grow"></span>' +
-        (nxt ? '<button class="btn primary" data-act="cxS5" data-id="' + c.id + '|' + nxt.code + '">Next: ' + h(nxt.code) + ' →</button>' : '<button class="btn" data-act="openCase" data-id="' + c.id + '">Open the full case →</button>') + '</div></div>';
+        (CASE.blind ? '<button class="btn primary" data-act="cxS5Rand" data-id="' + CASE.blind + '">🎲 Another random case →</button>' : nxt ? '<button class="btn primary" data-act="cxS5" data-id="' + c.id + '|' + nxt.code + '">Next: ' + h(nxt.code) + ' →</button>' : '<button class="btn" data-act="openCase" data-id="' + c.id + '">Open the full case →</button>') + '</div></div>';
 }
 function cxS5Jury(i) {
     var m = CASE.s5, qa = m.qa[i], R = CASE.s5r;
@@ -2398,7 +2450,7 @@ function xAct(act, el, id) {
     switch (act) {
         case 'cxTab':
             CXT = id;
-            render();
+            go(id === 's5' ? 'osce5' : 'cases');
             break;
         case 'cxMode':
             if (id === 'ix') {
@@ -2446,9 +2498,32 @@ function xAct(act, el, id) {
             window.scrollTo(0, 0);
             break;
         }
+        case 'cxS5Reveal':
+            CASE.revealed = true;
+            render();
+            break;
+        case 'cxS5Rand': {
+            var st0 = cxStore(), pool = [];
+            APP.core.cases.forEach(function (c) { (c.s5 || []).forEach(function (m) { var d = st0[m.code]; if (id === 'all' || (id === 'new' && !d) || (id === 'redo' && d && d < 3))
+                pool.push([c, m]); }); });
+            if (CASE && CASE.s5) {
+                var cur = CASE.s5.code;
+                if (pool.length > 1)
+                    pool = pool.filter(function (x) { return x[1].code !== cur; });
+            }
+            if (!pool.length) {
+                toast(id === 'redo' ? 'No case marked "partly" or "redo" yet.' : 'You have done them all – well done!');
+                break;
+            }
+            var pk = pool[Math.floor(Math.random() * pool.length)];
+            CASE = { c: pk[0], mode: 's5', s5: pk[1], s5r: {}, blind: id, i: 0, answers: {}, results: {}, hints: {}, shown: {} };
+            go('case');
+            window.scrollTo(0, 0);
+            break;
+        }
         case 'cxBackS5':
             CXT = 's5';
-            go('cases');
+            go('osce5');
             break;
         case 'cxS5Show':
             cxKeepText();
@@ -2465,6 +2540,7 @@ function xAct(act, el, id) {
             var st = cxStore();
             st[CASE.s5.code] = +id;
             cxSave(st);
+            CASE.revealed = true;
             render();
             break;
         }
@@ -3224,7 +3300,7 @@ function adminUsage(list) {
     var nu = function (k) { return Object.keys(users[k] || {}).length; };
     var rows = function (prefix, label) { return Object.keys(agg).filter(function (k) { return k.indexOf(prefix) === 0; }).sort(function (a, b) { return agg[b] - agg[a]; }).map(function (k) { return "<tr><td>".concat(h(label(k.slice(prefix.length))), "</td><td>").concat(agg[k], "</td><td>").concat(nu(k), "</td></tr>"); }).join(''); };
     var navName = function (n) { var f = NAV.filter(function (x) { return x[0] === n; })[0]; return f ? f[1] : n === 'lesson' ? 'Lesson page' : n === 'run' ? 'MCQ set (running)' : n === 'review' ? 'Set review' : n === 'case' ? 'Clinical case page' : n === 'modules' ? 'Modules & subjects' : n === 'help' ? 'Grading help' : n; };
-    var unused = NAV.filter(function (n) { return (n[0] !== 'cases' || APP.core.cases.length) && (n[0] !== 'atlas' || SUBJ[APP.subj].atlas); }).filter(function (n) { return !agg['v:' + n[0]]; }).map(function (n) { return n[1]; });
+    var unused = NAV.filter(function (n) { return (n[0] !== 'cases' || APP.core.cases.length) && (n[0] !== 'osce5' || APP.core.cases.some(function (c) { return c.s5 && c.s5.length; })) && (n[0] !== 'atlas' || SUBJ[APP.subj].atlas); }).filter(function (n) { return !agg['v:' + n[0]]; }).map(function (n) { return n[1]; });
     var lec = function (k) { return APP.lById[k] ? APP.lById[k].title : k; };
     var tabN = { overview: 'Overview', sheets: 'Pathology sheets', course: 'Full course', book: 'Textbook', visuals: 'Drawings' };
     var deckN = function (k) { var p = k.split(':'), K = (APP.xidx && APP.xidx.kinds) || {}; var kind = p[0] === 'x' ? (p[1] === 'all' ? 'Imported/image cards – all' : (K[p[1]] || p[1])) : ({ std: 'Site cards', mine: 'Handwritten cards', sheets: 'Pathology sheets' }[p[1]] || p[1]); return kind + ' · ' + (p[2] === 'all' || !p[2] ? 'all chapters' : lec(p[2])); };
@@ -3237,7 +3313,7 @@ function adminUsage(list) {
 }
 /* ---------------- shell & routing ---------------- */
 var NAV = [['dash', 'Dashboard', '◉'], ['lessons', 'Lessons', '▤'], ['gallery', 'Mind maps & drawings', '✎'], ['flash', 'Flashcards', '❏'], ['practice', 'Lecture MCQs', '✓'],
-    ['mock', 'Mock exam', '◷'], ['final', 'Final test', '★'], ['papers', 'Past papers', '▦'], ['cases', 'Clinical cases', '✚'], ['mistakes', 'My mistakes', '↺'], ['plan', 'Study planner', '▣'], ['atlas', 'Visual atlas', '◐']];
+    ['mock', 'Mock exam', '◷'], ['final', 'Final test', '★'], ['papers', 'Past papers', '▦'], ['cases', 'Clinical cases', '✚'], ['osce5', 'OSCE station 5 (diagnosis & treatment)', '⚕'], ['mistakes', 'My mistakes', '↺'], ['plan', 'Study planner', '▣'], ['atlas', 'Visual atlas', '◐']];
 function renderShell() {
     $('#login').className = 'hidden';
     $('#shell').className = '';
@@ -3249,7 +3325,7 @@ function renderShell() {
         document.title = ttl + ' – Study Platform';
     }
     catch (e) { }
-    $('#nav').innerHTML = "<a href=\"#modules\" class=\"nav-a subj".concat(VIEW.name === 'modules' ? ' on' : '', "\" data-nav=\"modules\"><span class=\"ni\">\u21C4</span>Modules & subjects</a>") + (isAdmin() ? NAV.concat([['admin', 'Students (admin)', '♛']]) : NAV).filter(function (n) { return (n[0] !== 'cases' || APP.core.cases.length) && (n[0] !== 'atlas' || SUBJ[APP.subj].atlas); }).map(function (n) { return "<a href=\"#".concat(n[0], "\" class=\"nav-a").concat(VIEW.name === n[0] ? ' on' : '', "\" data-nav=\"").concat(n[0], "\"><span class=\"ni\">").concat(n[2], "</span>").concat(n[1], "</a>"); }).join('') +
+    $('#nav').innerHTML = "<a href=\"#modules\" class=\"nav-a subj".concat(VIEW.name === 'modules' ? ' on' : '', "\" data-nav=\"modules\"><span class=\"ni\">\u21C4</span>Modules & subjects</a>") + (isAdmin() ? NAV.concat([['admin', 'Students (admin)', '♛']]) : NAV).filter(function (n) { return (n[0] !== 'cases' || APP.core.cases.length) && (n[0] !== 'atlas' || SUBJ[APP.subj].atlas) && (n[0] !== 'osce5' || APP.core.cases.some(function (c) { return c.s5 && c.s5.length; })); }).map(function (n) { return "<a href=\"#".concat(n[0], "\" class=\"nav-a").concat(VIEW.name === n[0] ? ' on' : '', "\" data-nav=\"").concat(n[0], "\"><span class=\"ni\">").concat(n[2], "</span>").concat(n[1], "</a>"); }).join('') +
         "<div class=\"nav-foot\"><div class=\"save-pill ".concat(STORE ? STORE.mode : '', "\">").concat(h(STORE ? STORE.label : ''), "</div>\n    <button class=\"btn sm\" data-act=\"theme\">\u25D0 Light / dark</button>").concat(S.mode === 'web' ? '<button class="btn sm" data-act="logout">' + (S.guest ? 'Exit guest mode' : 'Sign out') + '</button>' : '', "</div>");
     $('#tutorBtn').style.display = AI ? '' : 'none';
 }
@@ -3274,7 +3350,7 @@ function render() {
         return;
     document.querySelectorAll('.nav-a').forEach(function (a) { return a.className = 'nav-a' + (a.getAttribute('data-nav') === VIEW.name ? ' on' : ''); });
     $('#side').className = '';
-    var fn = { dash: vDash, lessons: vLessons, lesson: vLesson, gallery: vGallery, flash: vFlash, practice: vPractice, run: vRun, review: vReview, mock: vMock, final: vFinal, papers: vPapers, cases: vCases, case: vCase, mistakes: vMistakes, plan: vPlan, atlas: vAtlasAny, help: vHelp, admin: vAdmin, modules: vModules }[VIEW.name] || vDash;
+    var fn = { dash: vDash, lessons: vLessons, lesson: vLesson, gallery: vGallery, flash: vFlash, practice: vPractice, run: vRun, review: vReview, mock: vMock, final: vFinal, papers: vPapers, cases: function () { CXT = 'ix'; return vCases(); }, case: vCase, mistakes: vMistakes, plan: vPlan, atlas: vAtlasAny, osce5: vOsce5, help: vHelp, admin: vAdmin, modules: vModules }[VIEW.name] || vDash;
     $('#main').innerHTML = fn(VIEW.arg);
     $('#main').scrollTop = 0;
     window.scrollTo(0, 0);
