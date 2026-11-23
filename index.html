@@ -189,6 +189,13 @@ h2.ch{margin:0 0 4px;font-size:21px}details.pm{margin-top:8px}details.pm>summary
 .em-on{font-size:9.5px;fill:#455a64}.em-on.on{font-weight:700;fill:#263238}.em-on.dim{opacity:.4}[data-theme=dark] .em-on{fill:#b0bec5}
 .em-hl{font-size:10px;font-weight:700}.em-eff{fill:#d50000;font-weight:800}.em-bad{fill:rgba(213,0,0,.15);stroke:#d50000;stroke-width:2.5;stroke-dasharray:4 3}.em-badt{font-size:16px}
 .em-stops{padding-left:20px}.em-stops li{margin:3px 0}.em-fbk{display:inline-block;width:22px;border-top:2px dashed #e53935;vertical-align:middle}.em-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}.em-info{margin-top:12px;background:var(--bg)}
+.ls-pick{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}@media(max-width:800px){.ls-pick{grid-template-columns:1fr}}
+.ls-wrap{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:14px;align-items:start}@media(max-width:900px){.ls-wrap{grid-template-columns:1fr}}
+.ls-con{display:block;background:#0b0d10;border-radius:14px;padding:12px;color:#e6e9ef}.ls-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}.ls-ph{font-weight:700;color:#ffd54f}
+.ls-scr{width:100%;height:auto;display:block;border-radius:10px}.ls-t{fill:#90a4ae;font-size:12px}.ls-lb{fill:#ffd54f;font-size:13px;font-weight:700;paint-order:stroke;stroke:#000;stroke-width:3px}.ls-ll{stroke:#ffd54f;stroke-width:1.2;stroke-dasharray:3 3}.ls-hit{cursor:pointer}
+.ls-ctl{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:10px}.ls-rng{flex:1;min-width:140px}
+.ls-steps{display:flex;gap:4px;margin-top:8px}.ls-st{flex:1;text-align:center;font-size:12px;padding:6px 2px;border-radius:8px;background:#1b2028;color:#b0bec5;text-decoration:none}.ls-st.on{background:#ffd54f;color:#111;font-weight:700}
+.ls-story .ls-txt{font-size:17px;line-height:1.5;min-height:80px;border-left:4px solid #ffd54f;padding-left:12px}.ls-curve{width:100%;background:#0b0d10;border-radius:10px;margin-top:6px}.ls-grid{stroke:#263038}.ls-ax{fill:#78909c;font-size:10px}.ls-cur{stroke:#fff;stroke-width:1.5}.ls-leg{display:flex;gap:12px;font-size:12px;margin:4px 0 10px}
 </style>
 </head>
 <body>
@@ -1101,7 +1108,7 @@ Object.assign(DRAW, {
 });
 /* ================= Visual atlas (radiology): annotated signs, same disease × techniques, imaging console, bone map, spot the difference, timed practical exam ================= */
 var ATAB = 'signs', AT = { lec: '', show: {}, zone: 'metaphysis', mode: 'window', L: 40, W: 400, phase: 0, seq: 0, tis: null, pair: 0, pans: null, pscore: [0, 0], ex: null };
-var ATABS = [['signs', '◎ Signs on real images'], ['multi', '▥ One disease, several techniques'], ['console', '◐ Imaging console'], ['bone', '⟂ Bone map'], ['pairs', '⇄ Spot the difference'], ['exam', '⏱ Practical exam (timed)']];
+var ATABS = [['signs', '◎ Signs on real images'], ['multi', '▥ One disease, several techniques'], ['console', '◐ Imaging console'], ['story', '▶ Lesion story (contrast film)'], ['bone', '⟂ Bone map'], ['pairs', '⇄ Spot the difference'], ['exam', '⏱ Practical exam (timed)']];
 function atlasData() {
     if (APP.atlas)
         return APP.atlas;
@@ -1295,7 +1302,7 @@ function atStart() {
 }
 function vAtlas() {
     var d = atlasData();
-    var body = !d ? "<div class=\"card\"><p class=\"muted\">Loading the atlas\u2026</p></div>" : ATAB === 'signs' ? atSigns(d) : ATAB === 'multi' ? atMulti(d) : ATAB === 'console' ? atConsole() : ATAB === 'bone' ? atBone(d) : ATAB === 'pairs' ? atPairs(d) : atExam();
+    var body = !d ? "<div class=\"card\"><p class=\"muted\">Loading the atlas\u2026</p></div>" : ATAB === 'signs' ? atSigns(d) : ATAB === 'multi' ? atMulti(d) : ATAB === 'console' ? atConsole() : ATAB === 'story' ? atStory() : ATAB === 'bone' ? atBone(d) : ATAB === 'pairs' ? atPairs(d) : atExam();
     return "<div class=\"page-h\"><h1>Visual atlas</h1><p class=\"muted\">Recognise on the image \u2013 not a mind map, not an algorithm: real exam pictures, annotated signs and an interactive console.</p>\n  <div class=\"tabs\">".concat(ATABS.map(function (t) { return "<a href=\"#\" class=\"tab".concat(ATAB === t[0] ? ' on' : '', "\" data-act=\"atTab\" data-id=\"").concat(t[0], "\">").concat(t[1], "</a>"); }).join(''), "</div></div><div class=\"atlas\">").concat(body, "</div>");
 }
 function atlasAct(act, el, id) {
@@ -1401,6 +1408,322 @@ document.addEventListener('input', function (ev) {
 });
 document.addEventListener('change', function (ev) { if (ev.target && ev.target.getAttribute && ev.target.getAttribute('data-atl'))
     render(); });
+/* ---------- Radiology: lesion story (contrast film) ---------- */
+var LS = { id: null, u: 0, play: false, lab: false, timer: null, speed: 1 };
+var LS_PH = ['Native', 'Arterial', 'Portal venous', 'Delayed', 'Late / excretory'];
+var LS_T = ['0 s', '25–35 s', '60–70 s', '3 min', '5–10 min'];
+var LS_AO = [40, 320, 165, 115, 95];
+var LS_BG = { liver: [60, 72, 115, 95, 85], kidney: [35, 190, 165, 140, 120] };
+/* parts: k = disc | ring | fill (centripetal) | nod (peripheral nodules) | scar | spots | fat | halo ; r (0–1 of lesion radius) ; hu per phase ; n = name */
+var LS_L = [
+    { id: 'hem', n: 'Haemangioma', org: 'liver', b: 1, r: 46, parts: [
+            { k: 'disc', r: 1, hu: [40, 42, 45, 50, 52], n: 'unenhanced lesion (blood lakes)' },
+            { k: 'fill', r: 1, f: [0, 0.18, 0.55, 0.95, 1], hu: [40, 300, 170, 115, 100], n: 'contrast filling the lakes' },
+            { k: 'nod', r: 1, hu: [40, 300, 170, 115, 100], n: 'peripheral nodules = same density as the aorta' }
+        ],
+        st: ['Slightly hypodense, well-defined round lesion – like blood (≈ 40 HU), because it IS slow-flowing blood in vascular lakes.',
+            'Peripheral, NODULAR, discontinuous enhancement – the nodules are as bright as the aorta: contrast enters the lakes at the edge.',
+            'Centripetal fill-in: the bright nodules spread towards the centre (slow flow in the lakes).',
+            'Almost completely filled, still as bright as the blood pool (follows the aorta/vessels on every phase).',
+            'Persistent enhancement, iso to blood – NO washout. (Large ones may keep a central unfilled scar.)'],
+        mri: 'MRI: very bright on T2 ("light bulb"), same peripheral nodular → centripetal pattern with gadolinium.', key: 'Benign: peripheral nodular → centripetal fill-in → persistent, always following the blood pool.' },
+    { id: 'fnh', n: 'Focal nodular hyperplasia (FNH)', org: 'liver', b: 1, r: 40, parts: [
+            { k: 'disc', r: 1, hu: [58, 160, 112, 92, 84], n: 'homogeneous lesion' },
+            { k: 'scar', r: 0.35, hu: [45, 50, 75, 110, 105], n: 'central scar (fibrous, with vessels)' }
+        ],
+        st: ['Iso or slightly hypodense – almost invisible: it is made of normal liver cells.',
+            'Intense, HOMOGENEOUS arterial enhancement (large central feeding artery, "spoke-wheel"); the central scar stays dark.',
+            'Becomes iso to the liver – it "disappears" again (normal portal/hepatocyte tissue). No washout.',
+            'The CENTRAL SCAR enhances late (fibrous tissue retains contrast).',
+            'Still iso; scar bright. Young woman, no cirrhosis, no treatment needed.'],
+        mri: 'MRI: hepatobiliary agent (gadoxetate) → FNH stays iso/hyper in hepatobiliary phase (functioning hepatocytes), adenoma becomes hypo.', key: 'Benign: "stealth" lesion – bright only in arterial, central scar enhancing late.' },
+    { id: 'aden', n: 'Hepatocellular adenoma', org: 'liver', b: 1, r: 40, parts: [
+            { k: 'disc', r: 1, hu: [48, 140, 100, 85, 80], n: 'adenoma (may contain fat or haemorrhage)' },
+            { k: 'spots', r: 0.3, hu: [70, 70, 70, 70, 70], n: 'old haemorrhage (hyperdense on native)' }
+        ],
+        st: ['Hypo or heterogeneous (fat: hypodense; recent bleed: hyperdense spots). Young woman on oral contraceptives.',
+            'Arterial hyperenhancement, often heterogeneous.',
+            'Becomes iso or slightly hypo; no central scar.',
+            'Iso/hypo – it may look like mild washout: beware of confusion with HCC (but no cirrhosis).',
+            'Risk: bleeding and (β-catenin type) malignant change → stop contraceptives, resect if > 5 cm.'],
+        mri: 'MRI: signal drop on opposed-phase (intracellular fat, HNF1α type); hypo in hepatobiliary phase.', key: 'Benign but risky: arterial enhancement, fat/blood inside, no scar, hypo on hepatobiliary phase.' },
+    { id: 'cyst', n: 'Simple liver cyst', org: 'liver', b: 1, r: 38, parts: [
+            { k: 'disc', r: 1, hu: [5, 5, 5, 5, 5], n: 'fluid (0–20 HU)' }
+        ],
+        st: ['Round, sharp, homogeneous, water density (0–20 HU).',
+            'No enhancement – fluid has no vessels.',
+            'Still 0–20 HU while the liver brightens → it looks even darker (contrast effect, not enhancement!).',
+            'Never enhances; no wall, no septa.',
+            'Rule: a lesion that does not change in HU between native and contrast phases does not enhance (< 10–20 HU rise).'],
+        mri: 'MRI: very bright T2, dark T1, no gadolinium uptake. US: anechoic + posterior enhancement.', key: 'Benign: water density, no wall, no enhancement in any phase.' },
+    { id: 'abs', n: 'Pyogenic liver abscess', org: 'liver', b: 1, r: 42, parts: [
+            { k: 'halo', r: 1.25, hu: [50, 60, 80, 85, 82], n: 'perilesional oedema (outer hypodense halo)' },
+            { k: 'disc', r: 1, hu: [20, 20, 20, 20, 20], n: 'pus (not enhancing)' },
+            { k: 'ring', r: 1, w: 0.16, hu: [45, 150, 150, 120, 110], n: 'enhancing abscess wall' },
+            { k: 'spots', r: 0.25, hu: [-900, -900, -900, -900, -900], n: 'gas bubbles' }
+        ],
+        st: ['Hypodense lesion (pus 10–30 HU), possibly gas bubbles. Fever, RUQ pain, CRP ↑.',
+            'Wall enhances (inflammatory hyperaemia) + hypodense oedema around = "double target" sign.',
+            'Thick enhancing rim, centre never enhances; often clustered (cluster sign).',
+            'Wall still enhanced; centre unchanged.',
+            'Treatment: antibiotics + percutaneous drainage (aspirate pus for culture).'],
+        mri: 'MRI: restricted diffusion in the pus (bright DWI), rim enhancement.', key: 'Rim enhancement + oedema halo, necrotic non-enhancing centre ± gas.' },
+    { id: 'hcc', n: 'Hepatocellular carcinoma (HCC)', org: 'liver', cirr: 1, b: 0, r: 40, parts: [
+            { k: 'disc', r: 1, hu: [50, 170, 85, 62, 58], n: 'tumour (arterialised)' },
+            { k: 'ring', r: 1, w: 0.1, hu: [50, 165, 95, 120, 115], n: 'enhancing capsule (late)' }
+        ],
+        st: ['Iso or hypodense nodule in a CIRRHOTIC (nodular, small) liver.',
+            'Non-rim arterial HYPERenhancement (APHE): the tumour is fed by new arteries (neoangiogenesis), not by the portal vein.',
+            'WASHOUT: the tumour becomes darker than the liver, which now enhances strongly through the portal vein.',
+            'Enhancing CAPSULE around the dark nodule (late).',
+            'APHE + washout + capsule in a cirrhotic, ≥ 1 cm = LI-RADS 5 → HCC diagnosed WITHOUT biopsy.'],
+        mri: 'MRI: mildly bright T2, restricted diffusion, hypo in hepatobiliary phase; AFP ↑.', key: 'Malignant: "wash-in, wash-out" + capsule in cirrhosis.' },
+    { id: 'methypo', n: 'Hypovascular metastasis (colon, pancreas, stomach)', org: 'liver', b: 0, r: 34, parts: [
+            { k: 'disc', r: 1, hu: [42, 48, 58, 66, 66], n: 'tumour centre (hypovascular / necrotic)' },
+            { k: 'ring', r: 1, w: 0.2, hu: [45, 110, 95, 80, 76], n: 'peripheral rim (viable tumour)' }
+        ],
+        st: ['Slightly hypodense, often multiple, varying sizes. History of colorectal cancer.',
+            'Thin peripheral rim enhancement (viable tumour at the edge).',
+            'BEST PHASE to see them: dark "target" lesions on a bright liver (maximum contrast).',
+            'Still hypodense; centre may fill slightly (fibrosis) – no centripetal pattern like haemangioma.',
+            'Staging CT is done in the PORTAL phase for this reason.'],
+        mri: 'MRI: restricted diffusion, hypo in hepatobiliary phase; target sign on T2.', key: 'Malignant: rim enhancement, dark in portal phase, multiple.' },
+    { id: 'methyper', n: 'Hypervascular metastasis (NET, RCC, melanoma, thyroid)', org: 'liver', b: 0, r: 30, parts: [
+            { k: 'disc', r: 1, hu: [45, 175, 100, 78, 72], n: 'hypervascular metastasis' }
+        ],
+        st: ['Often invisible or hypodense on native.',
+            'Bright in the ARTERIAL phase – may be invisible in portal phase only!',
+            'Iso or washout: fades into the liver.',
+            'Hypodense or iso.',
+            'Lesson: for NET/RCC/melanoma/thyroid primaries, ask for an arterial (multiphase) liver CT.'],
+        mri: 'MRI: bright DWI, arterial enhancement.', key: 'Malignant: seen in arterial phase, lost in portal phase.' },
+    { id: 'kcyst', n: 'Simple renal cyst (Bosniak I)', org: 'kidney', b: 1, r: 26, parts: [
+            { k: 'disc', r: 1, hu: [6, 6, 6, 6, 6], n: 'fluid' }
+        ],
+        st: ['Water density (≤ 20 HU), thin invisible wall.',
+            'No enhancement while the cortex lights up.',
+            'Still water.',
+            'Nephrographic phase: kidney homogeneous bright, cyst black – no enhancement.',
+            'Bosniak I–II: no follow-up. Septa/thick wall/enhancement → Bosniak III–IV (surgical).'],
+        mri: 'US: anechoic, posterior acoustic enhancement – usually enough.', key: 'Benign: water, no wall, no enhancement.' },
+    { id: 'ccrcc', n: 'Clear-cell renal cell carcinoma', org: 'kidney', b: 0, r: 30, parts: [
+            { k: 'disc', r: 1, hu: [35, 175, 140, 105, 90], n: 'tumour (hypervascular)' },
+            { k: 'spots', r: 0.3, hu: [20, 25, 30, 30, 30], n: 'necrosis (no enhancement)' }
+        ],
+        st: ['Solid mass deforming the kidney contour, iso to parenchyma; may contain calcifications.',
+            'Corticomedullary phase: avid heterogeneous enhancement (like the cortex) with non-enhancing necrotic areas.',
+            'Still enhancing, heterogeneous.',
+            'Nephrographic phase: the normal kidney becomes homogeneously bright, the tumour washes out → BEST phase to detect renal masses.',
+            'Look for renal vein / IVC tumour thrombus and metastases; enhancement > 20 HU = solid tumour.'],
+        mri: 'MRI: bright T2, signal drop on opposed phase (intracellular fat), avid enhancement.', key: 'Malignant: avid heterogeneous enhancement, necrosis, washout in nephrographic phase.' },
+    { id: 'aml', n: 'Angiomyolipoma (AML)', org: 'kidney', b: 1, r: 28, parts: [
+            { k: 'disc', r: 1, hu: [-70, -60, -55, -60, -65], n: 'macroscopic FAT (−50 to −100 HU)' },
+            { k: 'spots', r: 0.28, hu: [40, 200, 150, 110, 95], n: 'vessels + smooth muscle (enhancing)' }
+        ],
+        st: ['Contains MACROSCOPIC FAT (negative HU) – diagnostic on native CT.',
+            'The vascular/muscular components enhance strongly (aneurysmal vessels).',
+            'Fat stays negative.',
+            'Fat stays negative. Fat + kidney = AML (practically never RCC).',
+            'Risk: haemorrhage if > 4 cm (Wunderlich) → embolisation; tuberous sclerosis if multiple.'],
+        mri: 'MRI: fat saturation makes it dark (fat proof). US: very hyperechoic.', key: 'Benign: fat density inside a renal mass.' },
+    { id: 'prcc', n: 'Papillary renal cell carcinoma', org: 'kidney', b: 0, r: 26, parts: [
+            { k: 'disc', r: 1, hu: [38, 60, 75, 82, 80], n: 'hypovascular tumour' }
+        ],
+        st: ['Small homogeneous solid mass.',
+            'Weak enhancement (hypovascular) – may be mistaken for a cyst!',
+            'Slow, gradual enhancement.',
+            'Enhancement rises by > 20 HU from native → solid, not a cyst.',
+            'Always compare native and contrast HU: "enhancement > 15–20 HU" = solid lesion.'],
+        mri: 'MRI: dark T2, low-level gradual enhancement.', key: 'Malignant: hypovascular, slow progressive enhancement – compare with the native phase.' }
+];
+function lsHU(arr, u) { var x = u * 4, i = Math.min(3, Math.floor(x)), f = x - i; return arr[i] + (arr[i + 1] - arr[i]) * f; }
+function lsG(hu) { var v = (hu - (60 - 190)) / 380; v = Math.max(0, Math.min(1, v)); var g = Math.round(v * 255); return 'rgb(' + g + ',' + g + ',' + g + ')'; }
+function lsScreen(L, u) {
+    var cx = 210, cy = 160, R = L.r * 1.6, bg = lsHU(LS_BG[L.org], u), s = '';
+    s += '<rect width="420" height="320" fill="#000"/>';
+    if (L.org === 'liver') {
+        s += '<path d="M30 70 Q90 20 260 30 Q390 40 395 120 Q385 220 280 260 Q160 300 70 250 Q20 200 30 70 Z" fill="' + lsG(bg) + '"' + (L.cirr ? ' stroke="' + lsG(bg) + '" stroke-width="10" stroke-dasharray="6 14"' : '') + '/>';
+        s += '<path d="M300 60 C 320 120 330 170 300 230" stroke="' + lsG(lsHU([40, 70, 185, 115, 95], u)) + '" stroke-width="12" fill="none"/>';
+        s += '<circle cx="370" cy="270" r="20" fill="' + lsG(lsHU(LS_AO, u)) + '"/><text x="370" y="304" class="ls-t" text-anchor="middle">aorta</text>';
+        s += '<text x="40" y="290" class="ls-t">liver' + (L.cirr ? ' (cirrhotic)' : '') + '</text>';
+    }
+    else {
+        var cor = lsHU([35, 190, 165, 140, 120], u), med = lsHU([35, 60, 120, 140, 120], u), uri = lsHU([5, 5, 5, 20, 900], u), sin = -80;
+        s += '<path d="M220 30 C 330 30 375 110 368 175 C 360 250 300 295 220 292 C 150 290 100 255 102 215 C 138 205 140 125 102 112 C 108 65 160 30 220 30 Z" fill="' + lsG(cor) + '"/>';
+        s += '<path d="M200 95 C 160 100 140 130 140 160 C 140 190 160 220 200 225 L 150 175 L 150 145 Z" fill="' + lsG(sin) + '"/>';
+        [[225, 75, -60], [290, 95, -25], [315, 160, 0], [290, 225, 25], [225, 250, 60], [205, 160, 0]].slice(0, 5).forEach(function (p) { s += '<path d="M' + p[0] + ' ' + p[1] + ' l 22 -14 l 10 30 z" fill="' + lsG(med) + '" transform="rotate(' + p[2] + ' ' + p[0] + ' ' + p[1] + ')"/>'; });
+        s += '<path d="M150 150 C 130 155 115 160 100 165 L 40 250 L 52 256 L 108 180 C 125 175 140 172 152 172 Z" fill="' + lsG(uri) + '"/><text x="22" y="282" class="ls-t">pelvis → ureter</text>';
+        s += '<circle cx="385" cy="28" r="18" fill="' + lsG(lsHU(LS_AO, u)) + '"/><text x="385" y="60" class="ls-t" text-anchor="middle">aorta</text>';
+        s += '<text x="250" y="312" class="ls-t">kidney (cortex, pyramids, sinus fat)</text>';
+        cx = 285;
+        cy = 120;
+    }
+    var labs = [];
+    L.parts.forEach(function (p, pi) {
+        var c = lsG(lsHU(p.hu, u));
+        if (p.k === 'disc') {
+            s += '<circle cx="' + cx + '" cy="' + cy + '" r="' + (R * p.r) + '" fill="' + c + '"/>';
+            labs.push([cx, cy, p.n]);
+        }
+        else if (p.k === 'halo') {
+            s += '<circle cx="' + cx + '" cy="' + cy + '" r="' + (R * p.r) + '" fill="' + c + '"/>';
+            labs.push([cx - R * 1.15, cy, p.n]);
+        }
+        else if (p.k === 'ring') {
+            var w = R * p.w;
+            s += '<circle cx="' + cx + '" cy="' + cy + '" r="' + (R * p.r - w / 2) + '" fill="none" stroke="' + c + '" stroke-width="' + w + '"/>';
+            labs.push([cx + R * 0.7, cy - R * 0.7, p.n]);
+        }
+        else if (p.k === 'fill') {
+            var f = lsHU(p.f, u);
+            if (f > 0.01) {
+                var rin = R * (1 - f);
+                s += '<circle cx="' + cx + '" cy="' + cy + '" r="' + ((R + rin) / 2) + '" fill="none" stroke="' + c + '" stroke-width="' + (R - rin) + '"' + (f < 0.7 ? ' stroke-dasharray="' + (R * 0.5) + ' ' + (R * 0.35) + '"' : '') + '/>';
+            }
+            labs.push([cx - R * 0.5, cy + R * 0.6, p.n]);
+        }
+        else if (p.k === 'nod') {
+            var on = u > 0.12 && u < 0.6;
+            if (on)
+                for (var i = 0; i < 7; i++) {
+                    var a = i * 0.9;
+                    s += '<circle cx="' + (cx + R * 0.86 * Math.cos(a)) + '" cy="' + (cy + R * 0.86 * Math.sin(a)) + '" r="' + (R * 0.13) + '" fill="' + c + '"/>';
+                }
+            labs.push([cx + R * 0.86, cy, p.n]);
+        }
+        else if (p.k === 'scar') {
+            var r2 = R * p.r;
+            s += '<path d="M' + cx + ' ' + (cy - r2) + ' L' + (cx + r2 * 0.3) + ' ' + (cy - r2 * 0.3) + ' L' + (cx + r2) + ' ' + cy + ' L' + (cx + r2 * 0.3) + ' ' + (cy + r2 * 0.3) + ' L' + cx + ' ' + (cy + r2) + ' L' + (cx - r2 * 0.3) + ' ' + (cy + r2 * 0.3) + ' L' + (cx - r2) + ' ' + cy + ' L' + (cx - r2 * 0.3) + ' ' + (cy - r2 * 0.3) + ' Z" fill="' + c + '"/>';
+            labs.push([cx, cy, p.n]);
+        }
+        else if (p.k === 'spots') {
+            [[-0.4, -0.3], [0.35, 0.2], [-0.1, 0.45]].forEach(function (q) { s += '<circle cx="' + (cx + q[0] * R) + '" cy="' + (cy + q[1] * R) + '" r="' + (R * p.r * 0.55) + '" fill="' + c + '"/>'; });
+            labs.push([cx + 0.35 * R, cy + 0.2 * R, p.n]);
+        }
+    });
+    s += '<circle cx="' + cx + '" cy="' + cy + '" r="' + (R * 1.3) + '" fill="transparent" data-act="lsLab" class="ls-hit"/>';
+    if (LS.lab)
+        labs.forEach(function (l, i) { var ty = 20 + i * 22, tx = 10; s += '<line x1="' + l[0] + '" y1="' + l[1] + '" x2="' + (tx + 160) + '" y2="' + (ty - 4) + '" class="ls-ll"/><text x="' + tx + '" y="' + ty + '" class="ls-lb">' + h(l[2]) + '</text>'; });
+    return s;
+}
+function lsCurve(L, u) {
+    var W = 380, H = 150, x0 = 36, y0 = 10, X = function (t) { return x0 + t * (W - x0 - 10); }, Y = function (hu) { return y0 + (1 - (Math.max(-100, Math.min(350, hu)) + 100) / 450) * (H - 30); };
+    var line = function (arr, col, dash) { var d = ''; for (var i = 0; i <= 40; i++) {
+        var t = i / 40;
+        d += (i ? ' L' : 'M') + X(t).toFixed(1) + ' ' + Y(lsHU(arr, t)).toFixed(1);
+    } return '<path d="' + d + '" stroke="' + col + '" stroke-width="2.5" fill="none"' + (dash ? ' stroke-dasharray="5 4"' : '') + '/>'; };
+    var main = L.parts.filter(function (p) { return p.k === 'fill' || p.k === 'ring' || p.k === 'disc'; });
+    var lesArr = L.id === 'hem' ? [40, 120, 120, 112, 100] : L.parts[0].k === 'halo' ? L.parts[2].hu : main[0].hu;
+    var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" class="ls-curve">';
+    [0, 100, 200, 300].forEach(function (v) { s += '<line x1="' + x0 + '" x2="' + (W - 10) + '" y1="' + Y(v) + '" y2="' + Y(v) + '" class="ls-grid"/><text x="2" y="' + (Y(v) + 4) + '" class="ls-ax">' + v + '</text>'; });
+    LS_PH.forEach(function (p, i) { s += '<text x="' + X(i / 4) + '" y="' + (H - 4) + '" text-anchor="middle" class="ls-ax">' + p.split(' ')[0] + '</text>'; });
+    s += line(LS_AO, '#e57373', true) + line(LS_BG[L.org], '#90a4ae') + line(lesArr, '#ffd54f');
+    s += '<line x1="' + X(u) + '" x2="' + X(u) + '" y1="' + y0 + '" y2="' + (H - 18) + '" class="ls-cur"/></svg>';
+    return s + '<div class="ls-leg"><span style="color:#ffd54f">━ lesion</span><span style="color:#90a4ae">━ ' + (L.org === 'liver' ? 'liver' : 'renal cortex') + '</span><span style="color:#e57373">┅ aorta</span> <span class="muted">(HU)</span></div>';
+}
+function lsDyn(L) {
+    var u = LS.u, ph = Math.round(u * 4);
+    return { scr: lsScreen(L, u), cur: lsCurve(L, u), ph: ph };
+}
+function atStory() {
+    var groups = [['Liver – benign', function (l) { return l.org === 'liver' && l.b; }], ['Liver – malignant', function (l) { return l.org === 'liver' && !l.b; }], ['Kidney – benign', function (l) { return l.org === 'kidney' && l.b; }], ['Kidney – malignant', function (l) { return l.org === 'kidney' && !l.b; }]];
+    var pick = '<div class="card ls-pick">' + groups.map(function (g) { return '<div><span class="muted small">' + g[0] + '</span><div class="parts">' + LS_L.filter(g[1]).map(function (l) { return '<a href="#" class="chip' + (LS.id === l.id ? ' on' : '') + '" data-act="lsPick" data-id="' + l.id + '">' + h(l.n) + '</a>'; }).join('') + '</div></div>'; }).join('') + '</div>';
+    if (!LS.id)
+        return pick + '<div class="card"><p class="muted">Choose a lesion: the contrast is injected and the film runs by itself – native → arterial → portal → delayed – while the story explains what happens in the lesion at each moment, and why. Tap the lesion to label its parts.</p></div>';
+    var L = LS_L.filter(function (l) { return l.id === LS.id; })[0], D = lsDyn(L);
+    return pick + '<div class="ls-wrap"><div class="ls-con"><div class="ls-head"><b>' + h(L.n) + '</b> <span class="tag ' + (L.b ? 'ok' : 'no') + '">' + (L.b ? 'BENIGN' : 'MALIGNANT') + '</span><span class="grow"></span><span id="lsPh" class="ls-ph">' + LS_PH[D.ph] + ' · ' + LS_T[D.ph] + '</span></div>' +
+        '<svg viewBox="0 0 420 320" class="ls-scr" id="lsScr">' + D.scr + '</svg>' +
+        '<div class="ls-ctl"><button class="btn sm primary" data-act="lsPlay">' + (LS.play ? '❚❚ Pause' : '▶ Play') + '</button><button class="btn sm" data-act="lsRe">↺ Restart</button>' +
+        '<input type="range" min="0" max="1000" value="' + Math.round(LS.u * 1000) + '" data-lsu="1" class="ls-rng">' +
+        '<button class="btn sm' + (LS.speed === 0.5 ? ' primary' : '') + '" data-act="lsSp" data-id="0.5">slow</button><button class="btn sm' + (LS.speed === 1 ? ' primary' : '') + '" data-act="lsSp" data-id="1">normal</button><button class="btn sm' + (LS.lab ? ' primary' : '') + '" data-act="lsLab">Label the lesion</button></div>' +
+        '<div class="ls-steps">' + LS_PH.map(function (p, i) { return '<a href="#" class="ls-st' + (i === D.ph ? ' on' : '') + '" data-act="lsGo" data-id="' + i + '">' + p + '</a>'; }).join('') + '</div></div>' +
+        '<div class="card ls-story"><h3>What is happening?</h3><p id="lsTxt" class="ls-txt">' + h(L.st[D.ph]) + '</p><div id="lsCur">' + D.cur + '</div>' +
+        '<p class="small"><b>The whole story:</b> ' + h(L.key) + '</p><p class="small muted">' + h(L.mri) + '</p>' +
+        '<details><summary>All phases in text</summary><ol class="small">' + L.st.map(function (t, i) { return '<li><b>' + LS_PH[i] + ':</b> ' + h(t) + '</li>'; }).join('') + '</ol></details></div></div>';
+}
+function lsUpdate() {
+    var L = LS_L.filter(function (l) { return l.id === LS.id; })[0], scr = document.getElementById('lsScr');
+    if (!L || !scr) {
+        lsStop();
+        return;
+    }
+    var D = lsDyn(L);
+    scr.innerHTML = D.scr;
+    document.getElementById('lsCur').innerHTML = D.cur;
+    document.getElementById('lsTxt').textContent = L.st[D.ph];
+    document.getElementById('lsPh').textContent = LS_PH[D.ph] + ' · ' + LS_T[D.ph];
+    var r = document.querySelector('[data-lsu]');
+    if (r)
+        r.value = Math.round(LS.u * 1000);
+    var st = document.querySelectorAll('.ls-st');
+    for (var i = 0; i < st.length; i++)
+        st[i].className = 'ls-st' + (i === D.ph ? ' on' : '');
+}
+function lsStop() { if (LS.timer)
+    clearInterval(LS.timer); LS.timer = null; LS.play = false; }
+function lsStart() {
+    lsStop();
+    LS.play = true;
+    var last = Date.now();
+    LS.timer = setInterval(function () {
+        var now = Date.now(), dt = (now - last) / 1000;
+        last = now;
+        var ph = LS.u * 4, near = Math.abs(ph - Math.round(ph)) < 0.04;
+        LS.u += dt * LS.speed * (near ? 0.025 : 0.07);
+        if (LS.u >= 1) {
+            LS.u = 1;
+            lsUpdate();
+            lsStop();
+            render();
+            return;
+        }
+        lsUpdate();
+    }, 60);
+}
+function lsAct(act, el, id) {
+    switch (act) {
+        case 'lsPick':
+            LS.id = id;
+            LS.u = 0;
+            LS.lab = false;
+            render();
+            lsStart();
+            return;
+        case 'lsPlay':
+            if (LS.play)
+                lsStop();
+            else {
+                if (LS.u >= 1)
+                    LS.u = 0;
+                lsStart();
+            }
+            break;
+        case 'lsRe':
+            LS.u = 0;
+            lsStart();
+            break;
+        case 'lsSp':
+            LS.speed = +id;
+            break;
+        case 'lsLab':
+            LS.lab = !LS.lab;
+            break;
+        case 'lsGo':
+            lsStop();
+            LS.u = +id / 4;
+            break;
+    }
+    render();
+    if (LS.play) { /* keep timer */ }
+}
+document.addEventListener('input', function (ev) { var t = ev.target; if (t && t.getAttribute && t.getAttribute('data-lsu')) {
+    lsStop();
+    LS.u = +t.value / 1000;
+    lsUpdate();
+    var b = document.querySelector('[data-act=lsPlay]');
+    if (b)
+        b.textContent = '▶ Play';
+} });
 /* ---------- Surgery visual atlas: data ---------- */
 var SA_REG = {
     rh: { n: 'Right hypochondrium', x: 0, y: 0, dx: [
@@ -2444,6 +2767,10 @@ function xAct(act, el, id) {
     if (/^em/.test(act)) {
         if (window.emAct)
             emAct(act, el, id);
+        return;
+    }
+    if (/^ls/.test(act)) {
+        lsAct(act, el, id);
         return;
     }
     var X = CASE && CASE.ix;
@@ -3868,7 +4195,7 @@ document.addEventListener('click', function (ev) {
     var act = el.getAttribute('data-act'), id = el.getAttribute('data-id');
     if (el.tagName === 'A' || el.tagName === 'BUTTON')
         ev.preventDefault();
-    if (/^(sa|cx|em)[A-Z]/.test(act) && window.xAct) {
+    if (/^(sa|cx|em|ls)[A-Z]/.test(act) && window.xAct) {
         xAct(act, el, id);
         return;
     }
