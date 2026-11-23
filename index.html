@@ -102,6 +102,40 @@ h2.ch{margin:0 0 4px;font-size:21px}details.pm{margin-top:8px}details.pm>summary
 @media (max-width:900px){.grid4>.card{width:calc(50% - 14px)}.cards>.card{width:calc(50% - 14px)}}
 @media (max-width:760px){#top{display:block}#side{position:fixed;left:-260px;top:0;z-index:40;-webkit-transition:left .2s;transition:left .2s;box-shadow:0 0 30px rgba(0,0,0,.25)}#side.open{left:0}
 #main{padding:14px}.grid2>.card,.cards>.card{width:calc(100% - 14px)}.grid4>.card{width:calc(50% - 14px)}.checks label{width:100%}.gloss dt{float:none;width:auto}.gloss dd{margin-left:0}.page-h .save-pill{float:none;margin-top:6px}}
+
+.atlas{--rx:#0b0f14;--rx2:#141b24;--rxl:#273241;--rxt:#e6edf5;--rxm:#8fa1b5;--rxa:#ffd23f}
+.atlas .rxgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(440px,1fr));gap:14px;margin-top:12px}
+.atlas .rxcard{background:var(--rx);color:var(--rxt);border:1px solid var(--rxl);border-radius:14px;padding:12px;margin-bottom:14px}
+.atlas .rxcard.wide{grid-column:1/-1}.atlas .rxhead{margin-bottom:8px;font-size:15px}.atlas .rxhead b{color:#fff}
+.atlas .rxrow{display:grid;grid-template-columns:140px 1fr;gap:10px;align-items:start}
+.atlas .rxpic svg{width:140px;height:110px;display:block}
+.atlas .pic-bg{fill:var(--rx2)}.atlas .pic-bone{fill:#cfd8e3}.atlas .pic-marrow{fill:#8d9bab}.atlas .pic-thin{fill-opacity:.55}.atlas .pic-hl{stroke:#5ec2ff;stroke-width:2.5;fill:none}
+.atlas .pic-acc{fill:var(--rxa);stroke:var(--rxa)}.atlas .pic-dense{fill:#fff}.atlas .pic-dark{fill:#1d2733}.atlas .pic-ring{stroke:#cfd8e3;stroke-width:3}.atlas .pic-soft{fill:#6d7c8d}.atlas .pic-fat{fill:#f4e9c8}
+.atlas .pic-bar{fill:#f2f5f9}.atlas .pic-red{stroke:#ff5b5b}.atlas .pic-t{fill:var(--rxm);font-size:10px}
+.atlas .rximg{position:relative;display:inline-block;max-width:100%;line-height:0;background:#000;border-radius:8px;overflow:hidden}.atlas .rximg img{display:block;max-width:100%;max-height:380px;width:auto;height:auto}
+.atlas .ovw{position:absolute;inset:0;opacity:0;transition:opacity .25s;pointer-events:none}.atlas .ovw.on{opacity:1}
+.atlas .ovw svg{position:absolute;inset:0;width:100%;height:100%}
+.atlas .ov{fill:none;stroke:var(--rxa);stroke-width:2.5px;vector-effect:non-scaling-stroke;filter:drop-shadow(0 0 2px #000)}.atlas .ov-dot{fill:var(--rxa)}
+.atlas .ov-lab{position:absolute;line-height:1.2;background:rgba(0,0,0,.78);color:var(--rxa);font-size:12px;font-weight:700;padding:2px 6px;border-radius:6px;max-width:46%;white-space:normal}
+.atlas .rxfoot{margin-top:8px}.atlas .rxfoot p{color:var(--rxt);font-size:13.5px;margin:8px 0 0}.atlas .rxfoot p.blur{filter:blur(5px);user-select:none}
+.atlas .rxpanels{display:flex;gap:10px;flex-wrap:wrap}.atlas .rxpanels figure{flex:1 1 220px;margin:0;background:var(--rx2);border-radius:10px;padding:8px}
+.atlas .rxpanels img{width:100%;border-radius:6px;display:block}.atlas .rxtech{color:var(--rxa);font-weight:800;margin-bottom:6px}.atlas figcaption{color:var(--rxt);font-size:13px;margin-top:6px}
+.atlas .rxnote{color:var(--rxm);font-size:13.5px;margin:10px 2px 0}
+.atlas .rxconsole{display:grid;grid-template-columns:minmax(300px,560px) 1fr;gap:14px;background:var(--rx);border-radius:14px;padding:14px;color:var(--rxt)}
+.atlas .rxscreen{position:relative}.atlas .phantom{width:100%;display:block;border-radius:8px;background:#000}.atlas .tis{cursor:pointer}.atlas .tis.sel{stroke:var(--rxa);stroke-width:2}
+.atlas .ph-t{fill:var(--rxa);font-size:14px;font-weight:700}.atlas .rxread{margin-top:8px;font-family:ui-monospace,Menlo,monospace;color:var(--rxa);min-height:22px}
+.atlas .rxctrl .chip{background:var(--rx2);color:var(--rxt);border-color:var(--rxl)}.atlas .rxctrl .chip.on{background:var(--rxa);color:#000}.atlas .rxctrl ul{padding-left:18px}.atlas .rxctrl .muted{color:var(--rxm)}
+.atlas .rng{display:block;margin:10px 0}.atlas .rng input{width:100%}.atlas .rng b{color:var(--rxa)}.atlas .phgrid{display:flex;flex-wrap:wrap;gap:4px}
+.atlas .rxbone{display:grid;grid-template-columns:minmax(280px,420px) 1fr;gap:14px}.atlas .bonemap{width:100%}.atlas .zone{cursor:pointer}.atlas .zone path,.atlas .zone rect{fill:#2a3644;stroke:#5b6b7d;stroke-width:2}
+.atlas .zone.on path,.atlas .zone.on rect{fill:#7a5c00;stroke:var(--rxa)}.atlas .zone text{fill:#fff;font-size:14px;font-weight:700;pointer-events:none}.atlas .physis{stroke:#5ec2ff;stroke-dasharray:5 4;stroke-width:2}.atlas .bonemap .lbl{fill:var(--rxm)}
+.atlas .bitem{display:grid;grid-template-columns:150px 1fr;gap:10px;margin:10px 0;padding-bottom:10px;border-bottom:1px solid var(--rxl)}.atlas .bitem img{width:150px;border-radius:6px}.atlas .noimg{width:150px;height:90px;border-radius:6px;background:var(--rx2);color:var(--rxm);display:flex;align-items:center;justify-content:center;font-size:12px}
+.atlas .bitem .muted{color:var(--rxm)}
+.atlas .pairs{display:grid;grid-template-columns:1fr 1fr;gap:12px}.atlas .pairfig{position:relative;display:block;background:var(--rx);border:3px solid var(--rxl);border-radius:12px;padding:8px;text-decoration:none;color:var(--rxt)}
+.atlas .pairfig img{width:100%;border-radius:6px;display:block}.atlas .pairfig .pl{position:absolute;top:12px;left:14px;background:var(--rxa);color:#000;font-weight:800;border-radius:6px;padding:2px 8px}
+.atlas .pairfig .pc{display:block;margin-top:6px;font-weight:700}.atlas .pairfig.ok{border-color:#2e9d5b}.atlas .pairfig.bad{border-color:#d9534f}
+.atlas .row{display:flex;gap:18px;align-items:center;flex-wrap:wrap}.atlas .bonemap text{font-size:15px}.atlas .card.ok{border-left:5px solid #2e9d5b}.atlas .examq{text-align:center}.atlas .examq img{max-width:100%;max-height:70vh;border-radius:8px}.atlas .examq p{color:var(--rxm)}
+.atlas .examans img{max-width:100%;border-radius:8px}.atlas .timer{font-family:ui-monospace,Menlo,monospace;font-size:20px;font-weight:800}.atlas .timer.low{color:#d9534f}
+@media(max-width:760px){.atlas .rxgrid{grid-template-columns:1fr}.atlas .rxrow{grid-template-columns:1fr}.atlas .rxpic svg{width:100%;height:auto;max-width:220px}.atlas .rxconsole,.atlas .rxbone{grid-template-columns:1fr}.atlas .bitem{grid-template-columns:100px 1fr}.atlas .bitem img,.atlas .noimg{width:100px}}
 </style>
 </head>
 <body>
@@ -1012,6 +1046,308 @@ Object.assign(DRAW, {
     kidneyLargeSmall: function () { return grid('Kidney size: think of the cause', 'Size', 'Side', ['LARGE kidney (> 13 cm)', 'SMALL kidney (< 9 cm)'], ['Unilateral', 'Bilateral'], [[['Hydronephrosis, tumour, acute pyelonephritis, renal vein thrombosis, compensatory hypertrophy, duplex kidney', 0], ['Polycystic disease, acute glomerulonephritis, amyloidosis, diabetes (early), lymphoma, HIV nephropathy', 0]],
         [['Renal artery stenosis (smooth), chronic pyelonephritis (scars), hypoplasia, post-obstructive atrophy, TB', 1], ['Nephrosclerosis, chronic glomerulonephritis, chronic interstitial nephritis, end-stage kidney', 1]]], 'Smooth small kidney = vascular/hypoplasia · irregular scarred = pyelonephritis/TB'); },
 });
+/* ================= Visual atlas (radiology): annotated signs, same disease × techniques, imaging console, bone map, spot the difference, timed practical exam ================= */
+var ATAB = 'signs', AT = { lec: '', show: {}, zone: 'metaphysis', mode: 'window', L: 40, W: 400, phase: 0, seq: 0, tis: null, pair: 0, pans: null, pscore: [0, 0], ex: null };
+var ATABS = [['signs', '◎ Signs on real images'], ['multi', '▥ One disease, several techniques'], ['console', '◐ Imaging console'], ['bone', '⟂ Bone map'], ['pairs', '⇄ Spot the difference'], ['exam', '⏱ Practical exam (timed)']];
+function atlasData() {
+    if (APP.atlas)
+        return APP.atlas;
+    if (!APP.atlasL) {
+        APP.atlasL = 1;
+        getJSON(SUBJ[APP.subj].base + 'atlas.json').then(function (d) { APP.atlas = d; APP.atlasL = 0; if (VIEW.name === 'atlas')
+            render(); }).catch(function () { APP.atlasL = 0; toast('Could not load the atlas – check your connection.'); });
+    }
+    return null;
+}
+function atImg(id) { var d = APP.atlas; return d && d.img[id] ? d.img[id] : ''; }
+/* ---------- pictograms: the sign reduced to its essence ---------- */
+function picto(k) {
+    var o = function (body, lab) { return "<svg class=\"pic\" viewBox=\"0 0 140 110\" xmlns=\"".concat(SVGNS, "\"><rect width=\"140\" height=\"110\" rx=\"10\" class=\"pic-bg\"/>").concat(body).concat(lab ? "<text x=\"70\" y=\"104\" text-anchor=\"middle\" class=\"pic-t\">".concat(esc(lab), "</text>") : '', "</svg>"); };
+    var bone = function (x) { return "<rect x=\"".concat(x, "\" y=\"6\" width=\"34\" height=\"88\" rx=\"6\" class=\"pic-bone\"/><rect x=\"").concat(x + 9, "\" y=\"6\" width=\"16\" height=\"88\" class=\"pic-marrow\"/>"); };
+    var vert = function (y) { return "<rect x=\"45\" y=\"".concat(y, "\" width=\"50\" height=\"22\" rx=\"4\" class=\"pic-bone\"/>"); };
+    var P = {
+        codman: o(bone(53) + "<path d=\"M87 30 Q115 34 118 58 Q112 70 87 72\" class=\"pic-hl\" fill=\"none\"/><path d=\"M87 72 L100 80 L87 84 Z\" class=\"pic-acc\"/><path d=\"M87 30 L100 24 L87 20 Z\" class=\"pic-acc\"/>", 'triangles at the edges'),
+        sunburst: o(bone(53) + Array.from({ length: 9 }, function (_, i) { return "<line x1=\"87\" y1=\"".concat(28 + i * 5, "\" x2=\"").concat(112 + (i % 2) * 6, "\" y2=\"").concat(22 + i * 6, "\" class=\"pic-acc\" stroke-width=\"2\"/>"); }).join(''), 'spicules ⟂ cortex'),
+        onion: o(bone(53) + [0, 1, 2, 3].map(function (i) { return "<line x1=\"".concat(90 + i * 5, "\" y1=\"22\" x2=\"").concat(90 + i * 5, "\" y2=\"78\" class=\"pic-acc\" stroke-width=\"2\"/><line x1=\"").concat(50 - i * 5, "\" y1=\"22\" x2=\"").concat(50 - i * 5, "\" y2=\"78\" class=\"pic-acc\" stroke-width=\"2\"/>"); }).join(''), 'parallel layers'),
+        nidus: o(bone(53) + "<ellipse cx=\"85\" cy=\"50\" rx=\"10\" ry=\"18\" class=\"pic-dense\"/><circle cx=\"85\" cy=\"50\" r=\"5\" class=\"pic-dark\"/>", 'lucent nidus + sclerosis'),
+        fluidfluid: o("<rect x=\"25\" y=\"20\" width=\"90\" height=\"62\" rx=\"20\" class=\"pic-bone\"/>" + [[45, 40], [72, 52], [95, 40]].map(function (p) { return "<circle cx=\"".concat(p[0], "\" cy=\"").concat(p[1], "\" r=\"13\" class=\"pic-dark\"/><path d=\"M").concat(p[0] - 13, " ").concat(p[1], " A13 13 0 0 0 ").concat(p[0] + 13, " ").concat(p[1], " Z\" class=\"pic-acc\"/>"); }).join(''), 'horizontal levels'),
+        ivory: o(vert(8) + "<rect x=\"45\" y=\"38\" width=\"50\" height=\"22\" rx=\"4\" class=\"pic-acc\"/>" + vert(68), 'one vertebra all white'),
+        bamboo: o([8, 38, 68].map(function (y) { return vert(y); }).join('') + "<path d=\"M45 12 Q40 50 45 88 M95 12 Q100 50 95 88\" class=\"pic-acc\" fill=\"none\" stroke-width=\"3\"/>", 'vertical bridges'),
+        dagger: o([8, 38, 68].map(function (y) { return vert(y); }).join('') + "<line x1=\"70\" y1=\"4\" x2=\"70\" y2=\"94\" class=\"pic-acc\" stroke-width=\"4\"/><line x1=\"52\" y1=\"4\" x2=\"52\" y2=\"94\" class=\"pic-hl\" stroke-width=\"2\"/><line x1=\"88\" y1=\"4\" x2=\"88\" y2=\"94\" class=\"pic-hl\" stroke-width=\"2\"/>", 'dagger + trolley track'),
+        heberden: o("<rect x=\"58\" y=\"10\" width=\"24\" height=\"24\" rx=\"5\" class=\"pic-bone\"/><rect x=\"58\" y=\"40\" width=\"24\" height=\"26\" rx=\"5\" class=\"pic-bone\"/><rect x=\"58\" y=\"72\" width=\"24\" height=\"22\" rx=\"5\" class=\"pic-bone\"/><path d=\"M58 36 L50 38 L58 40 M82 36 L90 38 L82 40 M58 67 L50 69 L58 71 M82 67 L90 69 L82 71\" class=\"pic-acc\" stroke-width=\"3\" fill=\"none\"/>", 'DIP / PIP osteophytes'),
+        erosionRA: o("<rect x=\"40\" y=\"8\" width=\"60\" height=\"40\" rx=\"12\" class=\"pic-bone pic-thin\"/><rect x=\"40\" y=\"56\" width=\"60\" height=\"38\" rx=\"12\" class=\"pic-bone pic-thin\"/><circle cx=\"42\" cy=\"46\" r=\"5\" class=\"pic-dark\"/><circle cx=\"98\" cy=\"46\" r=\"5\" class=\"pic-dark\"/>", 'marginal erosions, osteopenia'),
+        oa: o("<path d=\"M30 10 L110 10 L110 40 Q70 52 30 40 Z\" class=\"pic-bone\"/><path d=\"M30 92 L110 92 L110 62 Q70 54 30 62 Z\" class=\"pic-bone\"/><path d=\"M110 40 L120 46 L110 46 M30 40 L20 46 L30 46\" class=\"pic-acc\" stroke-width=\"3\" fill=\"none\"/><path d=\"M40 44 Q70 54 100 44\" class=\"pic-hl\" fill=\"none\"/>", 'narrowing + osteophytes'),
+        punched: o("<circle cx=\"70\" cy=\"52\" r=\"44\" class=\"pic-bone pic-thin\"/>" + [[50, 38], [80, 32], [65, 62], [90, 60], [45, 66]].map(function (p) { return "<circle cx=\"".concat(p[0], "\" cy=\"").concat(p[1], "\" r=\"6\" class=\"pic-dark\"/>"); }).join(''), 'round holes, no rim'),
+        exostosis: o(bone(40) + "<path d=\"M74 40 L104 22 L108 30 L74 52 Z\" class=\"pic-acc\"/>", 'points away from joint'),
+        popcorn: o("<ellipse cx=\"70\" cy=\"50\" rx=\"44\" ry=\"34\" class=\"pic-thin pic-bone\"/>" + [[50, 40], [70, 34], [86, 48], [62, 60], [80, 66]].map(function (p) { return "<circle cx=\"".concat(p[0], "\" cy=\"").concat(p[1], "\" r=\"6\" fill=\"none\" class=\"pic-acc\" stroke-width=\"2.5\"/>"); }).join(''), 'rings & arcs'),
+        sequestrum: o(bone(53) + "<rect x=\"78\" y=\"22\" width=\"18\" height=\"56\" rx=\"5\" class=\"pic-dense\"/><rect x=\"62\" y=\"40\" width=\"10\" height=\"20\" rx=\"3\" class=\"pic-dark\"/><rect x=\"64\" y=\"44\" width=\"6\" height=\"12\" class=\"pic-acc\"/>", 'thick cortex ± sequestrum'),
+        horseshoe: o("<path d=\"M35 15 Q30 70 62 88 Q70 92 78 88 Q110 70 105 15 L88 15 Q92 62 70 72 Q48 62 52 15 Z\" class=\"pic-soft\"/><line x1=\"70\" y1=\"10\" x2=\"70\" y2=\"96\" class=\"pic-hl\" stroke-dasharray=\"3 3\"/>", 'lower poles joined'),
+        cobra: o("<ellipse cx=\"70\" cy=\"62\" rx=\"52\" ry=\"34\" class=\"pic-soft\"/><circle cx=\"52\" cy=\"54\" r=\"10\" class=\"pic-dark pic-ring\"/><circle cx=\"88\" cy=\"54\" r=\"10\" class=\"pic-dark pic-ring\"/><path d=\"M52 44 L48 10 M88 44 L92 10\" class=\"pic-acc\" stroke-width=\"3\"/>", 'cobra head + halo'),
+        hydro: o("<ellipse cx=\"70\" cy=\"52\" rx=\"38\" ry=\"46\" class=\"pic-soft\"/><ellipse cx=\"74\" cy=\"54\" rx=\"16\" ry=\"14\" class=\"pic-dark\"/>" + [[56, 30], [58, 74], [52, 52]].map(function (p) { return "<circle cx=\"".concat(p[0], "\" cy=\"").concat(p[1], "\" r=\"8\" class=\"pic-dark\"/>"); }).join('') + "<line x1=\"88\" y1=\"60\" x2=\"104\" y2=\"100\" class=\"pic-hl\" stroke-width=\"2\"/>", 'dilated pelvis & calyces'),
+        cysts: o("<ellipse cx=\"45\" cy=\"52\" rx=\"28\" ry=\"44\" class=\"pic-soft\"/><ellipse cx=\"97\" cy=\"52\" rx=\"28\" ry=\"44\" class=\"pic-soft\"/>" + [[40, 30], [50, 55], [38, 72], [92, 32], [102, 56], [94, 76]].map(function (p) { return "<circle cx=\"".concat(p[0], "\" cy=\"").concat(p[1], "\" r=\"9\" class=\"pic-dark\"/>"); }).join(''), 'innumerable cysts'),
+        fat: o("<ellipse cx=\"70\" cy=\"52\" rx=\"48\" ry=\"40\" class=\"pic-soft\"/><circle cx=\"70\" cy=\"52\" r=\"18\" class=\"pic-fat\"/>", 'fat = specific'),
+        calcs: o("<ellipse cx=\"45\" cy=\"52\" rx=\"26\" ry=\"40\" class=\"pic-soft\"/><ellipse cx=\"97\" cy=\"52\" rx=\"26\" ry=\"40\" class=\"pic-soft\"/>" + [[40, 40], [48, 55], [42, 66], [92, 42], [100, 56], [94, 66]].map(function (p) { return "<circle cx=\"".concat(p[0], "\" cy=\"").concat(p[1], "\" r=\"3.5\" class=\"pic-acc\"/>"); }).join(''), 'fine calcifications'),
+        nodes: o("<circle cx=\"70\" cy=\"62\" r=\"11\" class=\"pic-bone\"/><circle cx=\"70\" cy=\"38\" r=\"8\" class=\"pic-soft\"/>" + [[50, 34], [90, 34], [54, 52], [86, 50]].map(function (p) { return "<circle cx=\"".concat(p[0], "\" cy=\"").concat(p[1], "\" r=\"8\" class=\"pic-acc\"/>"); }).join(''), 'nodes around the aorta'),
+        birdbeak: o("<path d=\"M45 4 L95 4 L95 60 Q82 78 72 96 L68 96 Q58 78 45 60 Z\" class=\"pic-bar\"/><line x1=\"45\" y1=\"30\" x2=\"95\" y2=\"30\" class=\"pic-hl\" stroke-width=\"2\"/>", 'short smooth beak'),
+        stricture: o("<path d=\"M52 4 L88 4 L88 30 Q76 50 76 96 L64 96 Q64 50 52 30 Z\" class=\"pic-bar\"/>", 'long, smooth, axial'),
+        malign: o("<path d=\"M55 4 L85 4 L85 40 L80 42 L78 50 L82 56 L80 62 L85 64 L85 96 L55 96 L55 64 L68 60 L66 50 L68 44 L55 40 Z\" class=\"pic-bar\"/>", 'short, irregular, shouldered'),
+        addition: o("<rect x=\"55\" y=\"4\" width=\"30\" height=\"92\" class=\"pic-bar\"/><path d=\"M85 36 Q110 32 108 50 Q104 62 85 60 Z\" class=\"pic-bar\"/>", 'outpouching = addition'),
+        target: o("<rect x=\"10\" y=\"10\" width=\"120\" height=\"86\" rx=\"8\" class=\"pic-soft\"/><circle cx=\"70\" cy=\"52\" r=\"26\" class=\"pic-dark\"/><circle cx=\"70\" cy=\"52\" r=\"15\" class=\"pic-bone\"/>", 'halo + bright centre'),
+        spoke: o("<rect x=\"10\" y=\"10\" width=\"120\" height=\"86\" rx=\"8\" class=\"pic-soft\"/><circle cx=\"70\" cy=\"52\" r=\"30\" class=\"pic-thin pic-bone\"/>" + Array.from({ length: 8 }, function (_, i) { return "<line x1=\"70\" y1=\"52\" x2=\"".concat(70 + 27 * Math.cos(i * Math.PI / 4), "\" y2=\"").concat(52 + 27 * Math.sin(i * Math.PI / 4), "\" class=\"pic-red\" stroke-width=\"2.5\"/>"); }).join(''), 'central artery → spokes'),
+        waterlily: o("<circle cx=\"70\" cy=\"52\" r=\"40\" class=\"pic-dark\"/><path d=\"M40 50 Q55 30 70 52 Q85 72 100 48\" class=\"pic-acc\" fill=\"none\" stroke-width=\"3\"/>", 'floating membrane'),
+        fillin: o([0, 1, 2].map(function (i) { return "<circle cx=\"".concat(28 + i * 42, "\" cy=\"50\" r=\"17\" class=\"pic-dark\"/>") + (i === 0 ? [0, 1, 2, 3].map(function (k) { return "<circle cx=\"".concat(28 + 14 * Math.cos(k * 1.57), "\" cy=\"").concat(50 + 14 * Math.sin(k * 1.57), "\" r=\"4\" class=\"pic-acc\"/>"); }).join('') : i === 1 ? "<circle cx=\"70\" cy=\"50\" r=\"17\" fill=\"none\" class=\"pic-acc\" stroke-width=\"8\"/>" : "<circle cx=\"112\" cy=\"50\" r=\"17\" class=\"pic-acc\"/>"); }).join('') + "<text x=\"28\" y=\"82\" text-anchor=\"middle\" class=\"pic-t\">art</text><text x=\"70\" y=\"82\" text-anchor=\"middle\" class=\"pic-t\">portal</text><text x=\"112\" y=\"82\" text-anchor=\"middle\" class=\"pic-t\">late</text>", 'centripetal fill-in')
+    };
+    return P[k] || o('', '');
+}
+/* ---------- annotated image ---------- */
+function atOverlay(s, on) {
+    var sh = s.shapes.map(function (x) {
+        if (x[0] === 'e')
+            return "<ellipse cx=\"".concat(x[1], "\" cy=\"").concat(x[2], "\" rx=\"").concat(x[3], "\" ry=\"").concat(x[4], "\" class=\"ov\"/>");
+        if (x[0] === 'r')
+            return "<rect x=\"".concat(x[1], "\" y=\"").concat(x[2], "\" width=\"").concat(x[3], "\" height=\"").concat(x[4], "\" class=\"ov\"/>");
+        if (x[0] === 'l')
+            return "<line x1=\"".concat(x[1], "\" y1=\"").concat(x[2], "\" x2=\"").concat(x[3], "\" y2=\"").concat(x[4], "\" class=\"ov\"/>");
+        return "<line x1=\"".concat(x[1], "\" y1=\"").concat(x[2], "\" x2=\"").concat(x[3], "\" y2=\"").concat(x[4], "\" class=\"ov\"/><circle cx=\"").concat(x[3], "\" cy=\"").concat(x[4], "\" r=\"1.2\" class=\"ov-dot\"/>");
+    }).join('');
+    var labs = s.shapes.filter(function (x) { return x[5]; }).map(function (x) {
+        var lx = x[1];
+        var ly = x[0] === 'e' ? Math.max(2, x[2] - x[4] - 7) : x[0] === 'r' ? Math.max(2, x[2] - 7) : x[0] === 'a' ? x[2] - 6 : x[2] - 6;
+        return "<span class=\"ov-lab\" style=\"left:".concat(Math.min(80, Math.max(0, lx - 10)), "%;top:").concat(Math.max(0, ly), "%\">").concat(h(x[5]), "</span>");
+    }).join('');
+    return "<div class=\"rximg\"><img src=\"".concat(atImg(s.img), "\" alt=\"\"><div class=\"ovw").concat(on ? ' on' : '', "\"><svg viewBox=\"0 0 100 100\" preserveAspectRatio=\"none\">").concat(sh, "</svg>").concat(labs, "</div></div>");
+}
+function atSigns(d) {
+    var L = APP.core.lectures.filter(function (l) { return d.signs.some(function (s) { return s.lec === l.id; }); });
+    var list = d.signs.filter(function (s) { return !AT.lec || s.lec === AT.lec; });
+    return "<div class=\"card\"><p class=\"muted small\">Find the sign yourself on the real exam image, then press <b>Show the sign</b> to reveal the annotations. Left: the sign drawn as a pictogram \u2013 what you must recognise.</p>\n  <div class=\"parts\"><a href=\"#\" class=\"chip".concat(!AT.lec ? ' on' : '', "\" data-act=\"atLec\" data-id=\"\">All (").concat(d.signs.length, ")</a>").concat(L.map(function (l) { return "<a href=\"#\" class=\"chip".concat(AT.lec === l.id ? ' on' : '', "\" data-act=\"atLec\" data-id=\"").concat(l.id, "\">").concat(h(l.title.split(':')[0]), " (").concat(d.signs.filter(function (s) { return s.lec === l.id; }).length, ")</a>"); }).join(''), "\n  <a href=\"#\" class=\"chip\" data-act=\"atAll\" data-id=\"1\">Show all signs</a><a href=\"#\" class=\"chip\" data-act=\"atAll\" data-id=\"0\">Hide all</a></div></div>\n  <div class=\"rxgrid\">").concat(list.map(function (s) { return "<div class=\"rxcard\"><div class=\"rxhead\"><b>".concat(h(s.name), "</b></div><div class=\"rxrow\"><div class=\"rxpic\">").concat(picto(s.picto), "</div>").concat(atOverlay(s, AT.show[s.id]), "</div>\n  <div class=\"rxfoot\"><button class=\"btn sm ").concat(AT.show[s.id] ? '' : 'primary', "\" data-act=\"atShow\" data-id=\"").concat(s.id, "\">").concat(AT.show[s.id] ? 'Hide the sign' : 'Show the sign', "</button><p class=\"").concat(AT.show[s.id] ? '' : 'blur', "\">").concat(h(s.text), "</p></div></div>"); }).join(''), "</div>");
+}
+function atMulti(d) {
+    return "<div class=\"card\"><p class=\"muted small\">The same disease seen with each technique: learn why it is white here and black there, and which exam answers the question.</p></div>" +
+        d.multi.map(function (m) { return "<div class=\"rxcard wide\"><div class=\"rxhead\"><b>".concat(h(m.title), "</b></div><div class=\"rxpanels\">").concat(m.panels.map(function (p) { return "<figure><div class=\"rxtech\">".concat(h(p.tech), "</div><img src=\"").concat(atImg(p.img), "\" alt=\"\"><figcaption>").concat(h(p.cap), "</figcaption></figure>"); }).join(''), "</div><p class=\"rxnote\">").concat(h(m.note), "</p></div>"); }).join('');
+}
+/* ---------- imaging console: synthetic abdominal slice ---------- */
+var TIS = {
+    air: ['Air', [-1000, -1000, -1000, -1000, -1000], [0, 0, 0, 0]], fat: ['Fat', [-100, -100, -100, -100, -100], [.95, .8, .08, .1]], muscle: ['Muscle', [50, 55, 60, 60, 60], [.35, .22, .35, .42]],
+    liver: ['Liver', [60, 72, 115, 95, 85], [.55, .28, .55, .78]], spleen: ['Spleen', [48, 125, 118, 95, 85], [.4, .55, .4, .7]], cortex: ['Renal cortex', [35, 190, 165, 140, 120], [.45, .55, .45, .82]], medulla: ['Renal medulla', [35, 60, 165, 140, 120], [.38, .62, .38, .8]],
+    urine: ['Urine / collecting system', [5, 5, 5, 20, 900], [.1, .95, .1, .1]], aorta: ['Aorta', [40, 320, 165, 115, 95], [.1, .05, .1, .92]], ivc: ['IVC', [40, 65, 150, 115, 95], [.1, .05, .1, .85]], portal: ['Portal vein', [40, 70, 185, 115, 95], [.1, .05, .1, .88]],
+    cortbone: ['Cortical bone', [1000, 1000, 1000, 1000, 1000], [0, 0, 0, 0]], marrow: ['Vertebral body (cancellous bone / marrow)', [250, 255, 260, 260, 260], [.75, .55, .15, .25]], bile: ['Gallbladder (bile)', [5, 5, 5, 5, 5], [.15, .95, .12, .15]],
+    stone: ['Kidney stone', [700, 700, 700, 700, 900], [0, 0, 0, 0]], gas: ['Bowel gas', [-1000, -1000, -1000, -1000, -1000], [0, 0, 0, 0]], bowel: ['Bowel content (fluid)', [10, 10, 10, 10, 10], [.15, .9, .12, .2]],
+    cyst: ['Liver cyst', [5, 5, 5, 5, 5], [.1, .97, .1, .1]], hemcore: ['Haemangioma', [40, 45, 95, 118, 112], [.25, .95, .25, .85]], hemnod: ['Haemangioma – peripheral nodules', [40, 290, 180, 125, 112], [.25, .95, .25, .95]],
+    hcc: ['HCC', [45, 165, 62, 50, 48], [.4, .6, .4, .5]], met: ['Metastasis', [38, 48, 60, 68, 68], [.3, .7, .3, .45]]
+};
+var PH = ['Native', 'Arterial (25–35 s)', 'Portal venous (60–70 s)', 'Nephrographic / delayed (90 s–3 min)', 'Excretory (5–10 min)'], SEQ = ['T1', 'T2', 'T1 fat-sat', 'T1 + gadolinium'];
+var WPRE = [['Soft tissue', 40, 400], ['Liver', 60, 150], ['Lung', -600, 1500], ['Bone', 400, 2000]];
+function atGrey(t) {
+    var T = TIS[t];
+    var v;
+    if (AT.mode === 'mri')
+        v = T[2][AT.seq];
+    else {
+        var hu = AT.mode === 'phase' ? T[1][AT.phase] : T[1][0];
+        var L = AT.mode === 'phase' ? 60 : AT.L, W = AT.mode === 'phase' ? 380 : AT.W;
+        v = (hu - (L - W / 2)) / W;
+    }
+    v = Math.max(0, Math.min(1, v));
+    var g = Math.round(v * 255);
+    return "rgb(".concat(g, ",").concat(g, ",").concat(g, ")");
+}
+function atPhantom() {
+    var f = function (t) { return "fill=\"".concat(atGrey(t), "\" data-act=\"atTis\" data-id=\"").concat(t, "\" class=\"tis").concat(AT.tis === t ? ' sel' : '', "\""); };
+    var ring = function (cx, cy, rx, ry, t1, t2, w) { return "<ellipse cx=\"".concat(cx, "\" cy=\"").concat(cy, "\" rx=\"").concat(rx, "\" ry=\"").concat(ry, "\" ").concat(f(t1), "/><ellipse cx=\"").concat(cx, "\" cy=\"").concat(cy, "\" rx=\"").concat(rx - w, "\" ry=\"").concat(ry - w, "\" ").concat(f(t2), "/>"); };
+    return "<svg viewBox=\"0 0 400 300\" class=\"phantom\" xmlns=\"".concat(SVGNS, "\"><rect width=\"400\" height=\"300\" ").concat(f('air'), "/>\n  <ellipse cx=\"200\" cy=\"152\" rx=\"188\" ry=\"132\" ").concat(f('fat'), "/><ellipse cx=\"200\" cy=\"150\" rx=\"168\" ry=\"112\" ").concat(f('muscle'), "/><ellipse cx=\"200\" cy=\"150\" rx=\"158\" ry=\"102\" ").concat(f('fat'), "/>\n  <path d=\"M60 110 Q70 60 150 52 Q200 50 205 90 Q200 140 150 150 Q110 190 70 175 Q50 150 60 110 Z\" ").concat(f('liver'), "/>\n  <ellipse cx=\"150\" cy=\"128\" rx=\"14\" ry=\"9\" ").concat(f('bile'), "/><path d=\"M150 90 Q170 95 185 100\" stroke-width=\"7\" fill=\"none\" stroke=\"").concat(atGrey('portal'), "\" data-act=\"atTis\" data-id=\"portal\" class=\"tis\"/>\n  <circle cx=\"95\" cy=\"95\" r=\"11\" ").concat(f('cyst'), "/><circle cx=\"120\" cy=\"70\" r=\"14\" ").concat(f('hemcore'), "/>").concat([0, 1, 2, 3, 4].map(function (i) { return "<circle cx=\"".concat(120 + 11 * Math.cos(i * 1.26), "\" cy=\"").concat(70 + 11 * Math.sin(i * 1.26), "\" r=\"3.6\" ").concat(f('hemnod'), "/>"); }).join(''), "\n  <circle cx=\"82\" cy=\"135\" r=\"13\" ").concat(f('hcc'), "/><circle cx=\"178\" cy=\"70\" r=\"10\" ").concat(f('met'), "/>\n  <path d=\"M290 70 Q340 75 345 120 Q330 150 300 140 Q280 110 290 70 Z\" ").concat(f('spleen'), "/>\n  <circle cx=\"250\" cy=\"105\" r=\"18\" ").concat(f('bowel'), "/><path d=\"M232 105 A18 18 0 0 1 268 105 Z\" ").concat(f('gas'), "/><circle cx=\"215\" cy=\"70\" r=\"12\" ").concat(f('gas'), "/>\n  ").concat(ring(135, 205, 24, 34, 'cortex', 'medulla', 7)).concat(ring(268, 205, 24, 34, 'cortex', 'medulla', 7), "<ellipse cx=\"148\" cy=\"205\" rx=\"8\" ry=\"12\" ").concat(f('urine'), "/><ellipse cx=\"255\" cy=\"205\" rx=\"8\" ry=\"12\" ").concat(f('urine'), "/><circle cx=\"125\" cy=\"192\" r=\"4\" ").concat(f('stone'), "/>\n  <circle cx=\"205\" cy=\"190\" r=\"11\" ").concat(f('aorta'), "/><ellipse cx=\"180\" cy=\"192\" rx=\"12\" ry=\"9\" ").concat(f('ivc'), "/>\n  <circle cx=\"200\" cy=\"228\" r=\"22\" ").concat(f('cortbone'), "/><circle cx=\"200\" cy=\"228\" r=\"18\" ").concat(f('marrow'), "/><path d=\"M188 248 L180 272 L220 272 L212 248 Z\" ").concat(f('cortbone'), "/>\n  <ellipse cx=\"160\" cy=\"255\" rx=\"22\" ry=\"14\" ").concat(f('muscle'), "/><ellipse cx=\"240\" cy=\"255\" rx=\"22\" ry=\"14\" ").concat(f('muscle'), "/>\n  <text x=\"12\" y=\"22\" class=\"ph-t\">R</text><text x=\"380\" y=\"22\" class=\"ph-t\">L</text></svg>");
+}
+function atConsole() {
+    var t = AT.tis && TIS[AT.tis];
+    var val = t ? (AT.mode === 'mri' ? "".concat(SEQ[AT.seq], " signal: ").concat(['very dark', 'dark', 'intermediate', 'bright', 'very bright'][Math.min(4, Math.floor(t[2][AT.seq] * 5))]) : "".concat((AT.mode === 'phase' ? t[1][AT.phase] : t[1][0]), " HU")) : 'tap a structure';
+    var ctrl = AT.mode === 'window' ? "<div class=\"parts\">".concat(WPRE.map(function (w) { return "<a href=\"#\" class=\"chip".concat(AT.L === w[1] && AT.W === w[2] ? ' on' : '', "\" data-act=\"atWin\" data-id=\"").concat(w[1], ",").concat(w[2], "\">").concat(w[0], " (L ").concat(w[1], " / W ").concat(w[2], ")</a>"); }).join(''), "</div>\n    <label class=\"rng\">Level (centre) <b>").concat(AT.L, " HU</b><input type=\"range\" min=\"-800\" max=\"800\" step=\"10\" value=\"").concat(AT.L, "\" data-atl=\"L\"></label><label class=\"rng\">Width <b>").concat(AT.W, " HU</b><input type=\"range\" min=\"50\" max=\"2500\" step=\"10\" value=\"").concat(AT.W, "\" data-atl=\"W\"></label>\n    <p class=\"muted small\">Everything below <b>L \u2212 W/2</b> is black, everything above <b>L + W/2</b> is white; the window only changes the DISPLAY, the HU values stay the same. Narrow window = high contrast (liver lesions); wide window = bone or lung.</p>")
+        : AT.mode === 'phase' ? "<label class=\"rng\">Contrast phase: <b>".concat(PH[AT.phase], "</b><input type=\"range\" min=\"0\" max=\"4\" step=\"1\" value=\"").concat(AT.phase, "\" data-atl=\"phase\"></label>\n    <div class=\"phgrid\">").concat(PH.map(function (p, i) { return "<a href=\"#\" class=\"chip".concat(AT.phase === i ? ' on' : '', "\" data-act=\"atPhase\" data-id=\"").concat(i, "\">").concat(p.split(' (')[0], "</a>"); }).join(''), "</div>\n    <ul class=\"small\"><li><b>Arterial</b>: aorta white, renal CORTEX separate from medulla, HCC lights up, haemangioma = peripheral nodules.</li><li><b>Portal</b>: liver brightest \u2192 metastases dark, HCC washes out.</li><li><b>Delayed</b>: haemangioma filled in; kidney homogeneous (nephrographic).</li><li><b>Excretory</b>: contrast in the collecting system (CT urography). Cysts never enhance.</li></ul>")
+            : "<div class=\"parts\">".concat(SEQ.map(function (s, i) { return "<a href=\"#\" class=\"chip".concat(AT.seq === i ? ' on' : '', "\" data-act=\"atSeq\" data-id=\"").concat(i, "\">").concat(s, "</a>"); }).join(''), "</div>\n    <ul class=\"small\"><li><b>T1</b>: fat bright, fluid dark \u2013 anatomy.</li><li><b>T2</b>: fluid bright (cysts, bile, urine, haemangioma \"light bulb\"), flowing blood black (flow void).</li><li><b>Fat-sat</b>: fat turns dark \u2192 proves a lesion contains fat.</li><li><b>Gadolinium</b>: vascular/enhancing tissue brightens; cysts stay dark.</li><li>Cortical bone, calcium, air: black on every sequence.</li></ul>");
+    return "<div class=\"card\"><div class=\"parts\">".concat([['window', 'CT window'], ['phase', 'CT contrast phases'], ['mri', 'MRI sequences']].map(function (m) { return "<a href=\"#\" class=\"chip".concat(AT.mode === m[0] ? ' on' : '', "\" data-act=\"atMode\" data-id=\"").concat(m[0], "\">").concat(m[1], "</a>"); }).join(''), "</div>\n  <p class=\"muted small\">A schematic axial slice of the upper abdomen (liver with cyst, haemangioma, HCC and metastasis; kidneys with a stone; aorta, IVC, spine). Move the controls and tap any structure to read its value.</p></div>\n  <div class=\"rxconsole\"><div class=\"rxscreen\">").concat(atPhantom(), "<div class=\"rxread\"><b>").concat(t ? h(t[0]) : '', "</b> ").concat(h(val), "</div></div><div class=\"rxctrl\">").concat(ctrl, "</div></div>");
+}
+/* ---------- bone map ---------- */
+function atBone(d) {
+    var z = function (id, el) { return "<g data-act=\"atZone\" data-id=\"".concat(id, "\" class=\"zone").concat(AT.zone === id ? ' on' : '', "\">").concat(el, "</g>"); };
+    var map = "<svg viewBox=\"0 0 420 380\" class=\"bonemap\" xmlns=\"".concat(SVGNS, "\">\n   ").concat(z('epiphysis', "<path d=\"M60 20 Q100 0 140 20 L140 60 L60 60 Z\"/><text x=\"100\" y=\"45\" text-anchor=\"middle\">Epiphysis</text>"), "\n   <line x1=\"60\" y1=\"64\" x2=\"140\" y2=\"64\" class=\"physis\"/><text x=\"146\" y=\"68\" class=\"lbl sm\">physis</text>\n   ").concat(z('metaphysis', "<path d=\"M60 68 L140 68 L128 130 L72 130 Z\"/><text x=\"100\" y=\"104\" text-anchor=\"middle\">Metaphysis</text>"), "\n   ").concat(z('diaphysis', "<rect x=\"72\" y=\"134\" width=\"56\" height=\"200\" rx=\"6\"/><text x=\"100\" y=\"240\" text-anchor=\"middle\" transform=\"rotate(-90 100 240)\">Diaphysis</text>"), "\n   ").concat(z('spine', "<rect x=\"250\" y=\"20\" width=\"90\" height=\"34\" rx=\"6\"/><rect x=\"250\" y=\"62\" width=\"90\" height=\"34\" rx=\"6\"/><text x=\"295\" y=\"120\" text-anchor=\"middle\">Spine</text>"), "\n   ").concat(z('flat', "<path d=\"M240 150 Q295 130 350 150 Q370 200 330 230 Q295 250 260 230 Q225 200 240 150 Z\"/><text x=\"295\" y=\"200\" text-anchor=\"middle\">Pelvis / skull</text>"), "\n   ").concat(z('hand', "<rect x=\"262\" y=\"270\" width=\"16\" height=\"70\" rx=\"6\"/><rect x=\"286\" y=\"262\" width=\"16\" height=\"78\" rx=\"6\"/><rect x=\"310\" y=\"270\" width=\"16\" height=\"70\" rx=\"6\"/><text x=\"295\" y=\"365\" text-anchor=\"middle\">Hand</text>"), "</svg>");
+    var it = d.bonemap[AT.zone] || [];
+    return "<div class=\"card\"><p class=\"muted small\">Location + age = half of the diagnosis of a bone lesion. Tap a zone.</p></div><div class=\"rxbone\"><div class=\"rxcard\">".concat(map, "</div><div class=\"rxcard\"><div class=\"rxhead\"><b>").concat(h(AT.zone[0].toUpperCase() + AT.zone.slice(1)), "</b></div>").concat(it.map(function (x) { return "<div class=\"bitem\">".concat(x.img ? "<img src=\"".concat(atImg(x.img), "\" alt=\"\">") : '<div class="noimg">no image</div>', "<div><b>").concat(h(x.n), "</b><div class=\"muted small\">").concat(h(x.age), "</div><div class=\"small\">").concat(h(x.key), "</div></div></div>"); }).join(''), "</div></div>");
+}
+/* ---------- spot the difference ---------- */
+function atPairs(d) {
+    var p = d.pairs[AT.pair % d.pairs.length];
+    var ans = AT.pans;
+    var fig = function (side, v) { return "<a href=\"#\" class=\"pairfig".concat(ans ? (p.ok === side ? ' ok' : ans === side ? ' bad' : '') : '', "\" data-act=\"atPick\" data-id=\"").concat(side, "\"><span class=\"pl\">").concat(side, "</span><img src=\"").concat(atImg(v[0]), "\" alt=\"\">").concat(ans ? "<span class=\"pc\">".concat(h(v[1]), "</span>") : '', "</a>"); };
+    return "<div class=\"card\"><div class=\"row\" style=\"justify-content:space-between\"><b>".concat(AT.pair % d.pairs.length + 1, " / ").concat(d.pairs.length, "</b><span class=\"muted\">Score ").concat(AT.pscore[0], " / ").concat(AT.pscore[1], "</span></div><h2 class=\"ch\">").concat(h(p.q), "</h2></div>\n  <div class=\"pairs\">").concat(fig('A', p.a)).concat(fig('B', p.b), "</div>").concat(ans ? "<div class=\"card ".concat(ans === p.ok ? 'ok' : 'trap', "\"><b>").concat(ans === p.ok ? '✓ Correct' : '✗ Not this one', "</b><p>").concat(h(p.ex), "</p><button class=\"btn primary\" data-act=\"atNext\">Next pair \u2192</button></div>") : '');
+}
+/* ---------- timed practical exam ---------- */
+var ATT = null;
+function atExam() {
+    var E = AT.ex;
+    if (!E) {
+        var T = (APP.xidx && APP.xidx.topics) || {};
+        return "<div class=\"card\"><h2 class=\"ch\">Practical exam simulation</h2><p>One image at a time, against the clock, exactly like the projection part of the exam: name the <b>technique</b>, describe the <b>findings</b>, give the <b>diagnosis</b> \u2013 then compare with the answer.</p>\n    <div class=\"row\"><label>Chapter <select id=\"atxT\" class=\"inp\"><option value=\"\">All chapters</option>".concat(Object.keys(T).map(function (t) { return "<option value=\"".concat(t, "\">").concat(h((APP.lById[t] || {}).title || t), "</option>"); }).join(''), "</select></label>\n    <label>Time per image <select id=\"atxS\" class=\"inp\"><option>60</option><option selected>90</option><option>120</option></select> s</label>\n    <label>Images <select id=\"atxN\" class=\"inp\"><option>10</option><option selected>15</option><option>20</option></select></label></div>\n    <button class=\"btn primary\" data-act=\"atStart\">Start the exam</button></div>");
+    }
+    if (E.loading)
+        return "<div class=\"card\"><p class=\"muted\">Loading images\u2026</p></div>";
+    if (E.i >= E.cards.length)
+        return "<div class=\"card center\"><h2>Done \u2013 ".concat(E.ok, " / ").concat(E.cards.length, " recognised</h2><p class=\"muted\">Review the missed ones in Flashcards \u2192 image decks.</p><button class=\"btn primary\" data-act=\"atStart\">Again</button> <button class=\"btn\" data-act=\"atReset\">Settings</button></div>");
+    var c = E.cards[E.i];
+    return "<div class=\"card\"><div class=\"row\" style=\"justify-content:space-between\"><b>Image ".concat(E.i + 1, " / ").concat(E.cards.length, "</b><span class=\"timer").concat(E.rev ? '' : ' run', "\" id=\"atTimer\">").concat(E.rev ? '–' : E.left + ' s', "</span><span class=\"muted\">\u2713 ").concat(E.ok, "</span></div></div>\n  <div class=\"rxcard wide examq\">").concat(c.q, "</div>\n  <div class=\"card\">").concat(E.rev ? "<div class=\"examans\">".concat(c.a, "</div><div class=\"row\"><button class=\"btn primary\" data-act=\"atGrade\" data-id=\"1\">\u2713 I had it</button><button class=\"btn\" data-act=\"atGrade\" data-id=\"0\">\u2717 Missed</button></div>") : "<textarea id=\"atxA\" class=\"inp\" rows=\"3\" placeholder=\"Technique \u00B7 findings \u00B7 diagnosis (just for you \u2013 compare with the answer)\"></textarea><button class=\"btn primary\" data-act=\"atReveal\">Reveal the answer</button>", "</div>");
+}
+function atTick() {
+    if (ATT)
+        clearInterval(ATT);
+    ATT = setInterval(function () {
+        var E = AT.ex;
+        if (!E || E.rev || VIEW.name !== 'atlas' || ATAB !== 'exam') {
+            clearInterval(ATT);
+            ATT = null;
+            return;
+        }
+        E.left--;
+        var el = document.getElementById('atTimer');
+        if (el) {
+            el.textContent = E.left + ' s';
+            if (E.left <= 10)
+                el.className = 'timer run low';
+        }
+        if (E.left <= 0) {
+            E.rev = true;
+            clearInterval(ATT);
+            ATT = null;
+            render();
+        }
+    }, 1000);
+}
+function atStart() {
+    var sel = document.getElementById('atxT');
+    var t = sel ? sel.value : ((AT.ex && AT.ex.topic) || '');
+    var s = +((document.getElementById('atxS') || {}).value || (AT.ex && AT.ex.sec) || 90), n = +((document.getElementById('atxN') || {}).value || (AT.ex && AT.ex.n) || 15);
+    var tops = t ? [t] : Object.keys((APP.xidx && APP.xidx.topics) || {});
+    var topic = t;
+    AT.ex = { loading: true, sec: s, n: n, topic: topic };
+    render();
+    Promise.all(tops.map(function (x) { return getJSON('data/cards/radiology-' + x + '.json').catch(function () { return []; }); })).then(function (rs) {
+        var all = [].concat.apply([], rs).filter(function (c) { return c.q && c.q.indexOf('<img') >= 0; });
+        for (var i = all.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var k = all[i];
+            all[i] = all[j];
+            all[j] = k;
+        }
+        AT.ex = { cards: all.slice(0, n), i: 0, ok: 0, sec: s, n: n, left: s, rev: false, topic: topic };
+        render();
+        atTick();
+    });
+}
+function vAtlas() {
+    var d = atlasData();
+    var body = !d ? "<div class=\"card\"><p class=\"muted\">Loading the atlas\u2026</p></div>" : ATAB === 'signs' ? atSigns(d) : ATAB === 'multi' ? atMulti(d) : ATAB === 'console' ? atConsole() : ATAB === 'bone' ? atBone(d) : ATAB === 'pairs' ? atPairs(d) : atExam();
+    return "<div class=\"page-h\"><h1>Visual atlas</h1><p class=\"muted\">Recognise on the image \u2013 not a mind map, not an algorithm: real exam pictures, annotated signs and an interactive console.</p>\n  <div class=\"tabs\">".concat(ATABS.map(function (t) { return "<a href=\"#\" class=\"tab".concat(ATAB === t[0] ? ' on' : '', "\" data-act=\"atTab\" data-id=\"").concat(t[0], "\">").concat(t[1], "</a>"); }).join(''), "</div></div><div class=\"atlas\">").concat(body, "</div>");
+}
+function atlasAct(act, el, id) {
+    switch (act) {
+        case 'atTab':
+            ATAB = id;
+            track('atlas:' + id);
+            render();
+            return true;
+        case 'atLec':
+            AT.lec = id;
+            render();
+            return true;
+        case 'atShow':
+            AT.show[id] = !AT.show[id];
+            render();
+            return true;
+        case 'atAll':
+            (APP.atlas ? APP.atlas.signs : []).forEach(function (s) { AT.show[s.id] = id === '1'; });
+            render();
+            return true;
+        case 'atMode':
+            AT.mode = id;
+            render();
+            return true;
+        case 'atWin': {
+            var v = id.split(',');
+            AT.L = +v[0];
+            AT.W = +v[1];
+            render();
+            return true;
+        }
+        case 'atPhase':
+            AT.phase = +id;
+            render();
+            return true;
+        case 'atSeq':
+            AT.seq = +id;
+            render();
+            return true;
+        case 'atTis':
+            AT.tis = id;
+            render();
+            return true;
+        case 'atZone':
+            AT.zone = id;
+            render();
+            return true;
+        case 'atPick':
+            if (!AT.pans) {
+                AT.pans = id;
+                var p = APP.atlas.pairs[AT.pair % APP.atlas.pairs.length];
+                AT.pscore[1]++;
+                if (id === p.ok)
+                    AT.pscore[0]++;
+                render();
+            }
+            return true;
+        case 'atNext':
+            AT.pair++;
+            AT.pans = null;
+            render();
+            return true;
+        case 'atStart':
+            atStart();
+            return true;
+        case 'atReset':
+            AT.ex = null;
+            render();
+            return true;
+        case 'atReveal':
+            AT.ex.rev = true;
+            render();
+            return true;
+        case 'atGrade': {
+            var E = AT.ex;
+            if (+id)
+                E.ok++;
+            E.i++;
+            E.rev = false;
+            E.left = E.sec;
+            render();
+            if (E.i < E.cards.length)
+                atTick();
+            return true;
+        }
+    }
+    return false;
+}
+document.addEventListener('input', function (ev) {
+    var k = ev.target && ev.target.getAttribute && ev.target.getAttribute('data-atl');
+    if (!k)
+        return;
+    AT[k] = +ev.target.value;
+    var scr = document.querySelector('.rxscreen');
+    if (scr) {
+        var keep = ev.target;
+        scr.innerHTML = atPhantom() + "<div class=\"rxread\"><b>".concat(AT.tis ? h(TIS[AT.tis][0]) : '', "</b></div>");
+        var lab = keep.parentNode.querySelector('b');
+        if (lab)
+            lab.textContent = k === 'phase' ? PH[AT.phase] : AT[k] + ' HU';
+    }
+});
+document.addEventListener('change', function (ev) { if (ev.target && ev.target.getAttribute && ev.target.getAttribute('data-atl'))
+    render(); });
 /* General Surgery Study Platform — runs as a Claude artifact (Claude account storage + AI)
    and as a standalone web app (Google sign-in via Firebase, or guest). */
 var APP = { core: null, summary: null };
@@ -1179,7 +1515,7 @@ var MODULES = [
     { id: 'm2', title: 'Ophthalmology – Endocrinology – Diabetes – Haematology – Occupational medicine', subjects: [['ophtha', 'Ophthalmology', 'Oph'], ['endo', 'Endocrinology', 'En'], ['diab', 'Diabetes & nutrition', 'Di'], ['hemato', 'Haematology', 'H'], ['occup', 'Occupational medicine', 'Oc']] },
     { id: 'm0', title: 'General surgery module', subjects: [['surgery', 'General Surgery', '✚']] }
 ];
-var SUBJ = { surgery: { title: 'General Surgery', base: 'data/', book: 'Surgery for Students' }, radiology: { title: 'Radiology', base: 'data/radiology/', book: 'Radiology for Medical Students, vol. I (S. Dudea)' }, ophtha: { title: 'Ophthalmology', base: 'data/ophtha/', book: 'Ophthalmology – new book 2025 (annotated photos)' }, endo: { title: 'Endocrinology', base: 'data/endo/', book: 'Introduction to Endocrinology (I. R. Ilie, Springer 2020)' }, diab: { title: 'Diabetes & nutrition', base: 'data/diab/', book: 'Diabetes, nutrition & metabolic diseases – course book 2025 (scanned)' } };
+var SUBJ = { surgery: { title: 'General Surgery', base: 'data/', book: 'Surgery for Students' }, radiology: { title: 'Radiology', base: 'data/radiology/', atlas: true, book: 'Radiology for Medical Students, vol. I (S. Dudea)' }, ophtha: { title: 'Ophthalmology', base: 'data/ophtha/', book: 'Ophthalmology – new book 2025 (annotated photos)' }, endo: { title: 'Endocrinology', base: 'data/endo/', book: 'Introduction to Endocrinology (I. R. Ilie, Springer 2020)' }, diab: { title: 'Diabetes & nutrition', base: 'data/diab/', book: 'Diabetes, nutrition & metabolic diseases – course book 2025 (scanned)' } };
 function getSubj() { try {
     var v = localStorage.getItem('subj');
     return SUBJ[v] ? v : 'surgery';
@@ -1765,7 +2101,7 @@ function adminUsage(list) {
     var nu = function (k) { return Object.keys(users[k] || {}).length; };
     var rows = function (prefix, label) { return Object.keys(agg).filter(function (k) { return k.indexOf(prefix) === 0; }).sort(function (a, b) { return agg[b] - agg[a]; }).map(function (k) { return "<tr><td>".concat(h(label(k.slice(prefix.length))), "</td><td>").concat(agg[k], "</td><td>").concat(nu(k), "</td></tr>"); }).join(''); };
     var navName = function (n) { var f = NAV.filter(function (x) { return x[0] === n; })[0]; return f ? f[1] : n === 'lesson' ? 'Lesson page' : n === 'run' ? 'MCQ set (running)' : n === 'review' ? 'Set review' : n === 'case' ? 'Clinical case page' : n === 'modules' ? 'Modules & subjects' : n === 'help' ? 'Grading help' : n; };
-    var unused = NAV.filter(function (n) { return n[0] !== 'cases' || APP.core.cases.length; }).filter(function (n) { return !agg['v:' + n[0]]; }).map(function (n) { return n[1]; });
+    var unused = NAV.filter(function (n) { return (n[0] !== 'cases' || APP.core.cases.length) && (n[0] !== 'atlas' || SUBJ[APP.subj].atlas); }).filter(function (n) { return !agg['v:' + n[0]]; }).map(function (n) { return n[1]; });
     var lec = function (k) { return APP.lById[k] ? APP.lById[k].title : k; };
     var tabN = { overview: 'Overview', sheets: 'Pathology sheets', course: 'Full course', book: 'Textbook', visuals: 'Drawings' };
     var deckN = function (k) { var p = k.split(':'), K = (APP.xidx && APP.xidx.kinds) || {}; var kind = p[0] === 'x' ? (p[1] === 'all' ? 'Imported/image cards – all' : (K[p[1]] || p[1])) : ({ std: 'Site cards', mine: 'Handwritten cards', sheets: 'Pathology sheets' }[p[1]] || p[1]); return kind + ' · ' + (p[2] === 'all' || !p[2] ? 'all chapters' : lec(p[2])); };
@@ -1778,7 +2114,7 @@ function adminUsage(list) {
 }
 /* ---------------- shell & routing ---------------- */
 var NAV = [['dash', 'Dashboard', '◉'], ['lessons', 'Lessons', '▤'], ['gallery', 'Mind maps & drawings', '✎'], ['flash', 'Flashcards', '❏'], ['practice', 'Lecture MCQs', '✓'],
-    ['mock', 'Mock exam', '◷'], ['final', 'Final test', '★'], ['papers', 'Past papers', '▦'], ['cases', 'Clinical cases', '✚'], ['mistakes', 'My mistakes', '↺'], ['plan', 'Study planner', '▣']];
+    ['mock', 'Mock exam', '◷'], ['final', 'Final test', '★'], ['papers', 'Past papers', '▦'], ['cases', 'Clinical cases', '✚'], ['mistakes', 'My mistakes', '↺'], ['plan', 'Study planner', '▣'], ['atlas', 'Visual atlas', '◐']];
 function renderShell() {
     $('#login').className = 'hidden';
     $('#shell').className = '';
@@ -1790,7 +2126,7 @@ function renderShell() {
         document.title = ttl + ' – Study Platform';
     }
     catch (e) { }
-    $('#nav').innerHTML = "<a href=\"#modules\" class=\"nav-a subj".concat(VIEW.name === 'modules' ? ' on' : '', "\" data-nav=\"modules\"><span class=\"ni\">\u21C4</span>Modules & subjects</a>") + (isAdmin() ? NAV.concat([['admin', 'Students (admin)', '♛']]) : NAV).filter(function (n) { return n[0] !== 'cases' || APP.core.cases.length; }).map(function (n) { return "<a href=\"#".concat(n[0], "\" class=\"nav-a").concat(VIEW.name === n[0] ? ' on' : '', "\" data-nav=\"").concat(n[0], "\"><span class=\"ni\">").concat(n[2], "</span>").concat(n[1], "</a>"); }).join('') +
+    $('#nav').innerHTML = "<a href=\"#modules\" class=\"nav-a subj".concat(VIEW.name === 'modules' ? ' on' : '', "\" data-nav=\"modules\"><span class=\"ni\">\u21C4</span>Modules & subjects</a>") + (isAdmin() ? NAV.concat([['admin', 'Students (admin)', '♛']]) : NAV).filter(function (n) { return (n[0] !== 'cases' || APP.core.cases.length) && (n[0] !== 'atlas' || SUBJ[APP.subj].atlas); }).map(function (n) { return "<a href=\"#".concat(n[0], "\" class=\"nav-a").concat(VIEW.name === n[0] ? ' on' : '', "\" data-nav=\"").concat(n[0], "\"><span class=\"ni\">").concat(n[2], "</span>").concat(n[1], "</a>"); }).join('') +
         "<div class=\"nav-foot\"><div class=\"save-pill ".concat(STORE ? STORE.mode : '', "\">").concat(h(STORE ? STORE.label : ''), "</div>\n    <button class=\"btn sm\" data-act=\"theme\">\u25D0 Light / dark</button>").concat(S.mode === 'web' ? '<button class="btn sm" data-act="logout">' + (S.guest ? 'Exit guest mode' : 'Sign out') + '</button>' : '', "</div>");
     $('#tutorBtn').style.display = AI ? '' : 'none';
 }
@@ -1815,7 +2151,7 @@ function render() {
         return;
     document.querySelectorAll('.nav-a').forEach(function (a) { return a.className = 'nav-a' + (a.getAttribute('data-nav') === VIEW.name ? ' on' : ''); });
     $('#side').className = '';
-    var fn = { dash: vDash, lessons: vLessons, lesson: vLesson, gallery: vGallery, flash: vFlash, practice: vPractice, run: vRun, review: vReview, mock: vMock, final: vFinal, papers: vPapers, cases: vCases, case: vCase, mistakes: vMistakes, plan: vPlan, help: vHelp, admin: vAdmin, modules: vModules }[VIEW.name] || vDash;
+    var fn = { dash: vDash, lessons: vLessons, lesson: vLesson, gallery: vGallery, flash: vFlash, practice: vPractice, run: vRun, review: vReview, mock: vMock, final: vFinal, papers: vPapers, cases: vCases, case: vCase, mistakes: vMistakes, plan: vPlan, atlas: vAtlas, help: vHelp, admin: vAdmin, modules: vModules }[VIEW.name] || vDash;
     $('#main').innerHTML = fn(VIEW.arg);
     $('#main').scrollTop = 0;
     window.scrollTo(0, 0);
@@ -2349,6 +2685,24 @@ document.addEventListener('click', function (ev) {
             break;
         case 'theme':
             toggleTheme();
+            break;
+        case 'atTab':
+        case 'atLec':
+        case 'atShow':
+        case 'atAll':
+        case 'atMode':
+        case 'atWin':
+        case 'atPhase':
+        case 'atSeq':
+        case 'atTis':
+        case 'atZone':
+        case 'atPick':
+        case 'atNext':
+        case 'atStart':
+        case 'atReset':
+        case 'atReveal':
+        case 'atGrade':
+            atlasAct(act, el, id);
             break;
         case 'menu':
             $('#side').className = $('#side').className === 'open' ? '' : 'open';
