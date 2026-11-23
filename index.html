@@ -136,6 +136,59 @@ h2.ch{margin:0 0 4px;font-size:21px}details.pm{margin-top:8px}details.pm>summary
 .atlas .row{display:flex;gap:18px;align-items:center;flex-wrap:wrap}.atlas .bonemap text{font-size:15px}.atlas .card.ok{border-left:5px solid #2e9d5b}.atlas .examq{text-align:center}.atlas .examq img{max-width:100%;max-height:70vh;border-radius:8px}.atlas .examq p{color:var(--rxm)}
 .atlas .examans img{max-width:100%;border-radius:8px}.atlas .timer{font-family:ui-monospace,Menlo,monospace;font-size:20px;font-weight:800}.atlas .timer.low{color:#d9534f}
 @media(max-width:760px){.atlas .rxgrid{grid-template-columns:1fr}.atlas .rxrow{grid-template-columns:1fr}.atlas .rxpic svg{width:100%;height:auto;max-width:220px}.atlas .rxconsole,.atlas .rxbone{grid-template-columns:1fr}.atlas .bitem{grid-template-columns:100px 1fr}.atlas .bitem img,.atlas .noimg{width:100px}}
+/* interactive cases */
+.cxtabs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.cxsteps{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}.cxsteps span{font-size:12px;padding:4px 10px;border-radius:20px;background:var(--line);color:var(--muted)}.cxsteps span.ok{background:var(--okbg);color:var(--ok)}.cxsteps span.cur{background:var(--pri);color:#fff}
+.cxgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:start}@media(max-width:900px){.cxgrid{grid-template-columns:1fr}}
+.cxchart{position:sticky;top:10px}.cxsec{border-left:4px solid var(--line);padding:2px 12px;margin:0 0 10px}.cxsec p{margin:6px 0 0;line-height:1.5}.cxsec.ex{border-color:#1e88e5}.cxsec.inv{border-color:#f9a825}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:20px;padding:7px 12px;cursor:pointer;font:inherit}.chip.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+.cxopts{display:flex;flex-direction:column;gap:8px;margin:10px 0}.cxo{text-align:left;white-space:normal;line-height:1.35}.cxo.good,.cxt.good{background:var(--okbg)!important;border-color:var(--ok)!important;color:var(--ok)!important}.cxo.bad,.cxt.bad{background:var(--nobg)!important;border-color:var(--no)!important;color:var(--no)!important}.cxo.dim,.cxt.dim{opacity:.55}.cxt.miss{background:var(--warnbg)!important;border-color:var(--warn)!important}
+.cxtests{display:flex;flex-direction:column;gap:6px;margin:10px 0}.cxt{display:flex;gap:8px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:8px 10px;cursor:pointer}.cxt input{margin-top:3px}
+.note.ok{background:var(--okbg);border-color:var(--ok)}
+.teacher.model{border-left:4px solid var(--pri);background:var(--pri2)}.teacher.model p{margin:6px 0 0}
+.s5c .small{display:block;margin:6px 0}
+/* surgery atlas */
+.sat-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.sat-2{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:14px;align-items:start}@media(max-width:900px){.sat-2{grid-template-columns:1fr}}
+.sat svg{width:100%;height:auto;display:block}
+.satmap .torso{fill:#f7e3d4;stroke:#c9a189;stroke-width:2}.satmap .costal{fill:none;stroke:#c9a189;stroke-dasharray:4 4}.satmap .umb{fill:#c9a189}
+.satmap .reg rect{fill:rgba(15,110,110,.06);stroke:#0f6e6e;stroke-width:1.2;cursor:pointer}.satmap .reg:hover rect{fill:rgba(15,110,110,.18)}.satmap .reg.on rect{fill:rgba(15,110,110,.35)}
+.satmap text{font-size:10.5px;fill:#1d2430;pointer-events:none}.satmap .cnt{font-size:10px;fill:#0f6e6e;font-weight:700}.satmap .muted{fill:#667085;font-size:10px}
+.sat-t{width:100%;border-collapse:collapse;font-size:14px}.sat-t td,.sat-t th{border-bottom:1px solid var(--line);padding:6px;vertical-align:top;text-align:left}
+.sat-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-top:12px}
+.csig{cursor:pointer}.csig-h{display:flex;flex-direction:column;gap:2px;margin-bottom:6px}.reg-dot{font-size:11px;color:var(--pri);text-transform:uppercase;letter-spacing:.04em}
+.blur{filter:blur(5px);user-select:none}.ans{color:var(--pri)}
+.rx{border-radius:10px;margin:6px 0}.rxbg{fill:#111}.rx.us .rxbg{fill:#0a0a0a}
+.rx .soft{fill:#555;stroke:none}.rx .dia{fill:none;stroke:#bbb;stroke-width:3}.rx .air{fill:#050505;stroke:#999;stroke-width:1.5}.rx .air.big{stroke-width:3}.rx .air.thin{fill:none;stroke:#050505;stroke-width:4}.rx .air2{fill:#444}.rx .wall{fill:none;stroke:#eee;stroke-width:3}.rx .lvl{stroke:#ddd;stroke-width:2}
+.rx .ba{fill:#eee}.rx .ba.thin{fill:none;stroke:#eee;stroke-width:5}.rx .stone{fill:#ddd}.rx .soft2{fill:#888}
+.rx .usr1{fill:#bbb}.rx .usr2{fill:#333}.rx .usw{fill:#aaa}.rx .usl{fill:#111;stroke:#777;stroke-width:2}.rx .usst{fill:#fff}.rx .shadow{fill:#000}.rx .mem{fill:none;stroke:#ddd;stroke-width:3}.rx .duct{fill:none;stroke:#eee;stroke-width:9;stroke-linecap:round}.rx .mass{fill:#777}
+.rx .ov{display:none}.rsig.on .rx .ov{display:inline}.rx .ov *{fill:none;stroke:#ffd54f;stroke-width:2.5}.rx .ov text{fill:#ffd54f;stroke:none;font-size:11px;font-family:system-ui}.rx .ov .hl{stroke:#ffd54f;stroke-width:3;fill:none}
+.opsvg{background:#fbfaf7;border-radius:10px}[data-theme=dark] .opsvg{background:#20262f}
+.opsvg .pt{fill:none;stroke-width:13;stroke-linecap:round;cursor:pointer}.opsvg .pt.thin{stroke-width:6}.opsvg .pf{stroke:#fff;stroke-width:1.5;cursor:pointer}
+.op-lv.pf{fill:#c98b6b}.op-sp.pf{fill:#9b6fb0}.op-up.pt{stroke:#e9a99b}.op-st.pf{fill:#eeb4a2}.op-sb.pt{stroke:#f1b9a7}.op-co.pt{stroke:#d8a56f}.op-co.pf{fill:#d8a56f}.op-bi.pf{fill:#7fb069}.op-bi.pt{stroke:#5f9a4c}.op-pa.pf{fill:#f2cf6e}
+.opsvg .sel{stroke:#1e88e5!important;fill:#90caf9!important}.opsvg .pt.sel{fill:none!important}.opsvg .good{stroke:#1a7f37!important}.opsvg .pf.good{fill:#81c784!important}.opsvg .miss{stroke:#f9a825!important}.opsvg .pf.miss{fill:#ffe082!important}.opsvg .bad{stroke:#d32f2f!important}.opsvg .pf.bad{fill:#ef9a9a!important}
+.opsvg .pt.good,.opsvg .pt.miss,.opsvg .pt.bad{fill:none!important}
+.opsvg .gone{opacity:.13;stroke-dasharray:4 4}.opsvg .excl{opacity:.45;filter:grayscale(1)}.op-add{fill:none;stroke:#1e88e5;stroke-width:9;stroke-linecap:round;opacity:.85}.op-mk{fill:#fff;stroke:#d32f2f;stroke-width:3}.op-lbl{font-size:11px;font-weight:700;fill:#b71c1c}.op-leg{font-size:11px;fill:#1e88e5}.op-pl{font-size:9px;fill:#6b5a4e;pointer-events:none}[data-theme=dark] .op-pl{fill:#b0a090}.cxsec p{color:var(--ink);font-size:15px}
+.lg{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:middle;margin:0 3px 0 8px}.lg.good{background:#81c784}.lg.miss{background:#ffe082}.lg.bad{background:#ef9a9a}
+.ansvg{background:#fbfaf7;border-radius:10px}[data-theme=dark] .ansvg{background:#20262f}
+.an-liver{fill:#c98b6b}.an-gb{fill:#8bc34a;opacity:.85}.an-duct{fill:none;stroke:#2e7d32;stroke-width:8;stroke-linecap:round}.an-art{fill:none;stroke:#d32f2f;stroke-width:6;stroke-linecap:round}.an-art.thin{stroke-width:3.5}.an-vein{fill:none;stroke:#1565c0;stroke-width:6}.an-tri{fill:rgba(255,193,7,.35);stroke:#f9a825;stroke-width:2;stroke-dasharray:5 3}.an-danger{fill:none;stroke:#ff1744;stroke-width:12;opacity:.4}.an-danger2{fill:rgba(255,23,68,.25);stroke:#ff1744;stroke-width:2}
+.an-lig{stroke:#8d6e63;stroke-width:6;stroke-linecap:round}.an-rect{stroke:#bcaaa4;stroke-width:4;stroke-dasharray:6 4}.an-ring{fill:#fff;stroke:#6d4c41;stroke-width:3}.an-hern{fill:none;stroke:#7b1fa2;stroke-width:6;stroke-dasharray:10 5}.an-hern2{fill:rgba(123,31,162,.3);stroke:#7b1fa2;stroke-width:2}.an-hern3{fill:rgba(0,137,123,.35);stroke:#00897b;stroke-width:2}
+.an-aorta{stroke:#b71c1c;stroke-width:14;stroke-linecap:round}.an-trach{fill:#e0e0e0;stroke:#9e9e9e}.an-thy{fill:#e57373;opacity:.75}.an-nerve{fill:none;stroke:#fbc02d;stroke-width:4}.an-nerve.thin{stroke-width:2.5}.an-para{fill:#ffb74d;stroke:#e65100}
+.an-t{font-size:11px;fill:#37474f}.an-t.b{font-weight:700;fill:#e65100}.an-t.r{fill:#b71c1c;font-weight:600}[data-theme=dark] .an-t{fill:#cfd8dc}
+.tl{display:flex;flex-wrap:wrap;align-items:center;gap:6px}.tl-st{cursor:pointer;border-radius:12px;padding:8px 12px;max-width:190px;font-size:13px;border:2px solid transparent;background:hsl(calc(140 - var(--k)*140),60%,92%);color:#1d2430}.tl-st.on{border-color:var(--pri);box-shadow:0 2px 8px rgba(0,0,0,.15)}.tl-n{display:inline-block;width:20px;height:20px;border-radius:50%;background:#fff;text-align:center;font-size:12px;margin-right:6px}.tl-ar{color:var(--muted)}
+.tl-d{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}.tl-d p{margin:4px 0}@media(max-width:700px){.tl-d{grid-template-columns:1fr}}
+.scrow{display:flex;justify-content:space-between;gap:10px;align-items:center;margin:6px 0}.scrow select{max-width:55%;padding:6px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+.scres{display:flex;gap:14px;align-items:center;padding:14px;border-radius:12px}.scres.ok{background:var(--okbg)}.scres.mid{background:var(--warnbg)}.scres.hi{background:var(--nobg)}.scnum{font-size:42px;font-weight:800;min-width:60px;text-align:center}
+.posvg .po{cursor:pointer}.posvg .po rect{opacity:.75}.posvg .po.on rect,.posvg .po:hover rect{opacity:1;stroke:#000;stroke-width:1.5}.po-n{font-size:12px;fill:var(--ink)}.po-g{stroke:var(--line)}.po-tk{font-size:11px;fill:var(--muted)}
+/* endo metro */
+.em-legend{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}.em-lg{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:20px;padding:6px 11px;cursor:pointer;font:inherit;font-size:13px}.em-lg i{width:22px;height:6px;border-radius:3px;background:var(--c)}.em-lg.on{border-color:var(--c);box-shadow:inset 0 0 0 2px var(--c)}
+.emsvg{max-height:82vh;width:100%}.em-body{fill:#f3e5dc;stroke:#d7b8a5;stroke-width:2}[data-theme=dark] .em-body{fill:#2a2f38;stroke:#465062}
+.em-line{fill:none;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;opacity:.35;cursor:pointer}.em-line.on{stroke-width:8;opacity:1}.em-line.dim{opacity:.08}
+.em-train{stroke:#fff;stroke-width:2}.em-fb{fill:none;stroke:#e53935;stroke-width:2;stroke-dasharray:5 4}.em-fbt{font-size:9px;fill:#e53935;font-weight:600}
+.em-st{cursor:pointer}.em-ic .em-bg{fill:#fff;stroke:#b0bec5;stroke-width:1.5}.em-ic path,.em-ic circle:not(.em-bg),.em-ic ellipse{fill:#cfd8dc;stroke:#78909c;stroke-width:1.2}.em-ic.on .em-bg{stroke:#263238;stroke-width:2.5}.em-ic.on path,.em-ic.on circle:not(.em-bg),.em-ic.on ellipse{fill:#ffcc80;stroke:#e65100}
+.em-on{font-size:9.5px;fill:#455a64}.em-on.on{font-weight:700;fill:#263238}.em-on.dim{opacity:.4}[data-theme=dark] .em-on{fill:#b0bec5}
+.em-hl{font-size:10px;font-weight:700}.em-eff{fill:#d50000;font-weight:800}.em-bad{fill:rgba(213,0,0,.15);stroke:#d50000;stroke-width:2.5;stroke-dasharray:4 3}.em-badt{font-size:16px}
+.em-stops{padding-left:20px}.em-stops li{margin:3px 0}.em-fbk{display:inline-block;width:22px;border-top:2px dashed #e53935;vertical-align:middle}.em-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}.em-info{margin-top:12px;background:var(--bg)}
 </style>
 </head>
 <body>
@@ -1348,6 +1401,1076 @@ document.addEventListener('input', function (ev) {
 });
 document.addEventListener('change', function (ev) { if (ev.target && ev.target.getAttribute && ev.target.getAttribute('data-atl'))
     render(); });
+/* ---------- Surgery visual atlas: data ---------- */
+var SA_REG = {
+    rh: { n: 'Right hypochondrium', x: 0, y: 0, dx: [
+            ['Acute cholecystitis', 'Murphy sign, fever, post-prandial pain to right shoulder', 'Ultrasound', 'biliary'],
+            ['Biliary colic', 'Colicky pain < 6 h, no fever, Murphy negative', 'Ultrasound', 'biliary'],
+            ['Acute cholangitis', 'Charcot triad (pain, fever + chills, jaundice)', 'US + LFT, then ERCP', 'biliary'],
+            ['Liver abscess / hydatid cyst', 'Fever, tender hepatomegaly; rural, eosinophilia (hydatid)', 'US / CT, serology', 'liver'],
+            ['Perforated duodenal ulcer (early)', 'Sudden pain, guarding, free air', 'Erect CXR / CT', 'stomach'],
+            ['Right lower-lobe pneumonia', 'Cough, crackles, fever', 'Chest X-ray', ''],
+            ['Hepatitis / congestive liver', 'Jaundice, tender liver, ALT ↑', 'LFT, US', '']
+        ] },
+    epi: { n: 'Epigastrium', x: 1, y: 0, dx: [
+            ['Perforated peptic ulcer', 'Sudden "dagger" pain, board-like abdomen', 'Erect CXR / CT (free air)', 'stomach'],
+            ['Acute pancreatitis', 'Pain radiating to back ("belt"), vomiting, Cullen / Grey-Turner', 'Lipase > 3× ULN, US (stones), CT at 72 h', 'pancreas'],
+            ['Peptic ulcer disease / gastritis', 'Burning pain related to meals', 'Upper GI endoscopy', 'stomach'],
+            ['Inferior myocardial infarction', 'Epigastric pain, sweating, dyspnoea – never miss!', 'ECG + troponin', ''],
+            ['Ruptured / leaking AAA', 'Pain to back, shock, pulsatile mass', 'FAST / CT angiography (if stable)', ''],
+            ['Early appendicitis', 'Periumbilical/epigastric pain migrating to RIF', 'Clinical, FBC/CRP, US', 'appendicitis'],
+            ['Gastric volvulus', 'Borchardt triad: pain, unproductive retching, impossible NG tube', 'CT', 'esophagus']
+        ] },
+    lh: { n: 'Left hypochondrium', x: 2, y: 0, dx: [
+            ['Splenic injury / rupture', 'Trauma, Kehr sign (left shoulder pain), shock', 'FAST, CT if stable', 'spleen'],
+            ['Splenic infarct / abscess', 'AF / endocarditis, fever', 'CT', 'spleen'],
+            ['Acute pancreatitis (tail)', 'Pain to back', 'Lipase, CT', 'pancreas'],
+            ['Gastric ulcer / cancer', 'Epigastric pain, weight loss, anaemia', 'Endoscopy + biopsy', 'stomach'],
+            ['Left lower-lobe pneumonia / pleurisy', 'Respiratory signs', 'Chest X-ray', '']
+        ] },
+    rf: { n: 'Right flank (lumbar)', x: 0, y: 1, dx: [
+            ['Right renal / ureteric colic', 'Loin-to-groin colicky pain, restless, haematuria', 'Urinalysis, CT KUB (non-contrast)', ''],
+            ['Pyelonephritis', 'Fever, CVA tenderness (Giordano), dysuria', 'Urinalysis/culture, US', ''],
+            ['Retrocaecal appendicitis', 'Flank pain, psoas sign', 'US / CT', 'appendicitis'],
+            ['Ascending colon cancer', 'Anaemia, mass, weight loss', 'Colonoscopy, CT', 'colon']
+        ] },
+    umb: { n: 'Periumbilical', x: 1, y: 1, dx: [
+            ['Early appendicitis', 'Visceral pain before migration to RIF', 'Clinical, re-examine', 'appendicitis'],
+            ['Small-bowel obstruction', 'Colicky pain, vomiting, distension, no flatus', 'X-ray (air-fluid levels), CT', 'obstruction'],
+            ['Acute mesenteric ischaemia', 'Pain out of proportion to exam, AF', 'CT angiography, lactate', 'small-intestine'],
+            ['Umbilical / incisional hernia (strangulated)', 'Irreducible tender lump', 'Clinical, US/CT', 'hernia'],
+            ['Gastroenteritis', 'Diarrhoea, vomiting, diffuse cramps', 'Clinical', ''],
+            ['Ruptured AAA', 'Pulsatile mass, back pain, shock', 'FAST / CTA', '']
+        ] },
+    lf: { n: 'Left flank (lumbar)', x: 2, y: 1, dx: [
+            ['Left renal / ureteric colic', 'Loin-to-groin colicky pain, haematuria', 'CT KUB', ''],
+            ['Pyelonephritis', 'Fever, CVA tenderness', 'Urinalysis, US', ''],
+            ['Descending colon cancer / diverticulitis', 'Bowel habit change, fever', 'CT, colonoscopy (later)', 'colon']
+        ] },
+    rif: { n: 'Right iliac fossa', x: 0, y: 2, dx: [
+            ['Acute appendicitis', 'McBurney point tenderness, Blumberg, Rovsing, psoas, obturator', 'FBC/CRP, US, CT; Alvarado score', 'appendicitis'],
+            ["Crohn's ileitis / abscess", 'Chronic diarrhoea, weight loss, mass', 'CT/MR enterography', 'colon'],
+            ['Mesenteric adenitis', 'Child, recent viral infection', 'US', ''],
+            ['Meckel diverticulitis', 'Young, like appendicitis', 'CT / Meckel scan (bleeding)', 'small-intestine'],
+            ['Caecal cancer / caecal volvulus', 'Anaemia, mass / distension', 'CT, colonoscopy', 'colon'],
+            ['Ectopic pregnancy / ovarian torsion / PID (women)', 'Missed period, sudden pain, vaginal bleeding/discharge', 'β-hCG, transvaginal US', ''],
+            ['Right ureteric stone', 'Colic, haematuria', 'CT KUB', ''],
+            ['Inguinal / femoral hernia (strangulated)', 'Irreducible tender groin lump', 'Clinical, US', 'hernia']
+        ] },
+    hypo: { n: 'Hypogastrium (suprapubic)', x: 1, y: 2, dx: [
+            ['Acute urinary retention', 'Palpable bladder, unable to void', 'Bladder scan, catheter', ''],
+            ['Cystitis / UTI', 'Dysuria, frequency', 'Urinalysis', ''],
+            ['Pelvic inflammatory disease', 'Fever, discharge, cervical motion tenderness', 'β-hCG, pelvic US', ''],
+            ['Sigmoid diverticulitis (pelvic sigmoid)', 'Fever, suprapubic/LIF pain', 'CT', 'colon'],
+            ['Pelvic appendicitis', 'Rectal tenderness on DRE', 'CT', 'appendicitis']
+        ] },
+    lif: { n: 'Left iliac fossa', x: 2, y: 2, dx: [
+            ['Acute sigmoid diverticulitis', '"Left-sided appendicitis": fever, LIF tenderness/mass, elderly', 'CT (Hinchey stage)', 'colon'],
+            ['Sigmoid / left colon cancer', 'Change in bowel habit, pencil-thin stools, bleeding', 'Colonoscopy + biopsy, CT', 'colon'],
+            ['Sigmoid volvulus', 'Elderly, constipation, massive distension', 'X-ray: coffee bean; CT', 'obstruction'],
+            ['Ischaemic colitis', 'Vascular patient, pain then bloody diarrhoea', 'CT, colonoscopy (thumbprinting)', 'colon'],
+            ['Ulcerative colitis flare', 'Bloody diarrhoea', 'Sigmoidoscopy, stool cultures', 'colon'],
+            ['Ectopic pregnancy / ovarian torsion (women)', 'Missed period, sudden pain', 'β-hCG, transvaginal US', ''],
+            ['Left ureteric stone', 'Colic, haematuria', 'CT KUB', '']
+        ] }
+};
+var SA_DIFFUSE = [['Generalised peritonitis (perforation)', 'Board-like rigidity, absent bowel sounds, shock', 'Erect CXR / CT', 'peritonitis'], ['Acute mesenteric ischaemia', 'Pain out of proportion, AF, lactate ↑', 'CT angiography', 'small-intestine'], ['Bowel obstruction', 'Colicky pain, vomiting, distension, absolute constipation', 'X-ray, CT', 'obstruction'], ['Acute pancreatitis (severe)', 'Pain to back, shock', 'Lipase, CT', 'pancreas'], ['Ruptured AAA', 'Shock, pulsatile mass', 'FAST/CTA', ''], ['Medical mimics', 'DKA, porphyria, sickle cell, lead, MI, pneumonia', 'Glucose/ketones, ECG, CXR', '']];
+/* clinical signs (text cards) */
+var SA_CSIGNS = [
+    ['Murphy', 'rh', 'Inspiratory arrest when palpating under the right costal margin', 'Acute cholecystitis'],
+    ['Courvoisier', 'rh', 'Painless jaundice + palpable non-tender gallbladder', 'Malignant distal CBD obstruction (pancreatic head / ampulla) – not stones'],
+    ['Charcot triad / Reynolds pentad', 'rh', 'Pain + fever with chills + jaundice (+ shock + confusion)', 'Acute cholangitis (→ urgent ERCP)'],
+    ['McBurney point', 'rif', 'Max tenderness at 1/3 of the line ASIS → umbilicus', 'Acute appendicitis'],
+    ['Rovsing', 'rif', 'Pressure in LIF produces pain in RIF', 'Acute appendicitis'],
+    ['Blumberg (rebound)', 'rif', 'Pain on sudden release of pressure', 'Peritoneal irritation'],
+    ['Psoas sign', 'rif', 'Pain on hip extension (right)', 'Retrocaecal appendicitis'],
+    ['Obturator sign', 'rif', 'Pain on internal rotation of flexed hip', 'Pelvic appendicitis'],
+    ['Cullen / Grey-Turner', 'epi', 'Periumbilical / flank ecchymosis', 'Haemorrhagic (necrotising) pancreatitis, retroperitoneal bleeding'],
+    ['Kehr', 'lh', 'Left shoulder-tip pain (diaphragmatic irritation)', 'Splenic rupture'],
+    ['Valentino', 'rif', 'RIF pain from duodenal content tracking down the right paracolic gutter', 'Perforated duodenal ulcer mimicking appendicitis'],
+    ['Board-like ("wooden") abdomen', 'epi', 'Involuntary generalised rigidity', 'Generalised peritonitis (perforated ulcer)'],
+    ['Disappearance of liver dullness', 'epi', 'Tympany over the liver on percussion', 'Pneumoperitoneum'],
+    ['Dance sign', 'rif', 'Empty RIF + sausage-shaped mass', 'Ileocolic intussusception (child)'],
+    ['Borchardt triad', 'epi', 'Epigastric pain + retching without vomiting + impossible NG tube', 'Gastric volvulus'],
+    ['Virchow node (Troisier sign)', 'epi', 'Left supraclavicular lymph node', 'Gastric (abdominal) cancer'],
+    ['Sister Mary Joseph nodule', 'umb', 'Periumbilical metastatic nodule', 'Advanced gastric / pancreatic / ovarian cancer'],
+    ['Shoelace sign', 'epi', 'Heartburn on bending forward', 'GERD / hiatal hernia'],
+    ['Boas sign', 'rh', 'Hyperaesthesia below the right scapula', 'Acute cholecystitis'],
+    ['Howship-Romberg', 'hypo', 'Medial thigh pain (obturator nerve)', 'Obturator hernia']
+];
+/* radiological signs: id, name, ctx, technique, meaning */
+var SA_RSIGNS = [
+    ['pneumo', 'Pneumoperitoneum', 'Erect chest X-ray', 'Crescent of free air under the diaphragm', 'Hollow-viscus perforation (ulcer!) – but normal for a few days after laparotomy/laparoscopy'],
+    ['rigler', 'Rigler (double-wall) sign', 'Supine abdominal X-ray', 'Both sides of the bowel wall visible', 'Large pneumoperitoneum'],
+    ['levels', 'Air-fluid levels (step-ladder)', 'Erect abdominal X-ray', 'Multiple central levels, valvulae conniventes', 'Small-bowel obstruction'],
+    ['coffee', 'Coffee-bean sign', 'Abdominal X-ray', 'Huge inverted-U sigmoid loop arising from pelvis', 'Sigmoid volvulus'],
+    ['beak', "Bird's beak", 'Barium swallow', 'Dilated oesophagus, smooth tapering at cardia', 'Achalasia'],
+    ['apple', 'Apple-core lesion', 'Barium enema / CT colonography', 'Short irregular annular narrowing with shoulders', 'Colorectal cancer'],
+    ['string', 'String sign (Kantor)', 'Small-bowel follow-through', 'Long narrow terminal ileum', "Crohn's disease"],
+    ['target', 'Target sign', 'Ultrasound', 'Concentric rings', 'Intussusception (or inflamed appendix in cross-section)'],
+    ['triad', 'Rigler triad', 'Abdominal X-ray / CT', 'Aerobilia + small-bowel obstruction + ectopic gallstone', 'Gallstone ileus'],
+    ['thumb', 'Thumbprinting', 'Abdominal X-ray / barium', 'Thickened oedematous haustra', 'Ischaemic colitis'],
+    ['pipe', 'Lead-pipe colon', 'Barium enema', 'Loss of haustra, tubular colon', 'Chronic ulcerative colitis'],
+    ['mega', 'Toxic megacolon', 'Abdominal X-ray', 'Transverse colon > 6 cm, loss of haustra', 'Severe colitis (UC, C. difficile)'],
+    ['sentinel', 'Sentinel loop / colon cut-off', 'Abdominal X-ray', 'Isolated dilated jejunal loop near pancreas; gas cut at splenic flexure', 'Acute pancreatitis'],
+    ['gbwall', 'Thick gallbladder wall + stones', 'Ultrasound', 'Wall > 4 mm, double contour, shadowing stones, pericholecystic fluid', 'Acute cholecystitis'],
+    ['lily', 'Water-lily sign', 'Ultrasound / CT', 'Detached floating membranes inside a cyst', 'Hydatid cyst (CE3a)'],
+    ['dduct', 'Double-duct sign', 'MRCP / CT', 'Dilated CBD + dilated pancreatic duct', 'Pancreatic head / ampullary cancer']
+];
+/* operations */
+var SA_OPS = [
+    { id: 'whipple', n: 'Pancreaticoduodenectomy (Whipple)', ind: 'Pancreatic head, ampullary, distal CBD, duodenal cancer', rm: ['antrum', 'pylorus', 'd1', 'd2', 'd3', 'phead', 'gb', 'cbd'], v: 'up',
+        ana: [['Pancreatico-jejunostomy', 1], ['Hepatico-jejunostomy', 1], ['Gastro-jejunostomy', 1], ['Ileo-colic anastomosis', 0], ['Oesophago-jejunostomy', 0], ['Colo-rectal anastomosis', 0]],
+        add: [{ d: 'M252 240 C 235 232 215 225 205 218 C 185 205 162 172 150 142', l: 'jejunal limb (P-J, then H-J)' }, { d: 'M252 245 C 268 225 258 192 240 176', l: 'efferent loop (G-J)' }],
+        mk: [[205, 218, 'P-J'], [150, 145, 'H-J'], [240, 176, 'G-J']],
+        steps: ['Kocher manoeuvre, assess resectability (SMV/portal vein, SMA)', 'Cholecystectomy, transection of the common hepatic duct', 'Distal gastrectomy (classic) or pylorus preservation', 'Transection of the jejunum and pancreatic neck; en-bloc removal of head + duodenum', 'Reconstruction on one jejunal loop: pancreatico-, hepatico-, gastro-jejunostomy'],
+        cx: 'Pancreatic fistula (most feared), delayed gastric emptying, bile leak, post-pancreatectomy haemorrhage, diabetes / exocrine insufficiency' },
+    { id: 'b1', n: 'Distal gastrectomy – Billroth I', ind: 'Distal gastric ulcer / early antral cancer', rm: ['antrum', 'pylorus'], v: 'up',
+        ana: [['Gastro-duodenostomy', 1], ['Gastro-jejunostomy', 0], ['Jejuno-jejunostomy (Roux)', 0], ['Oesophago-jejunostomy', 0]],
+        add: [{ d: 'M235 172 C 220 178 205 186 192 190', l: '' }], mk: [[195, 190, 'G-D']],
+        steps: ['Mobilise greater and lesser curvature', 'Divide duodenum just beyond pylorus, transect stomach', 'Direct end-to-end gastro-duodenal anastomosis (physiological)'],
+        cx: 'Anastomotic leak, dumping syndrome, bile reflux gastritis (less than BII), stump recurrence' },
+    { id: 'b2', n: 'Distal gastrectomy – Billroth II', ind: 'Distal gastric ulcer / antral cancer when duodenum unsuitable', rm: ['antrum', 'pylorus'], v: 'up',
+        ana: [['Gastro-jejunostomy', 1], ['Duodenal stump closure', 1], ['Gastro-duodenostomy', 0], ['Hepatico-jejunostomy', 0]],
+        add: [{ d: 'M250 250 C 270 230 265 195 240 178', l: 'afferent/efferent loop' }], mk: [[240, 178, 'G-J'], [188, 190, 'stump']],
+        steps: ['Distal gastrectomy', 'Duodenal stump closed', 'Loop gastro-jejunostomy (afferent + efferent limbs)', '± Braun jejuno-jejunostomy'],
+        cx: 'Duodenal stump blow-out (most dangerous), afferent/efferent loop syndrome, dumping, bile reflux, anaemia (B12/iron)' },
+    { id: 'totgas', n: 'Total gastrectomy with Roux-en-Y', ind: 'Proximal / diffuse gastric cancer (+ D2 lymphadenectomy)', rm: ['fundus', 'body', 'antrum', 'pylorus'], v: 'up',
+        ana: [['Oesophago-jejunostomy', 1], ['Jejuno-jejunostomy (Y)', 1], ['Duodenal stump closure', 1], ['Gastro-jejunostomy', 0], ['Pancreatico-jejunostomy', 0]],
+        add: [{ d: 'M222 92 C 260 120 280 200 270 300', l: 'Roux limb (≥ 40 cm)' }], mk: [[222, 95, 'O-J'], [268, 300, 'J-J'], [188, 190, 'stump']],
+        steps: ['Total gastrectomy + D2 lymphadenectomy (+ omentectomy)', 'Duodenal stump closure', 'Roux limb brought up (retrocolic)', 'Oesophago-jejunostomy, then jejuno-jejunostomy 40–60 cm below'],
+        cx: 'Oesophago-jejunal leak, duodenal stump leak, pancreatic fistula, dumping, B12 deficiency (lifelong injections)' },
+    { id: 'sleeve', n: 'Sleeve gastrectomy', ind: 'Morbid obesity (BMI ≥ 40, or ≥ 35 + comorbidity)', rm: ['fundus', 'body'], v: 'up', partial: true,
+        ana: [['No anastomosis (staple line only)', 1], ['Gastro-jejunostomy', 0], ['Jejuno-jejunostomy', 0], ['Duodeno-ileostomy', 0]],
+        add: [{ d: 'M222 90 C 228 120 232 150 222 175 C 215 185 200 190 192 190', l: 'gastric tube (~ 36 Fr bougie)' }], mk: [[226, 130, 'staple line']],
+        steps: ['Devascularise greater curvature from 4–6 cm proximal to pylorus up to the angle of His', 'Calibrate with a 32–40 Fr bougie', 'Stapled resection of ~ 80 % of the stomach (fundus = ghrelin)'],
+        cx: 'Staple-line leak (upper third, near angle of His – tachycardia!), bleeding, stricture, new GERD, weight regain' },
+    { id: 'rygb', n: 'Roux-en-Y gastric bypass', ind: 'Morbid obesity, especially with T2DM or GERD', rm: [], v: 'up', bypass: ['body', 'antrum', 'pylorus', 'd1', 'd2', 'd3'],
+        ana: [['Gastro-jejunostomy (pouch)', 1], ['Jejuno-jejunostomy (Y)', 1], ['Gastro-duodenostomy', 0], ['Oesophago-jejunostomy', 0], ['Pancreatico-jejunostomy', 0]],
+        add: [{ d: 'M230 112 C 270 140 285 220 270 310', l: 'alimentary (Roux) limb ~ 150 cm' }], mk: [[232, 112, 'G-J'], [268, 310, 'J-J']],
+        steps: ['Create a 15–30 ml gastric pouch (stomach is NOT removed – excluded)', 'Divide jejunum ~ 50 cm from Treitz (biliopancreatic limb)', 'Roux limb anastomosed to the pouch', 'Jejuno-jejunostomy ~ 100–150 cm down; close mesenteric defects'],
+        cx: 'Leak, marginal ulcer, internal hernia (Petersen), dumping, deficiencies (iron, B12, Ca, vit D)' },
+    { id: 'ivor', n: 'Ivor-Lewis oesophagectomy', ind: 'Middle/lower third oesophageal cancer', rm: ['oes'], v: 'up',
+        ana: [['Intrathoracic oesophago-gastric anastomosis', 1], ['Pyloroplasty / pyloromyotomy (± )', 1], ['Oesophago-jejunostomy', 0], ['Cervical oesophagostomy', 0]],
+        add: [{ d: 'M222 20 C 232 50 240 80 248 110', l: 'gastric conduit (pulled up)' }], mk: [[222, 22, 'O-G (chest)']],
+        steps: ['Abdominal phase: mobilise stomach on right gastroepiploic artery, lymphadenectomy, gastric tube', 'Right thoracotomy: oesophagectomy + mediastinal lymphadenectomy', 'Gastric conduit pulled into chest, intrathoracic anastomosis'],
+        cx: 'Anastomotic leak (mediastinitis), conduit necrosis, pneumonia, chylothorax, recurrent laryngeal nerve palsy (McKeown)' },
+    { id: 'rhemi', n: 'Right hemicolectomy', ind: 'Caecal / ascending / hepatic flexure cancer', rm: ['caecum', 'app', 'asc', 'tileum', 'trans1'], v: 'low',
+        ana: [['Ileo-colic (ileo-transverse) anastomosis', 1], ['Colo-rectal anastomosis', 0], ['End colostomy', 0], ['Ileo-anal pouch', 0]],
+        add: [{ d: 'M200 360 C 170 330 160 300 175 285', l: '' }], mk: [[175, 288, 'ileo-colic']],
+        steps: ['Ligation of ileocolic, right colic (and right branch of middle colic) at origin', 'Remove terminal ileum → proximal transverse colon (+ mesentery, CME)', 'Ileo-transverse anastomosis'],
+        cx: 'Anastomotic leak (low), ileus, bleeding, diarrhoea / B12 & bile-salt malabsorption (terminal ileum)' },
+    { id: 'lhemi', n: 'Left hemicolectomy', ind: 'Splenic flexure / descending colon cancer', rm: ['trans2', 'desc'], v: 'low',
+        ana: [['Colo-colic / colo-rectal (transverse–sigmoid) anastomosis', 1], ['Ileo-colic anastomosis', 0], ['Ileo-anal pouch', 0]],
+        add: [{ d: 'M262 285 C 300 320 320 370 330 400', l: '' }], mk: [[322, 385, 'colo-colic']],
+        steps: ['Ligation of IMA (or left colic) ± left branch of middle colic', 'Mobilise splenic flexure', 'Resect distal transverse → descending colon, anastomose transverse to sigmoid'],
+        cx: 'Leak, splenic injury (flexure mobilisation), ureter injury (left), ischaemia (Griffiths point)' },
+    { id: 'hartmann', n: "Hartmann's procedure", ind: 'Perforated diverticulitis (Hinchey III–IV), obstructing/perforated sigmoid cancer in emergency', rm: ['sig'], v: 'low',
+        ana: [['End colostomy (descending colon)', 1], ['Rectal stump closure', 1], ['Colo-rectal anastomosis', 0], ['Ileo-colic anastomosis', 0]],
+        add: [{ d: 'M330 400 C 345 410 360 410 372 400', l: 'end colostomy (LIF)' }], mk: [[372, 400, 'stoma'], [232, 440, 'rectal stump']],
+        steps: ['Resect diseased sigmoid', 'Close the rectal stump', 'Bring descending colon out as an end colostomy (LIF)', 'Reversal (colo-rectal anastomosis) after 3–6 months if possible'],
+        cx: 'Stoma necrosis/retraction/prolapse, parastomal hernia, rectal stump leak; ~ 40 % never reversed' },
+    { id: 'lar', n: 'Low anterior resection with TME', ind: 'Mid / upper rectal cancer', rm: ['sig', 'rect1'], v: 'low',
+        ana: [['Colo-rectal (colo-anal) anastomosis', 1], ['Protective loop ileostomy', 1], ['End colostomy', 0], ['Ileo-colic anastomosis', 0]],
+        add: [{ d: 'M330 400 C 300 440 245 450 232 470', l: 'descending colon brought down' }, { d: 'M170 370 C 150 380 140 380 132 372', l: 'loop ileostomy (RIF)' }], mk: [[232, 470, 'C-R'], [132, 372, 'ileostomy']],
+        steps: ['High ligation of IMA, splenic flexure mobilisation', 'Total mesorectal excision in the "holy plane" (intact mesorectal fascia)', 'Stapled colo-rectal / colo-anal anastomosis', 'Temporary protective loop ileostomy'],
+        cx: 'Anastomotic leak, LARS (low anterior resection syndrome), urinary & sexual dysfunction (pelvic nerves), ureter injury' },
+    { id: 'apr', n: 'Abdominoperineal resection (Miles)', ind: 'Low rectal cancer invading sphincters / anal canal', rm: ['sig', 'rect1', 'rect2', 'anal'], v: 'low',
+        ana: [['Permanent end colostomy', 1], ['Colo-anal anastomosis', 0], ['Ileo-anal pouch', 0], ['Loop ileostomy', 0]],
+        add: [{ d: 'M330 400 C 345 410 360 410 372 400', l: 'permanent end colostomy' }], mk: [[372, 400, 'stoma']],
+        steps: ['Abdominal TME phase', 'Perineal phase: excision of anus, sphincters and levators (cylindrical / ELAPE)', 'Permanent end colostomy; perineal closure (± flap)'],
+        cx: 'Perineal wound infection / breakdown, perineal hernia, sexual & urinary dysfunction, stoma complications' },
+    { id: 'proct', n: 'Restorative proctocolectomy (IPAA)', ind: 'Ulcerative colitis (refractory/dysplasia), familial adenomatous polyposis', rm: ['caecum', 'app', 'asc', 'trans1', 'trans2', 'desc', 'sig', 'rect1', 'rect2'], v: 'low',
+        ana: [['Ileal J-pouch–anal anastomosis', 1], ['Protective loop ileostomy', 1], ['Colo-rectal anastomosis', 0], ['Ileo-colic anastomosis', 0]],
+        add: [{ d: 'M200 365 C 215 400 235 440 232 488', l: 'ileal J-pouch' }, { d: 'M170 370 C 150 380 140 380 132 372', l: 'loop ileostomy' }], mk: [[232, 488, 'pouch-anal'], [132, 372, 'ileostomy']],
+        steps: ['Total colectomy + proctectomy (mucosectomy or stapled)', 'Construction of an ileal J-pouch (reservoir)', 'Ileal pouch–anal anastomosis', 'Temporary loop ileostomy, closed after 2–3 months'],
+        cx: 'Pouchitis, pouch leak/sepsis, frequent stools, infertility (women), cuff-itis' },
+    { id: 'splen', n: 'Splenectomy', ind: 'Unstable splenic trauma, ITP refractory, hereditary spherocytosis, hypersplenism', rm: ['spleen'], v: 'up',
+        ana: [['No anastomosis – ligation of splenic hilum', 1], ['Pancreatico-jejunostomy', 0], ['Gastro-jejunostomy', 0]],
+        add: [], mk: [[335, 165, 'hilum ligated']],
+        steps: ['Divide short gastric vessels and splenic ligaments', 'Ligate splenic artery then vein at the hilum (protect pancreatic tail)', 'Search for accessory spleens (ITP)', 'Vaccinate (pneumococcus, meningococcus, Hib)'],
+        cx: 'Bleeding, pancreatic tail injury/fistula, subphrenic abscess, thrombocytosis/portal vein thrombosis, OPSI (lifelong risk)' },
+    { id: 'chole', n: 'Laparoscopic cholecystectomy', ind: 'Symptomatic gallstones, acute cholecystitis, polyps > 1 cm, porcelain GB', rm: ['gb'], v: 'up',
+        ana: [['No anastomosis – clipping of cystic duct & artery', 1], ['Hepatico-jejunostomy', 0], ['Choledocho-duodenostomy', 0]],
+        add: [], mk: [[140, 162, 'cystic duct + artery clipped']],
+        steps: ['4 ports, retract fundus cranially, infundibulum laterally', 'Open Calot triangle – achieve the CRITICAL VIEW OF SAFETY', 'Clip & divide cystic artery and cystic duct', 'Dissect gallbladder from liver bed, extract in a bag'],
+        cx: 'Bile duct injury (Strasberg), bile leak (cystic stump, ducts of Luschka), bleeding, retained CBD stones, port-site hernia' }
+];
+/* disease timelines */
+var SA_TL = [
+    { n: 'Acute appendicitis', st: [
+            ['Obstruction (fecalith, lymphoid hyperplasia)', 'Periumbilical visceral pain, anorexia', 'Clinical', 'Observe / re-examine'],
+            ['Catarrhal / phlegmonous', 'Pain migrates to RIF, McBurney +, low fever', 'WBC ↑, CRP ↑, US appendix > 6 mm', 'Laparoscopic appendectomy'],
+            ['Gangrenous', 'Fever ↑, rebound, guarding', 'CRP ↑↑, CT', 'Urgent appendectomy + antibiotics'],
+            ['Perforated', 'Pain briefly eases then diffuse peritonitis', 'CT free fluid/air', 'Appendectomy + lavage + antibiotics'],
+            ['Appendicular mass / abscess (day 4–5+)', 'Palpable tender RIF mass, swinging fever', 'CT: phlegmon / collection', 'Antibiotics ± percutaneous drainage → interval appendectomy (if > 40: colonoscopy)']
+        ] },
+    { n: 'Gallstone disease', st: [
+            ['Asymptomatic gallstones', 'None', 'Incidental US', 'No treatment (except porcelain GB, > 3 cm, sickle cell…)'],
+            ['Biliary colic', 'RUQ/epigastric pain < 6 h after fatty meal, no fever', 'US stones, labs normal', 'Elective laparoscopic cholecystectomy'],
+            ['Acute cholecystitis', 'Pain > 6 h, fever, Murphy +', 'WBC ↑, US: thick wall, pericholecystic fluid', 'Antibiotics + early lap. chole (< 72 h)'],
+            ['Empyema / gangrene / perforation', 'Septic, mass, peritonitis', 'CT', 'Urgent surgery or percutaneous cholecystostomy if unfit'],
+            ['CBD stones → cholangitis', 'Charcot triad', 'Bilirubin, ALP ↑, dilated CBD', 'Antibiotics + ERCP, then chole'],
+            ['Biliary pancreatitis', 'Epigastric pain to back', 'Lipase > 3×', 'Supportive; ERCP if cholangitis; chole same admission (mild)'],
+            ['Gallstone ileus / Mirizzi', 'SBO in elderly woman / jaundice from GB neck stone', 'Rigler triad / MRCP', 'Enterolithotomy / subtotal chole']
+        ] },
+    { n: 'Diverticular disease (Hinchey)', st: [
+            ['Diverticulosis', 'Asymptomatic', 'Colonoscopy/CT incidental', 'Fibre'],
+            ['Uncomplicated diverticulitis (Ia)', 'LIF pain, fever', 'CT: wall thickening, fat stranding', 'Outpatient ± antibiotics'],
+            ['Hinchey I – pericolic abscess', 'LIF mass', 'CT small abscess', 'IV antibiotics'],
+            ['Hinchey II – pelvic / distant abscess', 'Fever, mass', 'CT abscess > 4 cm', 'Percutaneous drainage + antibiotics'],
+            ['Hinchey III – purulent peritonitis', 'Generalised peritonitis', 'CT free air/fluid', 'Laparoscopic lavage or resection (Hartmann / primary anastomosis ± stoma)'],
+            ['Hinchey IV – faecal peritonitis', 'Septic shock', 'CT', "Emergency Hartmann's procedure"],
+            ['Chronic complications', 'Fistula (colovesical: pneumaturia), stricture, bleeding', 'CT, colonoscopy', 'Elective sigmoid resection']
+        ] },
+    { n: 'Peptic ulcer complications', st: [
+            ['Uncomplicated ulcer', 'Epigastric pain', 'Endoscopy, H. pylori', 'PPI + eradication'],
+            ['Bleeding', 'Haematemesis / melena, shock', 'Endoscopy – Forrest', 'Resuscitation, IV PPI, endoscopic haemostasis → embolisation → surgery'],
+            ['Perforation', 'Sudden severe pain, board-like abdomen', 'Free air (CXR/CT)', 'Suture + omental patch, lavage'],
+            ['Penetration', 'Pain to back, pancreatitis', 'CT / endoscopy', 'Medical; surgery if complicated'],
+            ['Pyloric stenosis (outlet obstruction)', 'Vomiting of old food, succussion splash', 'Hypochloraemic hypokalaemic alkalosis; endoscopy (exclude cancer)', 'Correct electrolytes → balloon dilatation or surgery']
+        ] },
+    { n: 'Acute pancreatitis (Atlanta)', st: [
+            ['Interstitial oedematous', 'Pain, vomiting', 'Lipase > 3×', 'Fluids, analgesia, early feeding'],
+            ['Necrotising', 'Organ failure risk', 'CT > 72 h: non-enhancing parenchyma', 'ICU if organ failure, enteral feeding'],
+            ['APFC / ANC (< 4 weeks)', 'Often asymptomatic', 'CT', 'Conservative'],
+            ['Pseudocyst / WON (> 4 weeks)', 'Mass, early satiety, obstruction', 'CT / MRI / EUS', 'Drain only if symptomatic (endoscopic cystgastrostomy)'],
+            ['Infected necrosis', 'Fever, sepsis at 2–4 weeks', 'Gas in collection, FNA', 'Antibiotics + step-up: drain → necrosectomy'],
+            ['Late', 'Diabetes, exocrine insufficiency, recurrence', 'Glucose, faecal elastase', 'Treat cause (chole, alcohol stop)']
+        ] },
+    { n: 'Colorectal cancer (TNM)', st: [
+            ['Adenoma', 'Usually none', 'Colonoscopy', 'Polypectomy, surveillance'],
+            ['Stage I (T1–T2 N0)', 'Bleeding, change in bowel habit', 'Colonoscopy + biopsy, CT, MRI (rectum)', 'Surgery alone (local excision for selected T1)'],
+            ['Stage II (T3–T4 N0)', 'Anaemia, obstruction', 'CT, CEA', 'Surgery ± adjuvant chemo if high risk; rectum: neoadjuvant CRT'],
+            ['Stage III (N+)', '', 'CT, MRI', 'Surgery + adjuvant chemotherapy (FOLFOX/CAPOX); rectum: neoadjuvant'],
+            ['Stage IV (M1)', 'Liver/lung/peritoneal mets', 'CT/PET, RAS/BRAF/MSI', 'Systemic therapy ± resection of mets; palliation (stent, stoma)']
+        ] },
+    { n: 'Bowel obstruction', st: [
+            ['Simple mechanical obstruction', 'Colicky pain, vomiting, distension, no flatus', 'X-ray levels, CT', 'Drip & suck, water-soluble contrast (adhesions)'],
+            ['Closed loop', 'Constant pain, localised tenderness', 'CT: C/U-shaped loop', 'Urgent surgery'],
+            ['Strangulation', 'Fever, tachycardia, constant pain, peritonism', 'Lactate ↑, WBC ↑, CT poor enhancement', 'Emergency surgery'],
+            ['Necrosis / perforation', 'Peritonitis, shock', 'Free air', 'Resection, stoma, ICU']
+        ] }
+];
+/* post-operative complications */
+var SA_PO = [
+    ['Primary haemorrhage', 0, 1, 'Shock, drain blood, distension', 'Hb, coag; return to theatre', '#c0392b'],
+    ['Atelectasis ("Wind")', 1, 3, 'Fever day 1–2, ↓ breath sounds', 'CXR; physio, incentive spirometry, analgesia', '#2980b9'],
+    ['Paralytic ileus', 0, 5, 'Distension, no flatus, vomiting', 'NG tube, electrolytes (K, Mg), mobilise; exclude leak', '#7f8c8d'],
+    ['Urinary retention / UTI ("Water")', 2, 5, 'Fever, dysuria, catheter', 'Urinalysis/culture; remove catheter early', '#f39c12'],
+    ['Pneumonia', 3, 6, 'Fever, cough, crackles', 'CXR, cultures; antibiotics', '#2471a3'],
+    ['Anastomotic leak / intra-abdominal abscess', 5, 10, 'Fever, tachycardia (!), peritonism, prolonged ileus', 'CT with contrast; drainage / reoperation', '#8e44ad'],
+    ['Wound infection ("Wound")', 5, 8, 'Red, warm, discharge', 'Open wound, drain, culture; antibiotics if cellulitis', '#27ae60'],
+    ['DVT / PE ("Walking")', 5, 14, 'Calf swelling; dyspnoea, tachycardia, hypoxia', 'Doppler, CTPA; anticoagulation (prevent: LMWH + stockings)', '#16a085'],
+    ['Secondary haemorrhage', 7, 14, 'Bleeding from infected wound/vessel', 'Explore, control source', '#e74c3c'],
+    ['Wound dehiscence / burst abdomen', 7, 10, 'Salmon-pink serous discharge', 'Cover with saline gauze, emergency closure', '#d35400'],
+    ['Drug fever / C. difficile ("Wonder drugs")', 0, 30, 'Fever, rash, diarrhoea after antibiotics', 'Stop drug, C. diff toxin, oral vancomycin/fidaxomicin', '#95a5a6'],
+    ['Incisional hernia / adhesions', 30, 30, 'Late: bulge, SBO', 'Elective repair', '#34495e']
+];
+/* scores */
+var SA_SC = {
+    alvarado: { n: 'Alvarado (appendicitis)', it: [['Migration of pain to RIF', 1], ['Anorexia', 1], ['Nausea / vomiting', 1], ['RIF tenderness', 2], ['Rebound tenderness', 1], ['Temperature ≥ 37.3 °C', 1], ['Leukocytosis > 10 000', 2], ['Neutrophil left shift (> 75 %)', 1]],
+        res: function (s) { return s <= 4 ? ['Appendicitis unlikely', 'Discharge with safety-net / observe', 'ok'] : s <= 6 ? ['Possible appendicitis', 'Imaging (US / CT), observation', 'mid'] : ['Probable appendicitis', 'Surgical consultation → appendectomy', 'hi']; } },
+    bisap: { n: 'BISAP (acute pancreatitis, first 24 h)', it: [['BUN > 25 mg/dl (urea > 8.9 mmol/l)', 1], ['Impaired mental status (GCS < 15)', 1], ['SIRS (≥ 2 criteria)', 1], ['Age > 60', 1], ['Pleural effusion', 1]],
+        res: function (s) { return s <= 2 ? ['Low mortality (< 2 %)', 'Ward care', 'ok'] : ['High risk (mortality 5–20 %)', 'HDU / ICU, close monitoring', 'hi']; } },
+    ranson: { n: 'Ranson (non-biliary pancreatitis)', it: [['ADMISSION: Age > 55', 1], ['WBC > 16 000', 1], ['Glucose > 200 mg/dl', 1], ['LDH > 350 U/l', 1], ['AST > 250 U/l', 1], ['48 h: Haematocrit fall > 10 %', 1], ['Urea (BUN) rise > 5 mg/dl', 1], ['Calcium < 8 mg/dl', 1], ['PaO₂ < 60 mmHg', 1], ['Base deficit > 4 mEq/l', 1], ['Fluid sequestration > 6 l', 1]],
+        res: function (s) { return s < 3 ? ['Mild', 'Mortality ~ 1 %', 'ok'] : s <= 4 ? ['Severe', 'Mortality ~ 15 %', 'mid'] : s <= 6 ? ['Severe', 'Mortality ~ 40 %', 'hi'] : ['Very severe', 'Mortality ~ 100 %', 'hi']; } },
+    child: { n: 'Child-Pugh (cirrhosis)', sel: [['Bilirubin (mg/dl)', ['< 2', '2–3', '> 3']], ['Albumin (g/dl)', ['> 3.5', '2.8–3.5', '< 2.8']], ['INR', ['< 1.7', '1.7–2.3', '> 2.3']], ['Ascites', ['None', 'Mild / controlled', 'Moderate–severe']], ['Encephalopathy', ['None', 'Grade I–II', 'Grade III–IV']]],
+        res: function (s) { return s <= 6 ? ['Class A (5–6)', 'Good reserve – resection possible; 1-y survival ~ 100 %', 'ok'] : s <= 9 ? ['Class B (7–9)', 'Limited – minor resection/ablation, transplant evaluation; ~ 80 %', 'mid'] : ['Class C (10–15)', 'Transplant / palliative; ~ 45 %', 'hi']; } },
+    gbs: { n: 'Glasgow-Blatchford (upper GI bleed)', sel: [['Urea (mmol/l)', ['< 6.5', '6.5–8', '8–10', '10–25', '> 25'], [0, 2, 3, 4, 6]], ['Hb (g/dl) – men', ['> 13 (or woman > 12)', '12–13 (woman 10–12)', '10–12', '< 10'], [0, 1, 3, 6]], ['Systolic BP', ['≥ 110', '100–109', '90–99', '< 90'], [0, 1, 2, 3]]],
+        it: [['Pulse ≥ 100', 1], ['Melena', 1], ['Syncope', 2], ['Hepatic disease', 2], ['Cardiac failure', 2]],
+        res: function (s) { return s === 0 ? ['Score 0', 'Very low risk – outpatient management possible', 'ok'] : s <= 6 ? ['Score ' + s, 'Admit; endoscopy within 24 h', 'mid'] : ['Score ' + s, 'High risk – likely needs intervention (transfusion / endoscopic therapy)', 'hi']; } },
+    qsofa: { n: 'qSOFA (sepsis)', it: [['Respiratory rate ≥ 22', 1], ['Altered mentation', 1], ['Systolic BP ≤ 100', 1]],
+        res: function (s) { return s >= 2 ? ['qSOFA ≥ 2', 'High risk of poor outcome – sepsis bundle, source control', 'hi'] : ['qSOFA < 2', 'Keep monitoring', 'ok']; } },
+    hinchey: { n: 'Hinchey (perforated diverticulitis)', pick: [['0 – mild clinical diverticulitis', 'Outpatient / antibiotics'], ['Ia – pericolic phlegmon', 'Antibiotics'], ['Ib – pericolic abscess < 4 cm', 'IV antibiotics'], ['II – pelvic/distant abscess', 'Percutaneous drainage + antibiotics'], ['III – purulent peritonitis', 'Lavage or resection (Hartmann / anastomosis + stoma)'], ['IV – faecal peritonitis', "Emergency Hartmann's procedure"]] },
+    tokyo: { n: 'Tokyo 2018 – acute cholecystitis grade', pick: [['Grade I (mild): no organ dysfunction', 'Early laparoscopic cholecystectomy'], ['Grade II (moderate): WBC > 18 000, palpable mass, > 72 h, marked local inflammation', 'Early chole in experienced centre, else drainage'], ['Grade III (severe): organ dysfunction (CV, neuro, resp, renal, hepatic, haemato)', 'Organ support + gallbladder drainage → delayed chole']] },
+    asa: { n: 'ASA physical status', pick: [['ASA I – healthy', ''], ['ASA II – mild systemic disease', 'Controlled HTN, smoker, BMI 30–40'], ['ASA III – severe systemic disease', 'Poorly controlled DM, COPD, BMI ≥ 40'], ['ASA IV – constant threat to life', 'Recent MI, sepsis'], ['ASA V – moribund', 'Ruptured AAA'], ['ASA VI – brain-dead donor', ''], ['+ E', 'Emergency surgery']] }
+};
+/* ---------- Surgery visual atlas ---------- */
+var SA = { tab: 'map', reg: null, sig: {}, sigF: 'r', op: null, opi: 0, an: 'calot', lay: {}, tl: 0, tls: 0, po: null, sc: 'alvarado', scv: {} };
+function vAtlasAny() {
+    if (APP.subj === 'surgery')
+        return vSAtlas();
+    if (APP.subj === 'endo')
+        return vEMetro();
+    return vAtlas();
+}
+var SA_TABS = [['map', '🗺 Abdomen map'], ['signs', '🔎 Signs'], ['ops', '✂ Operations'], ['anat', '🧬 Anatomy layers'], ['time', '⏳ Disease timelines'], ['score', '🧮 Scores'], ['postop', '📅 Post-op complications']];
+function vSAtlas() {
+    var t = SA.tab, body = '';
+    if (t === 'map')
+        body = saMap();
+    else if (t === 'signs')
+        body = saSigns();
+    else if (t === 'ops')
+        body = saOps();
+    else if (t === 'anat')
+        body = saAnat();
+    else if (t === 'time')
+        body = saTime();
+    else if (t === 'score')
+        body = saScore();
+    else
+        body = saPost();
+    return '<div class="page-h"><h1>Visual atlas – surgery</h1><p class="muted">Interactive pictures to see the abdomen, the signs, the operations and the scores – different from the mind maps and decision trees.</p></div>' +
+        '<div class="sat-tabs">' + SA_TABS.map(function (x) { return '<button class="btn' + (t === x[0] ? ' primary' : '') + '" data-act="saTab" data-id="' + x[0] + '">' + x[1] + '</button>'; }).join('') + '</div><div class="sat">' + body + '</div>';
+}
+function saLecLink(l) { return l && APP.lById[l] ? ' <a href="#" class="small" data-act="openLesson" data-id="' + l + '">lesson →</a>' : ''; }
+/* ---- 1. abdomen map ---- */
+function saMap() {
+    var W = 330, H = 360, x0 = 40, y0 = 60, cw = 90, ch = 85;
+    var cells = Object.keys(SA_REG).map(function (k) {
+        var r = SA_REG[k], x = x0 + r.x * cw, y = y0 + r.y * ch;
+        return '<g class="reg' + (SA.reg === k ? ' on' : '') + '" data-act="saReg" data-id="' + k + '"><rect x="' + x + '" y="' + y + '" width="' + cw + '" height="' + ch + '" rx="6"/><text x="' + (x + cw / 2) + '" y="' + (y + ch / 2) + '" text-anchor="middle">' + r.n.split(' ').map(function (w, i, a) { return '<tspan x="' + (x + cw / 2) + '" dy="' + (i ? 12 : -(a.length - 1) * 6) + '">' + w + '</tspan>'; }).join('') + '</text><text class="cnt" x="' + (x + cw - 8) + '" y="' + (y + 14) + '" text-anchor="end">' + r.dx.length + '</text></g>';
+    }).join('');
+    var svg = '<svg viewBox="0 0 ' + (W + 20) + ' ' + H + '" class="satmap"><path class="torso" d="M60 20 C 40 60 20 120 25 200 C 28 260 40 320 70 350 L 290 350 C 320 320 332 260 335 200 C 340 120 320 60 300 20 Z"/>' +
+        '<path class="costal" d="M40 70 Q 180 150 320 70"/><circle cx="175" cy="187" r="5" class="umb"/>' + cells +
+        '<text x="175" y="16" text-anchor="middle" class="muted">patient facing you – patient\'s RIGHT is on your LEFT</text></svg>';
+    var r = SA.reg === 'diff' ? { n: 'Diffuse abdominal pain', dx: SA_DIFFUSE } : SA.reg ? SA_REG[SA.reg] : null;
+    var side = r ? '<h3>' + h(r.n) + '</h3><table class="sat-t"><tr><th>Diagnosis</th><th>Key sign</th><th>First test</th></tr>' + r.dx.map(function (d) { return '<tr><td><b>' + h(d[0]) + '</b>' + saLecLink(d[3]) + '</td><td>' + h(d[1]) + '</td><td>' + h(d[2]) + '</td></tr>'; }).join('') + '</table>' +
+        '<p class="muted small">Always: β-hCG in women of child-bearing age, ECG in epigastric pain, urinalysis, and think of medical mimics.</p>'
+        : '<p class="muted">Tap a region of the abdomen to see what can hurt there, the key sign and the first test to order.</p>';
+    return '<div class="sat-2"><div class="card">' + svg + '<div class="row center"><button class="btn sm' + (SA.reg === 'diff' ? ' primary' : '') + '" data-act="saReg" data-id="diff">Diffuse pain</button></div></div><div class="card">' + side + '</div></div>';
+}
+/* ---- 2. signs ---- */
+function saRx(inner, ov, us) {
+    return '<svg viewBox="0 0 240 170" class="rx' + (us ? ' us' : '') + '"><rect width="240" height="170" class="rxbg"/>' + inner + '<g class="ov">' + ov + '</g></svg>';
+}
+var SA_RXD = {
+    pneumo: function () { return saRx('<path d="M20 150 L20 40 Q 70 10 120 30 Q 170 10 220 40 L220 150" class="soft"/><path d="M30 75 Q 70 50 110 70" class="dia"/><path d="M130 75 Q 170 50 210 70" class="dia"/><path d="M40 72 Q 70 55 100 70 Q 70 62 40 72" class="air"/>', '<ellipse cx="70" cy="64" rx="38" ry="12"/><text x="120" y="110" text-anchor="middle">free air under R hemidiaphragm</text>'); },
+    rigler: function () { return saRx('<path d="M10 0 L230 0 L230 170 L10 170 Z" class="air2"/><path d="M60 50 C 100 40 140 60 180 50 M60 70 C 100 60 140 80 180 70" class="wall"/>', '<path d="M60 50 C 100 40 140 60 180 50 M60 70 C 100 60 140 80 180 70" class="hl"/><text x="120" y="110" text-anchor="middle">inner AND outer wall visible</text>'); },
+    levels: function () { var s = ''; [[40, 60], [100, 80], [150, 55], [70, 115], [140, 120], [190, 95]].forEach(function (p) { s += '<path d="M' + (p[0] - 22) + ' ' + p[1] + ' a22 16 0 0 1 44 0 Z" class="air"/><line x1="' + (p[0] - 22) + '" y1="' + p[1] + '" x2="' + (p[0] + 22) + '" y2="' + p[1] + '" class="lvl"/>'; }); return saRx(s, '<line x1="10" y1="140" x2="230" y2="40" class="hl"/><text x="120" y="160" text-anchor="middle">"step-ladder" levels</text>'); },
+    coffee: function () { return saRx('<path d="M70 160 C 20 60 80 10 120 60 C 160 10 220 60 170 160" class="air big"/><path d="M120 60 L120 150" class="wall"/>', '<path d="M120 60 L120 150" class="hl"/><text x="120" y="25" text-anchor="middle">bean pointing to RUQ, cleft = apposed walls</text>'); },
+    beak: function () { return saRx('<path d="M90 0 L150 0 C 160 60 160 100 125 140 L118 140 C 80 100 80 60 90 0 Z" class="ba"/><path d="M120 140 L122 160" class="ba thin"/>', '<circle cx="121" cy="142" r="12"/><text x="140" y="125">smooth tapering</text>'); },
+    apple: function () { return saRx('<path d="M10 60 L90 60 C 100 72 110 75 120 74 C 130 75 140 72 150 60 L230 60 L230 110 L150 110 C 140 98 130 95 120 96 C 110 95 100 98 90 110 L10 110 Z" class="ba"/>', '<rect x="85" y="55" width="70" height="60" rx="8"/><text x="120" y="140" text-anchor="middle">shouldered annular narrowing</text>'); },
+    string: function () { return saRx('<path d="M10 70 C 40 60 60 80 80 72 L80 98 C 60 106 40 90 10 100 Z" class="ba"/><path d="M80 82 L190 86" class="ba thin"/><path d="M190 60 C 220 60 230 90 230 120 L190 120 Z" class="ba"/>', '<line x1="80" y1="70" x2="190" y2="74" class="hl"/><text x="135" y="120" text-anchor="middle">long narrow terminal ileum</text>', false); },
+    target: function () { return saRx('<circle cx="120" cy="85" r="55" class="usr1"/><circle cx="120" cy="85" r="38" class="usr2"/><circle cx="120" cy="85" r="22" class="usr1"/><circle cx="120" cy="85" r="9" class="usr2"/>', '<circle cx="120" cy="85" r="60"/><text x="120" y="162" text-anchor="middle">concentric rings (bowel in bowel)</text>', true); },
+    triad: function () { return saRx('<path d="M40 30 L80 60 M60 40 L70 70 M50 50 L90 45" class="air thin"/><path d="M130 70 a20 14 0 0 1 40 0 Z M170 100 a20 14 0 0 1 40 0 Z" class="air"/><circle cx="110" cy="140" r="11" class="stone"/>', '<text x="25" y="22">1 aerobilia</text><text x="150" y="60">2 SBO</text><text x="70" y="165">3 ectopic stone</text><circle cx="110" cy="140" r="16"/>'); },
+    thumb: function () { return saRx('<path d="M20 60 L220 60 L220 110 L20 110 Z" class="air"/><path d="M50 60 a12 10 0 0 0 24 0 M100 60 a12 10 0 0 0 24 0 M150 60 a12 10 0 0 0 24 0 M70 110 a12 10 0 0 1 24 0 M130 110 a12 10 0 0 1 24 0" class="soft2"/>', '<path d="M50 60 a12 10 0 0 0 24 0 M100 60 a12 10 0 0 0 24 0 M150 60 a12 10 0 0 0 24 0" class="hl"/><text x="120" y="145" text-anchor="middle">submucosal oedema/haemorrhage</text>'); },
+    pipe: function () { return saRx('<path d="M20 70 L220 70 L220 100 L20 100 Z" class="ba"/>', '<text x="120" y="130" text-anchor="middle">no haustra – smooth tube</text><line x1="20" y1="65" x2="220" y2="65" class="hl"/>'); },
+    mega: function () { return saRx('<path d="M30 140 L30 50 C 30 30 210 30 210 50 L210 140 L180 140 L180 70 L60 70 L60 140 Z" class="air big"/>', '<line x1="120" y1="32" x2="120" y2="70" class="hl"/><text x="125" y="95">> 6 cm</text>'); },
+    sentinel: function () { return saRx('<ellipse cx="120" cy="75" rx="30" ry="12" class="air"/><path d="M30 60 L80 60 L80 80 L30 80 Z" class="air"/>', '<ellipse cx="120" cy="75" rx="36" ry="18"/><text x="120" y="120" text-anchor="middle">isolated dilated jejunal loop</text><line x1="82" y1="55" x2="82" y2="85" class="hl"/><text x="40" y="50">cut-off</text>'); },
+    gbwall: function () { return saRx('<ellipse cx="120" cy="85" rx="80" ry="40" class="usw"/><ellipse cx="120" cy="85" rx="68" ry="30" class="usl"/><circle cx="150" cy="100" r="9" class="usst"/><path d="M144 110 L140 170 L160 170 L156 110 Z" class="shadow"/>', '<text x="20" y="25">thick wall</text><text x="165" y="130">stone + shadow</text><ellipse cx="120" cy="85" rx="84" ry="44"/>', true); },
+    lily: function () { return saRx('<circle cx="120" cy="85" r="60" class="usl"/><path d="M85 90 C 100 70 120 110 140 80 C 150 70 160 95 165 90" class="mem"/>', '<path d="M85 90 C 100 70 120 110 140 80 C 150 70 160 95 165 90" class="hl"/><text x="120" y="160" text-anchor="middle">floating detached membrane</text>', true); },
+    dduct: function () { return saRx('<path d="M80 10 L90 120" class="duct"/><path d="M95 125 C 140 120 180 110 230 100" class="duct"/><circle cx="92" cy="125" r="9" class="mass"/>', '<text x="20" y="60">CBD ↑</text><text x="150" y="95">Wirsung ↑</text><circle cx="92" cy="125" r="14"/>'); }
+};
+function saSigns() {
+    var f = SA.sigF;
+    var tabs = '<div class="row"><button class="btn sm' + (f === 'r' ? ' primary' : '') + '" data-act="saSigF" data-id="r">Imaging signs (' + SA_RSIGNS.length + ')</button><button class="btn sm' + (f === 'c' ? ' primary' : '') + '" data-act="saSigF" data-id="c">Clinical signs (' + SA_CSIGNS.length + ')</button>' + (f === 'r' ? '<span class="grow"></span><button class="btn sm" data-act="saSigAll">Show / hide all</button>' : '') + '</div>';
+    if (f === 'c')
+        return tabs + '<div class="sat-cards">' + SA_CSIGNS.map(function (s, i) {
+            var on = SA.sig['c' + i];
+            return '<div class="card csig" data-act="saSig" data-id="c' + i + '"><div class="csig-h"><span class="reg-dot">' + h(SA_REG[s[1]].n) + '</span><b>' + h(s[0]) + '</b></div><p>' + h(s[2]) + '</p><p class="' + (on ? 'ans' : 'blur') + '">→ ' + h(s[3]) + '</p></div>';
+        }).join('') + '</div>';
+    return tabs + '<div class="sat-cards">' + SA_RSIGNS.map(function (s) {
+        var on = SA.sig[s[0]];
+        return '<div class="card rsig' + (on ? ' on' : '') + '"><div class="csig-h"><b>' + h(s[1]) + '</b><span class="muted small">' + h(s[2]) + '</span></div>' + (SA_RXD[s[0]] ? SA_RXD[s[0]]() : '') +
+            '<button class="btn sm" data-act="saSig" data-id="' + s[0] + '">' + (on ? 'Hide' : 'Show the sign') + '</button><p class="' + (on ? 'ans' : 'blur') + '"><b>' + h(s[3]) + '</b><br>→ ' + h(s[4]) + '</p></div>';
+    }).join('') + '</div><p class="muted small">Schematic drawings, not real images.</p>';
+}
+/* ---- 3. operations ---- */
+var SA_PARTS = [
+    ['liver', 'f', 'M40 70 Q120 40 215 60 L205 105 Q150 150 70 145 Z', 'Liver', 'lv'],
+    ['spleen', 'f', 'M318 150 C 340 140 360 160 352 185 C 345 200 325 198 318 185 C 312 172 312 160 318 150 Z', 'Spleen', 'sp'],
+    ['oes', 't', 'M221 0 L222 92', 'Oesophagus', 'up'],
+    ['fundus', 'f', 'M222 92 C 215 70 250 60 268 80 C 278 92 275 105 265 110 L 236 110 Z', 'Gastric fundus', 'st'],
+    ['body', 'f', 'M236 110 L265 110 C 285 130 285 165 265 175 L 238 172 C 232 150 232 130 236 110 Z', 'Gastric body', 'st'],
+    ['antrum', 'f', 'M238 172 L265 175 C 250 200 225 200 205 197 L 205 182 C 220 182 232 178 238 172 Z', 'Antrum', 'st'],
+    ['pylorus', 'f', 'M196 181 L205 182 L205 197 L196 196 Z', 'Pylorus', 'st'],
+    ['d1', 't', 'M196 189 L170 190', 'Duodenum D1', 'sb'],
+    ['d2', 't', 'M168 191 C 158 200 158 240 166 252', 'Duodenum D2 (ampulla)', 'sb'],
+    ['d3', 't', 'M168 255 C 190 262 215 262 232 255', 'Duodenum D3–D4', 'sb'],
+    ['jej', 't', 'M234 254 C 248 246 250 236 252 232 C 290 240 300 270 285 300 C 270 320 300 335 290 350 C 280 365 250 350 240 365', 'Jejunum', 'sb'],
+    ['ileum', 't', 'M240 365 C 225 380 210 360 195 372 C 185 380 175 378 168 372', 'Ileum', 'sb'],
+    ['tileum', 't', 'M166 372 L 130 378', 'Terminal ileum', 'sb'],
+    ['caecum', 'f', 'M100 372 C 100 358 128 358 128 375 C 128 395 100 398 100 385 Z', 'Caecum', 'co'],
+    ['app', 't2', 'M112 396 C 110 408 115 416 122 420', 'Appendix', 'co'],
+    ['asc', 't', 'M113 360 L113 292', 'Ascending colon', 'co'],
+    ['trans1', 't', 'M113 286 C 140 278 180 290 210 285', 'Transverse colon (right half)', 'co'],
+    ['trans2', 't', 'M212 285 C 250 280 300 290 330 283', 'Transverse colon (left half) + splenic flexure', 'co'],
+    ['desc', 't', 'M332 288 L332 398', 'Descending colon', 'co'],
+    ['sig', 't', 'M332 401 C 330 440 290 450 270 430 C 255 418 238 425 234 438', 'Sigmoid colon', 'co'],
+    ['rect1', 't', 'M233 441 L233 468', 'Upper / mid rectum', 'co'],
+    ['rect2', 't', 'M233 471 L233 492', 'Lower rectum', 'co'],
+    ['anal', 't2', 'M233 495 L233 512', 'Anal canal + sphincters', 'co'],
+    ['gb', 'f', 'M120 140 C 110 150 115 175 132 172 C 145 168 150 150 142 140 Z', 'Gallbladder', 'bi'],
+    ['cbd', 't2', 'M145 128 C 150 150 160 190 165 228', 'Common bile duct', 'bi'],
+    ['phead', 'f', 'M168 205 C 185 200 200 205 205 215 C 200 235 185 245 172 240 C 165 230 165 215 168 205 Z', 'Pancreatic head', 'pa'],
+    ['pbody', 'f', 'M205 212 C 230 205 260 205 280 200 L 282 212 C 260 218 230 222 205 225 Z', 'Pancreatic body', 'pa'],
+    ['ptail', 'f', 'M280 200 C 295 195 305 190 315 188 L 317 198 C 305 202 295 208 282 212 Z', 'Pancreatic tail', 'pa']
+];
+function saBody(op, mode) {
+    var O = SA.op || {}, rm = {}, by = {}, sel = O.sel || {};
+    (op.rm || []).forEach(function (p) { rm[p] = 1; });
+    (op.bypass || []).forEach(function (p) { by[p] = 1; });
+    var s = SA_PARTS.map(function (p) {
+        var cls = 'op-' + p[4] + ' ' + (p[1] === 'f' ? 'pf' : p[1] === 't' ? 'pt' : 'pt thin');
+        if (mode === 'quiz') {
+            if (O.chk)
+                cls += rm[p[0]] ? (sel[p[0]] ? ' good' : ' miss') : (sel[p[0]] ? ' bad' : '');
+            else if (sel[p[0]])
+                cls += ' sel';
+        }
+        if (mode === 'after') {
+            if (rm[p[0]])
+                cls += ' gone';
+            if (by[p[0]])
+                cls += ' excl';
+        }
+        return '<path d="' + p[2] + '" class="' + cls + '"' + (mode === 'quiz' && !O.chk ? ' data-act="saPart" data-id="' + p[0] + '"' : '') + '><title>' + h(p[3]) + '</title></path>';
+    }).join('');
+    var LB = { liver: [80, 95], spleen: [356, 150], oes: [228, 30], fundus: [272, 78], body: [282, 140], antrum: [232, 205], d2: [128, 225], d3: [190, 275], jej: [300, 320], ileum: [210, 392], caecum: [72, 372], asc: [80, 325], trans1: [140, 276], trans2: [270, 276], desc: [342, 345], sig: [292, 462], rect1: [240, 456], rect2: [240, 484], anal: [240, 508], gb: [92, 165], cbd: [124, 205], phead: [150, 250], pbody: [228, 238], ptail: [300, 214], pylorus: [180, 176] };
+    var PN = {};
+    SA_PARTS.forEach(function (p) { PN[p[0]] = p[3]; });
+    s += Object.keys(LB).map(function (k) { return '<text x="' + LB[k][0] + '" y="' + LB[k][1] + '" class="op-pl">' + h(PN[k].replace('Duodenum ', '').replace(' (ampulla)', '').replace(' + splenic flexure', '').replace('Transverse colon', 'Transv.').replace('Pancreatic ', 'Panc. ').replace('Gastric ', '')) + '</text>'; }).join('');
+    if (mode === 'after') {
+        s += (op.add || []).map(function (a) { return '<path d="' + a.d + '" class="op-add"/>'; }).join('');
+        s += (op.mk || []).map(function (m) { return '<circle cx="' + m[0] + '" cy="' + m[1] + '" r="6" class="op-mk"/><text x="' + (m[0] + 9) + '" y="' + (m[1] + 4) + '" class="op-lbl">' + h(m[2]) + '</text>'; }).join('');
+    }
+    var vb = op.v === 'low' ? '60 250 340 270' : '20 0 360 280';
+    return '<svg viewBox="' + vb + '" class="opsvg">' + s + '</svg>';
+}
+function saOps() {
+    if (!SA.op) {
+        return '<p class="muted">Choose an operation. First <b>tap the organs that are removed</b>, then <b>pick the anastomoses</b>, then see the reconstruction, the steps and the complications.</p><div class="sat-cards">' + SA_OPS.map(function (o) { return '<a href="#" class="card lc" data-act="saOp" data-id="' + o.id + '"><b>' + h(o.n) + '</b><span class="muted small">' + h(o.ind) + '</span></a>'; }).join('') + '</div>';
+    }
+    var O = SA.op, op = SA_OPS.filter(function (x) { return x.id === O.id; })[0];
+    var head = '<div class="row"><button class="btn sm" data-act="saOpBack">← All operations</button><h2 style="margin:0 8px">' + h(op.n) + '</h2></div><p class="muted small">Indication: ' + h(op.ind) + '</p>';
+    var stage = O.stage || 0, html = '';
+    var names = {};
+    SA_PARTS.forEach(function (p) { names[p[0]] = p[3]; });
+    if (stage === 0) {
+        var nothing = !op.rm.length;
+        html = '<div class="sat-2"><div class="card">' + saBody(op, 'quiz') + '</div><div class="card"><h3>1 · Tap everything that is REMOVED</h3>' + (nothing ? '<p class="small muted">Careful: in some operations nothing (or only part of an organ) is removed.</p>' : '') +
+            '<p class="small">Selected: ' + (Object.keys(O.sel).filter(function (k) { return O.sel[k]; }).map(function (k) { return h(names[k]); }).join(', ') || '<i>nothing</i>') + '</p>' +
+            (O.chk ? '<div class="note ' + (O.ok ? 'ok' : 'hint') + '">' + (O.ok ? '✓ Exactly.' : 'Removed: <b>' + (op.rm.length ? op.rm.map(function (k) { return h(names[k]); }).join(', ') : 'nothing – the stomach is only excluded (bypassed)') + '</b>') + (op.partial ? ' (only partly – the lesser-curve tube remains)' : '') + '</div><p class="small"><span class="lg good"></span> correct <span class="lg miss"></span> missed <span class="lg bad"></span> should stay</p><button class="btn primary" data-act="saOpNext">2 · Anastomoses →</button>' : '<button class="btn primary" data-act="saOpChk">Check</button>') + '</div></div>';
+    }
+    else if (stage === 1) {
+        html = '<div class="card"><h3>2 · What is reconstructed? (tick all)</h3><div class="cxtests">' + op.ana.map(function (a, i) {
+            var on = O.ana[i], cls = !O.achk ? '' : a[1] ? (on ? ' good' : ' miss') : (on ? ' bad' : ' dim');
+            return '<label class="cxt' + cls + '"><input type="checkbox" data-act="saAna" data-id="' + i + '" ' + (on ? 'checked' : '') + ' ' + (O.achk ? 'disabled' : '') + '> ' + h(a[0]) + '</label>';
+        }).join('') + '</div>' + (O.achk ? '<button class="btn primary" data-act="saOpNext">3 · See the reconstruction →</button>' : '<button class="btn primary" data-act="saAnaChk">Check</button>') + '</div>';
+    }
+    else {
+        html = '<div class="sat-2"><div class="card"><h3>After the operation</h3>' + saBody(op, 'after') + '' + (op.add || []).filter(function (a) { return a.l; }).map(function (a) { return '<p class="small" style="color:#1e88e5;margin:4px 0">━ ' + h(a.l) + '</p>'; }).join('') + '<p class="small muted">Faded = removed' + (op.bypass ? ', grey = excluded (left in place)' : '') + ', blue = new connections, dots = anastomoses/stomas.</p></div><div class="card"><h3>Steps</h3><ol>' + op.steps.map(function (s) { return '<li>' + h(s) + '</li>'; }).join('') + '</ol><h3>Complications to know</h3><p>' + h(op.cx) + '</p><div class="row"><button class="btn" data-act="saOp" data-id="' + op.id + '">Redo</button>' + (function () { var i = SA_OPS.indexOf(op), n = SA_OPS[i + 1]; return n ? '<button class="btn primary" data-act="saOp" data-id="' + n.id + '">Next: ' + h(n.n) + ' →</button>' : ''; })() + '</div></div></div>';
+    }
+    return head + '<div class="cxsteps"><span class="' + (stage > 0 ? 'ok' : 'cur') + '">1. Removed</span><span class="' + (stage > 1 ? 'ok' : stage === 1 ? 'cur' : '') + '">2. Anastomoses</span><span class="' + (stage === 2 ? 'cur' : '') + '">3. Reconstruction</span></div>' + html;
+}
+/* ---- 4. anatomy layers ---- */
+var SA_AN = {
+    calot: { n: "Calot's triangle & critical view of safety", vb: '0 0 360 270', L: [
+            ['base', 'Liver & gallbladder', '<path d="M0 0 L360 0 L360 70 Q 200 95 0 60 Z" class="an-liver"/><path d="M40 120 C 30 160 70 230 120 215 C 150 205 160 170 150 135 C 140 110 60 95 40 120 Z" class="an-gb"/><text x="70" y="175" class="an-t">gallbladder</text><text x="250" y="40" class="an-t">liver (segment IV/V)</text>'],
+            ['ducts', 'Bile ducts', '<path d="M150 150 C 170 160 190 165 205 165" class="an-duct"/><path d="M200 70 L205 165 L210 265" class="an-duct"/><text x="155" y="180" class="an-t">cystic duct</text><text x="214" y="110" class="an-t">CHD</text><text x="215" y="240" class="an-t">CBD</text>'],
+            ['arteries', 'Arteries', '<path d="M330 200 C 280 170 240 130 215 110 C 200 100 180 95 160 90" class="an-art"/><path d="M190 100 C 170 115 155 125 145 128" class="an-art thin"/><text x="250" y="175" class="an-t r">right hepatic a.</text><text x="125" y="105" class="an-t r">cystic a.</text>'],
+            ['tri', "Calot's triangle", '<path d="M150 150 L205 165 L203 92 Z" class="an-tri"/><text x="160" y="140" class="an-t b">Calot</text>', "Calot's triangle: cystic duct, common hepatic duct and the cystic artery (hepatocystic triangle = liver edge as upper border). Contains the cystic artery and Calot's lymph node."],
+            ['cvs', 'Critical view of safety', '<text x="10" y="252" class="an-t b">CVS</text><circle cx="180" cy="140" r="48" class="an-tri" style="fill:none"/>', 'Critical view of safety: 1) hepatocystic triangle cleared of fat and fibrous tissue, 2) lower third of the gallbladder separated from the liver bed, 3) only TWO structures (cystic duct + cystic artery) enter the gallbladder.'],
+            ['danger', 'Danger: bile duct injury', '<path d="M205 165 L210 265" class="an-danger"/><text x="222" y="205" class="an-t r">CBD</text>', 'Classic bile duct injury: the CBD is mistaken for the cystic duct and clipped/divided (Strasberg E) – prevented by the critical view of safety.']
+        ] },
+    ing: { n: 'Inguinal canal & groin hernias', vb: '0 0 360 270', L: [
+            ['base', 'Landmarks', '<path d="M320 40 L50 230" class="an-lig"/><text x="296" y="32" class="an-t">ASIS</text><text x="20" y="252" class="an-t">pubic tubercle</text><path d="M112 0 L112 200" class="an-rect"/><text x="116" y="12" class="an-t">rectus edge</text><text x="258" y="100" class="an-t">inguinal lig.</text>'],
+            ['ves', 'Inferior epigastric & femoral vessels', '<path d="M205 121 C 185 90 160 50 135 10" class="an-art"/><text x="168" y="55" class="an-t r">IEV</text><path d="M215 125 L228 265" class="an-art"/><path d="M196 135 L206 265" class="an-vein"/><text x="232" y="250" class="an-t">femoral a.</text><text x="160" y="262" class="an-t">femoral v.</text>', 'Inferior epigastric vessels arise from the external iliac just above the inguinal ligament: the landmark between indirect (lateral) and direct (medial) hernias.'],
+            ['ring', 'Deep & superficial rings', '<ellipse cx="240" cy="86" rx="13" ry="8" class="an-ring"/><text x="255" y="78" class="an-t">deep ring</text><ellipse cx="92" cy="190" rx="11" ry="7" class="an-ring"/><text x="20" y="180" class="an-t">superf. ring</text>', 'Deep ring: hole in transversalis fascia, mid-point of inguinal ligament, lateral to IEV. Superficial ring: in external oblique aponeurosis, above the pubic tubercle.'],
+            ['hess', "Hesselbach's triangle", '<path d="M112 186 L203 123 L128 22 L112 22 Z" class="an-tri"/><text x="122" y="150" class="an-t b">Hesselbach</text>', "Hesselbach's triangle: rectus edge (medial), inferior epigastric vessels (lateral), inguinal ligament (inferior) – weak posterior wall."],
+            ['ind', 'Indirect hernia (lateral)', '<path d="M240 86 C 200 112 140 160 92 190 C 80 205 72 225 66 245" class="an-hern"/><text x="250" y="110" class="an-t r">indirect</text>', 'INDIRECT: through the deep ring, LATERAL to the IEV, along the canal, can reach the scrotum; most common (also in women and children – patent processus vaginalis).'],
+            ['dir', 'Direct hernia (medial)', '<ellipse cx="152" cy="120" rx="20" ry="15" class="an-hern2"/><text x="130" y="96" class="an-t r">direct</text>', 'DIRECT: bulges through Hesselbach\'s triangle, MEDIAL to the IEV; elderly men, rarely strangulates.'],
+            ['fem', 'Femoral hernia', '<ellipse cx="176" cy="178" rx="9" ry="12" class="an-hern3"/><text x="130" y="205" class="an-t r">femoral</text>', 'FEMORAL: BELOW the inguinal ligament and lateral to the pubic tubercle, medial to the femoral vein; women; high strangulation risk → always operate.']
+        ] },
+    vasc: { n: 'Arterial supply of the gut & watersheds', vb: '0 0 360 300', L: [
+            ['base', 'Aorta', '<path d="M180 0 L180 300" class="an-aorta"/><text x="188" y="295" class="an-t">aorta</text>'],
+            ['ce', 'Coeliac trunk (foregut)', '<path d="M180 40 L150 40" class="an-art"/><path d="M150 40 L120 15 M150 40 L60 40 M150 40 L110 65 L80 85 M110 65 L105 95" class="an-art thin"/><text x="85" y="12" class="an-t">left gastric</text><text x="20" y="35" class="an-t">splenic</text><text x="40" y="95" class="an-t">GDA</text><text x="112" y="100" class="an-t">proper hepatic</text>'],
+            ['sma', 'SMA (midgut)', '<path d="M180 80 C 200 120 205 170 200 230" class="an-art"/><path d="M190 105 C 220 100 250 105 280 120 M196 140 L250 150 M200 180 L260 200 M200 230 L230 260 M195 120 L150 125 M200 160 L140 175" class="an-art thin"/><text x="235" y="95" class="an-t">middle colic</text><text x="255" y="160" class="an-t">right colic</text><text x="235" y="275" class="an-t">ileocolic</text><text x="100" y="160" class="an-t">jejunal/ileal</text>'],
+            ['ima', 'IMA (hindgut)', '<path d="M180 200 C 150 220 130 240 120 290" class="an-art"/><path d="M160 215 L80 190 M140 240 L80 250 M125 280 L125 300" class="an-art thin"/><text x="20" y="185" class="an-t">left colic</text><text x="20" y="258" class="an-t">sigmoid</text><text x="40" y="298" class="an-t">superior rectal</text>'],
+            ['ws', 'Watersheds', '<circle cx="80" cy="150" r="14" class="an-danger2"/><text x="10" y="140" class="an-t r">Griffiths (splenic flexure)</text><circle cx="110" cy="278" r="12" class="an-danger2"/><text x="10" y="272" class="an-t r">Sudeck</text>', 'Watershed areas between SMA and IMA (Griffiths point, splenic flexure) and between IMA and internal iliac (Sudeck point, rectosigmoid) are the classic sites of ischaemic colitis. Marginal artery of Drummond links the territories.']
+        ] },
+    thy: { n: 'Thyroidectomy: nerves & parathyroids', vb: '0 0 360 280', L: [
+            ['base', 'Trachea & thyroid', '<rect x="160" y="0" width="40" height="280" rx="14" class="an-trach"/><path d="M150 80 C 100 70 95 170 140 180 L160 150 L160 110 Z" class="an-thy"/><path d="M210 80 C 260 70 265 170 220 180 L200 150 L200 110 Z" class="an-thy"/><rect x="160" y="135" width="40" height="18" class="an-thy"/><text x="62" y="70" class="an-t">right lobe</text><text x="250" y="70" class="an-t">left lobe</text>'],
+            ['art', 'Thyroid arteries', '<path d="M60 20 C 100 40 120 60 140 80" class="an-art thin"/><path d="M40 230 C 80 200 110 180 130 165" class="an-art thin"/><text x="10" y="18" class="an-t">sup. thyroid a.</text><text x="5" y="248" class="an-t">inf. thyroid a.</text>'],
+            ['nerve', 'Recurrent laryngeal & EBSLN', '<path d="M150 270 C 152 220 150 150 158 60" class="an-nerve"/><path d="M212 270 L204 60" class="an-nerve"/><path d="M80 10 C 110 30 125 50 135 70" class="an-nerve thin"/><text x="100" y="262" class="an-t r">R RLN</text><text x="216" y="262" class="an-t r">L RLN</text><text x="60" y="48" class="an-t r">EBSLN</text>', 'Right RLN loops around the subclavian artery (more oblique), left RLN around the aortic arch (vertical, in the tracheo-oesophageal groove). EBSLN runs with the superior thyroid artery → ligate close to the gland.'],
+            ['para', 'Parathyroids', '<circle cx="130" cy="100" r="7" class="an-para"/><circle cx="130" cy="165" r="7" class="an-para"/><circle cx="230" cy="100" r="7" class="an-para"/><circle cx="230" cy="165" r="7" class="an-para"/><text x="240" y="125" class="an-t">4 parathyroids (posterior)</text>'],
+            ['danger', 'Danger zones', '<circle cx="140" cy="172" r="16" class="an-danger2"/><text x="40" y="205" class="an-t r">RLN × ITA</text>', 'The recurrent laryngeal nerve crosses the inferior thyroid artery: injury → hoarseness (unilateral) or stridor (bilateral). Parathyroid injury/devascularisation → hypocalcaemia (tetany, Chvostek, Trousseau). EBSLN injury → loss of high-pitched voice.']
+        ] }
+};
+function saAnat() {
+    var a = SA_AN[SA.an], lay = SA.lay[SA.an] || (SA.lay[SA.an] = { base: 1, ducts: 1, ves: 1, ring: 1 });
+    lay.base = 1;
+    var nav = '<div class="row">' + Object.keys(SA_AN).map(function (k) { return '<button class="btn sm' + (SA.an === k ? ' primary' : '') + '" data-act="saAn" data-id="' + k + '">' + h(SA_AN[k].n) + '</button>'; }).join('') + '</div>';
+    var svg = '<svg viewBox="' + a.vb + '" class="ansvg">' + a.L.filter(function (l) { return lay[l[0]]; }).map(function (l) { return '<g>' + l[2] + '</g>'; }).join('') + '</svg>';
+    var ctl = a.L.slice(1).map(function (l) { return '<label class="cxt"><input type="checkbox" data-act="saLay" data-id="' + l[0] + '" ' + (lay[l[0]] ? 'checked' : '') + '> ' + h(l[1]) + '</label>'; }).join('');
+    var desc = a.L.filter(function (l) { return lay[l[0]] && l[3]; }).map(function (l) { return '<p class="small"><b>' + h(l[1]) + ':</b> ' + h(l[3]) + '</p>'; }).join('');
+    return nav + '<div class="sat-2"><div class="card">' + svg + desc + '</div><div class="card"><h3>Layers</h3>' + ctl + '<div class="row"><button class="btn sm" data-act="saLayAll" data-id="1">All</button><button class="btn sm" data-act="saLayAll" data-id="0">None</button></div><p class="muted small">Switch layers off and try to name what is missing before switching them back on.</p></div></div>';
+}
+/* ---- 5. timelines ---- */
+function saTime() {
+    var T = SA_TL[SA.tl], s = T.st[SA.tls] || T.st[0];
+    return '<div class="row">' + SA_TL.map(function (t, i) { return '<button class="btn sm' + (SA.tl === i ? ' primary' : '') + '" data-act="saTl" data-id="' + i + '">' + h(t.n) + '</button>'; }).join('') + '</div>' +
+        '<div class="card"><div class="tl">' + T.st.map(function (x, i) { return '<div class="tl-st' + (i === SA.tls ? ' on' : '') + '" data-act="saTls" data-id="' + i + '" style="--k:' + (i / Math.max(1, T.st.length - 1)) + '"><span class="tl-n">' + (i + 1) + '</span><b>' + h(x[0]) + '</b></div>'; }).join('<span class="tl-ar">→</span>') + '</div>' +
+        '<div class="tl-d"><div><span class="muted small">Clinical</span><p>' + h(s[1] || '–') + '</p></div><div><span class="muted small">Labs / imaging</span><p>' + h(s[2] || '–') + '</p></div><div><span class="muted small">Management</span><p><b>' + h(s[3] || '–') + '</b></p></div></div></div>';
+}
+/* ---- 6. scores ---- */
+function saScoreVal(k) {
+    var d = SA_SC[k], v = SA.scv[k] || (SA.scv[k] = { it: {}, sel: {} }), s = 0;
+    (d.it || []).forEach(function (x, i) { if (v.it[i])
+        s += x[1]; });
+    (d.sel || []).forEach(function (x, i) { var j = v.sel[i] || 0; s += x[2] ? x[2][j] : (j + 1); });
+    return s;
+}
+function saScore() {
+    var k = SA.sc, d = SA_SC[k], v = SA.scv[k] || (SA.scv[k] = { it: {}, sel: {} });
+    var nav = '<div class="row">' + Object.keys(SA_SC).map(function (x) { return '<button class="btn sm' + (k === x ? ' primary' : '') + '" data-act="saSc" data-id="' + x + '">' + h(SA_SC[x].n.split(' (')[0]) + '</button>'; }).join('') + '</div>';
+    var form = '', res = '';
+    if (d.pick) {
+        form = d.pick.map(function (p, i) { return '<button class="btn cxo' + (v.pick === i ? ' good' : '') + '" data-act="saPick" data-id="' + i + '">' + h(p[0]) + '</button>'; }).join('');
+        res = v.pick != null ? '<div class="note ok"><b>' + h(d.pick[v.pick][0]) + '</b>' + (d.pick[v.pick][1] ? '<br>→ ' + h(d.pick[v.pick][1]) : '') + '</div>' : '<p class="muted">Pick the category that fits your patient.</p>';
+    }
+    else {
+        form = (d.sel || []).map(function (x, i) { return '<label class="scrow">' + h(x[0]) + ' <select data-sas="' + k + '|' + i + '">' + x[1].map(function (o, j) { return '<option value="' + j + '"' + ((v.sel[i] || 0) === j ? ' selected' : '') + '>' + h(o) + (x[2] ? ' (' + x[2][j] + ')' : ' (' + (j + 1) + ')') + '</option>'; }).join('') + '</select></label>'; }).join('') +
+            (d.it || []).map(function (x, i) { return '<label class="cxt"><input type="checkbox" data-sax="' + k + '|' + i + '" ' + (v.it[i] ? 'checked' : '') + '> ' + h(x[0]) + ' <span class="muted small">+' + x[1] + '</span></label>'; }).join('');
+        var s = saScoreVal(k), r = d.res(s);
+        res = '<div class="scres ' + r[2] + '"><div class="scnum">' + s + '</div><div><b>' + h(r[0]) + '</b><br>' + h(r[1]) + '</div></div>';
+    }
+    return nav + '<div class="sat-2"><div class="card"><h3>' + h(d.n) + '</h3>' + form + '<div class="row"><button class="btn sm" data-act="saScR">Reset</button></div></div><div class="card"><h3>Result</h3>' + res + '</div></div>';
+}
+/* ---- 7. post-op ---- */
+function saPost() {
+    var max = 30, X = function (d) { return 160 + (Math.log(d + 1) / Math.log(max + 1)) * 560; };
+    var rows = SA_PO.map(function (p, i) {
+        var y = 30 + i * 26, x1 = X(p[1]), x2 = p[1] === p[2] ? X(p[2]) + 30 : X(p[2]);
+        return '<g class="po' + (SA.po === i ? ' on' : '') + '" data-act="saPo" data-id="' + i + '"><text x="150" y="' + (y + 13) + '" text-anchor="end" class="po-n">' + h(p[0]) + '</text><rect x="' + x1 + '" y="' + y + '" width="' + Math.max(12, x2 - x1) + '" height="18" rx="9" fill="' + p[5] + '"/></g>';
+    }).join('');
+    var ticks = [0, 1, 2, 3, 5, 7, 10, 14, 21, 30].map(function (d) { return '<line x1="' + X(d) + '" y1="22" x2="' + X(d) + '" y2="' + (30 + SA_PO.length * 26) + '" class="po-g"/><text x="' + X(d) + '" y="16" text-anchor="middle" class="po-tk">D' + d + (d === 30 ? '+' : '') + '</text>'; }).join('');
+    var p = SA.po != null ? SA_PO[SA.po] : null;
+    return '<div class="card"><svg viewBox="0 0 760 ' + (40 + SA_PO.length * 26) + '" class="posvg">' + ticks + rows + '</svg><p class="muted small">Post-operative fever – the "5 W": Wind (D1–2), Water (D3–5), Wound (D5–7), Walking (D5+), Wonder drugs (any time). Tap a bar.</p></div>' +
+        (p ? '<div class="card"><h3>' + h(p[0]) + ' <span class="muted small">day ' + p[1] + (p[2] !== p[1] ? '–' + p[2] : '+') + '</span></h3><p><b>Signs:</b> ' + h(p[3]) + '</p><p><b>Work-up & treatment:</b> ' + h(p[4]) + '</p></div>' : '');
+}
+/* ---- actions ---- */
+function saAct(act, el, id) {
+    switch (act) {
+        case 'saTab':
+            SA.tab = id;
+            break;
+        case 'saReg':
+            SA.reg = SA.reg === id ? null : id;
+            break;
+        case 'saSigF':
+            SA.sigF = id;
+            break;
+        case 'saSig':
+            SA.sig[id] = !SA.sig[id];
+            break;
+        case 'saSigAll': {
+            var any = SA_RSIGNS.some(function (s) { return !SA.sig[s[0]]; });
+            SA_RSIGNS.forEach(function (s) { SA.sig[s[0]] = any; });
+            break;
+        }
+        case 'saOp':
+            SA.op = { id: id, sel: {}, ana: {}, stage: 0 };
+            window.scrollTo(0, 0);
+            break;
+        case 'saOpBack':
+            SA.op = null;
+            break;
+        case 'saPart':
+            SA.op.sel[id] = !SA.op.sel[id];
+            break;
+        case 'saOpChk': {
+            var op = SA_OPS.filter(function (x) { return x.id === SA.op.id; })[0], ok = true;
+            SA_PARTS.forEach(function (p) { if (!!SA.op.sel[p[0]] !== (op.rm.indexOf(p[0]) >= 0))
+                ok = false; });
+            SA.op.chk = true;
+            SA.op.ok = ok;
+            break;
+        }
+        case 'saOpNext':
+            SA.op.stage++;
+            break;
+        case 'saAna':
+            SA.op.ana[+id] = el.checked;
+            return;
+        case 'saAnaChk':
+            SA.op.achk = true;
+            break;
+        case 'saAn':
+            SA.an = id;
+            break;
+        case 'saLay':
+            SA.lay[SA.an][id] = el.checked;
+            break;
+        case 'saLayAll':
+            SA_AN[SA.an].L.forEach(function (l) { SA.lay[SA.an][l[0]] = id === '1'; });
+            break;
+        case 'saTl':
+            SA.tl = +id;
+            SA.tls = 0;
+            break;
+        case 'saTls':
+            SA.tls = +id;
+            break;
+        case 'saSc':
+            SA.sc = id;
+            break;
+        case 'saPick':
+            SA.scv[SA.sc].pick = +id;
+            break;
+        case 'saScR':
+            SA.scv[SA.sc] = { it: {}, sel: {} };
+            break;
+        case 'saPo':
+            SA.po = SA.po === +id ? null : +id;
+            break;
+    }
+    render();
+}
+document.addEventListener('change', function (ev) {
+    var t = ev.target;
+    if (!t || !t.getAttribute)
+        return;
+    var a = t.getAttribute('data-sax'), b = t.getAttribute('data-sas');
+    if (a) {
+        var p = a.split('|');
+        SA.scv[p[0]].it[+p[1]] = t.checked;
+        render();
+    }
+    if (b) {
+        var q = b.split('|');
+        SA.scv[q[0]].sel[+q[1]] = +t.value;
+        render();
+    }
+});
+/* ---------- Endocrinology: body metro map ---------- */
+var EM = { sel: {}, st: null, fault: null };
+var EM_O = {
+    hyp: [200, 44, 'Hypothalamus', 'brain', 'l'], pit: [200, 96, 'Pituitary', 'pit', 'l'], thy: [200, 150, 'Thyroid', 'thy'], para: [232, 160, 'Parathyroids', 'para'],
+    lung: [150, 215, 'Lungs', 'lung'], heart: [210, 238, 'Heart', 'heart'], breast: [265, 222, 'Breast', 'breast'], skin: [320, 170, 'Skin (UVB)', 'skin'],
+    liver: [160, 292, 'Liver', 'liver'], panc: [230, 312, 'Pancreas', 'panc'], adr: [255, 338, 'Adrenal', 'adr'], kid: [255, 372, 'Kidney', 'kid'],
+    gut: [190, 400, 'Intestine', 'gut'], fat: [305, 405, 'Adipose tissue', 'fat'], ves: [95, 360, 'Vessels / BP', 'ves'], blood: [100, 430, 'Blood (glucose, Na, Ca)', 'blood'],
+    gon: [200, 470, 'Gonads', 'gon'], bone: [160, 560, 'Bone', 'bone'], mus: [245, 560, 'Muscle', 'mus']
+};
+var EM_L = [
+    { id: 'thy', n: 'Thyroid axis', c: '#1e88e5', p: ['hyp', 'pit', 'thy', 'heart', 'liver', 'fat', 'bone'], h: ['TRH', 'TSH', 'T4 → T3', '↑ HR, output', '↑ metabolism, cholesterol ↓', 'lipolysis, thermogenesis', 'bone turnover ↑'],
+        fb: [['thy', 'pit', 'T4/T3 ⊣'], ['thy', 'hyp', '⊣']], lec: 'thyroid',
+        info: { thy: 'Follicular cells: T4 (mostly) and T3; iodine-dependent. Diseases: Graves, toxic nodule, Hashimoto, thyroiditis, cancer.', pit: 'Thyrotroph: TSH – first test for thyroid function (except central disease).' },
+        f: [['Graves disease (TSH-receptor Ab)', 'thy', { TSH: '↓', 'T4 → T3': '↑' }, 'TRAb +, diffuse uptake, orbitopathy'], ['Primary hypothyroidism (Hashimoto)', 'thy', { TSH: '↑', 'T4 → T3': '↓' }, 'anti-TPO +'], ['Central hypothyroidism', 'pit', { TSH: '↓/N', 'T4 → T3': '↓' }, 'Do NOT use TSH to monitor – use fT4'], ['TSH-oma', 'pit', { TSH: '↑/N', 'T4 → T3': '↑' }, 'inappropriately normal/high TSH + high fT4']] },
+    { id: 'cort', n: 'Cortisol axis (HPA)', c: '#fb8c00', p: ['hyp', 'pit', 'adr', 'liver', 'fat', 'bone', 'ves'], h: ['CRH', 'ACTH', 'Cortisol', 'gluconeogenesis ↑', 'central fat, lipolysis', 'osteoporosis', 'vascular tone (permissive)'],
+        fb: [['adr', 'pit', 'cortisol ⊣'], ['adr', 'hyp', '⊣']], lec: 'adrenal',
+        info: { adr: 'Zona fasciculata: cortisol (circadian, peak 8 am). Zona glomerulosa: aldosterone. Zona reticularis: androgens.', pit: 'Corticotroph: ACTH (from POMC → also MSH = pigmentation).' },
+        f: [['Cushing disease (pituitary adenoma)', 'pit', { ACTH: '↑', Cortisol: '↑' }, 'high-dose dex suppresses, CRH ↑, IPSS'], ['Adrenal adenoma (ACTH-independent)', 'adr', { ACTH: '↓', Cortisol: '↑' }, 'contralateral atrophy'], ['Ectopic ACTH (small-cell lung)', 'lung', { ACTH: '↑↑', Cortisol: '↑↑' }, 'no dex suppression, hypokalaemia'], ['Addison (primary adrenal failure)', 'adr', { ACTH: '↑', Cortisol: '↓' }, 'pigmentation, hyperK, hypoNa; Synacthen test'], ['Exogenous steroids', 'adr', { ACTH: '↓', Cortisol: '↓ (own)' }, 'never stop abruptly – adrenal crisis']] },
+    { id: 'gon', n: 'Gonadal axis (HPG)', c: '#d81b60', p: ['hyp', 'pit', 'gon', 'bone', 'breast', 'mus'], h: ['GnRH (pulsatile)', 'LH / FSH', 'Testosterone / oestradiol, inhibin', 'epiphyseal closure, bone mass', 'breast development', 'muscle mass'],
+        fb: [['gon', 'pit', 'sex steroids, inhibin ⊣'], ['gon', 'hyp', '⊣']], lec: 'gonads',
+        info: { gon: 'Testis: Leydig (LH → testosterone), Sertoli (FSH → spermatogenesis, inhibin B). Ovary: theca (LH → androgens), granulosa (FSH → aromatase → oestradiol).', hyp: 'GnRH must be PULSATILE – continuous GnRH agonist suppresses the axis (prostate cancer, precocious puberty).' },
+        f: [['Primary hypogonadism (Klinefelter / Turner)', 'gon', { 'LH / FSH': '↑', 'Testosterone / oestradiol, inhibin': '↓' }, 'hypergonadotropic'], ['Kallmann syndrome', 'hyp', { 'GnRH (pulsatile)': '↓', 'LH / FSH': '↓', 'Testosterone / oestradiol, inhibin': '↓' }, 'anosmia + hypogonadotropic hypogonadism'], ['PCOS', 'gon', { 'LH / FSH': 'LH:FSH ↑', 'Testosterone / oestradiol, inhibin': 'androgens ↑' }, 'Rotterdam 2/3'], ['Hyperprolactinaemia', 'pit', { 'LH / FSH': '↓' }, 'PRL inhibits GnRH → amenorrhoea']] },
+    { id: 'gh', n: 'Growth hormone axis', c: '#43a047', p: ['hyp', 'pit', 'liver', 'bone', 'mus', 'fat'], h: ['GHRH (+) / somatostatin (−)', 'GH (pulsatile, sleep)', 'IGF-1', 'linear growth', 'protein synthesis', 'lipolysis, insulin resistance'],
+        fb: [['liver', 'pit', 'IGF-1 ⊣'], ['liver', 'hyp', 'IGF-1 → somatostatin']], lec: 'pituitary',
+        info: { liver: 'IGF-1 = best screening test (stable, no pulses).', pit: 'Somatotroph – most frequent cell type; GH-oma → acromegaly (adults) / gigantism (children).' },
+        f: [['Acromegaly (GH adenoma)', 'pit', { 'GH (pulsatile, sleep)': '↑', 'IGF-1': '↑' }, 'IGF-1 ↑; GH NOT suppressed < 1 µg/l on OGTT'], ['GH deficiency', 'pit', { 'GH (pulsatile, sleep)': '↓', 'IGF-1': '↓' }, 'stimulation test (insulin tolerance, glucagon)']] },
+    { id: 'prl', n: 'Prolactin', c: '#8e24aa', p: ['hyp', 'pit', 'breast'], h: ['Dopamine (−) – tonic inhibition', 'Prolactin', 'lactation'], fb: [['pit', 'hyp', 'PRL → dopamine ↑'], ['pit', 'gon', 'PRL ⊣ GnRH']], lec: 'pituitary',
+        info: { hyp: 'Prolactin is the only pituitary hormone under predominant INHIBITION (dopamine): stalk section → PRL ↑, all others ↓.' },
+        f: [['Prolactinoma', 'pit', { Prolactin: '↑↑ (> 200)' }, 'cabergoline 1st line, even for macroadenoma'], ['Stalk compression (non-functioning macroadenoma)', 'hyp', { 'Dopamine (−) – tonic inhibition': '↓', Prolactin: '↑ (< 100)' }, '"stalk effect"'], ['Antipsychotics / metoclopramide', 'hyp', { 'Dopamine (−) – tonic inhibition': 'blocked', Prolactin: '↑' }, 'drug-induced']] },
+    { id: 'ca', n: 'Calcium & vitamin D', c: '#f9a825', p: ['skin', 'liver', 'kid', 'gut', 'bone', 'blood', 'para'], h: ['7-dehydrocholesterol → D3', '25-OH vit D (storage)', '1,25-(OH)₂ D (1α-hydroxylase, PTH ↑)', 'Ca & P absorption', 'resorption (PTH) / mineralisation', 'Ca²⁺', 'PTH'],
+        fb: [['blood', 'para', 'Ca²⁺ ⊣ (CaSR)'], ['para', 'kid', 'PTH → 1α-OHase, Ca reabsorption, P excretion'], ['para', 'bone', 'PTH → resorption']], lec: 'calcium',
+        info: { para: 'Chief cells sense Ca²⁺ via CaSR. PTH: ↑ Ca, ↓ phosphate.', kid: '1α-hydroxylase (stimulated by PTH, low P) activates vitamin D. CKD → secondary hyperPTH.', thy: 'C-cells: calcitonin (minor role; marker of medullary cancer).' },
+        f: [['Primary hyperparathyroidism (adenoma)', 'para', { PTH: '↑', 'Ca²⁺': '↑' }, 'P ↓; "stones, bones, groans, moans"'], ['Secondary hyperPTH (CKD / vit D deficiency)', 'kid', { PTH: '↑', 'Ca²⁺': '↓ / N', '1,25-(OH)₂ D (1α-hydroxylase, PTH ↑)': '↓' }, 'P ↑ in CKD'], ['Post-thyroidectomy hypoparathyroidism', 'para', { PTH: '↓', 'Ca²⁺': '↓' }, 'Chvostek, Trousseau, tetany'], ['Malignancy (PTHrP)', 'lung', { PTH: '↓', 'Ca²⁺': '↑↑' }, 'squamous cancers']] },
+    { id: 'raas', n: 'Renin–angiotensin–aldosterone', c: '#e53935', p: ['kid', 'liver', 'lung', 'adr', 'kid', 'ves'], h: ['Renin (JGA: ↓ perfusion, ↓ Na, β1)', 'Angiotensinogen', 'ACE: Ang I → Ang II', 'Aldosterone (glomerulosa)', 'Na⁺ retention, K⁺/H⁺ excretion', 'vasoconstriction → BP ↑'],
+        fb: [['ves', 'kid', 'BP / volume ↑ ⊣ renin']], lec: 'adrenal',
+        info: { adr: 'Aldosterone is driven by Ang II and K⁺ (not mainly ACTH) – so it is preserved in secondary adrenal insufficiency.', lung: 'ACE is mostly in pulmonary endothelium; also degrades bradykinin (ACE-i cough).' },
+        f: [["Conn's syndrome (primary hyperaldosteronism)", 'adr', { 'Aldosterone (glomerulosa)': '↑', 'Renin (JGA: ↓ perfusion, ↓ Na, β1)': '↓' }, 'HTN + hypoK; aldosterone/renin ratio ↑'], ['Renal artery stenosis (secondary)', 'kid', { 'Renin (JGA: ↓ perfusion, ↓ Na, β1)': '↑', 'Aldosterone (glomerulosa)': '↑' }, 'ratio normal'], ['Addison (primary adrenal failure)', 'adr', { 'Aldosterone (glomerulosa)': '↓', 'Renin (JGA: ↓ perfusion, ↓ Na, β1)': '↑' }, 'hyperK, hypoNa, hypotension → fludrocortisone']] },
+    { id: 'adh', n: 'ADH (water balance)', c: '#00acc1', p: ['blood', 'hyp', 'pit', 'kid'], h: ['plasma osmolality ↑', 'osmoreceptors, supraoptic / paraventricular', 'ADH (posterior pituitary)', 'V2 → aquaporin-2 → water reabsorption'],
+        fb: [['kid', 'blood', 'water retained → osmolality ↓ ⊣']], lec: 'pituitary',
+        info: { pit: 'Posterior pituitary only STORES ADH and oxytocin made in the hypothalamus.', kid: 'Collecting duct V2 receptors; V1 on vessels.' },
+        f: [['Central diabetes insipidus', 'pit', { 'ADH (posterior pituitary)': '↓' }, 'polyuria, dilute urine; responds to desmopressin'], ['Nephrogenic DI (lithium, hyperCa)', 'kid', { 'ADH (posterior pituitary)': '↑ (no effect)' }, 'no response to desmopressin'], ['SIADH (small-cell lung, drugs, CNS)', 'lung', { 'ADH (posterior pituitary)': '↑', 'plasma osmolality ↑': '↓ (hypoNa)' }, 'euvolaemic hypoNa, urine inappropriately concentrated']] },
+    { id: 'glu', n: 'Insulin & glucagon', c: '#00897b', p: ['blood', 'panc', 'liver', 'mus', 'fat'], h: ['glucose', 'insulin (β) / glucagon (α)', 'glycogen ↔ glucose', 'GLUT4 uptake', 'lipogenesis / lipolysis'],
+        fb: [['liver', 'blood', 'glucose ↓ ⊣ insulin']], lec: 'lab',
+        info: { panc: 'β-cells: insulin + C-peptide (equimolar). α-cells: glucagon. δ: somatostatin.' },
+        f: [['Type 1 diabetes', 'panc', { 'insulin (β) / glucagon (α)': 'insulin ↓↓', glucose: '↑' }, 'autoantibodies, ketoacidosis'], ['Insulinoma', 'panc', { 'insulin (β) / glucagon (α)': 'insulin ↑ (C-peptide ↑)', glucose: '↓' }, 'Whipple triad; 72 h fast'], ['Factitious insulin', 'blood', { 'insulin (β) / glucagon (α)': 'insulin ↑, C-peptide ↓', glucose: '↓' }, '']] },
+    { id: 'cat', n: 'Catecholamines', c: '#6d4c41', p: ['hyp', 'adr', 'heart', 'ves', 'liver'], h: ['sympathetic outflow', 'adrenaline / noradrenaline (medulla)', 'HR, contractility ↑', 'vasoconstriction (α1)', 'glycogenolysis'], fb: [], lec: 'adrenal',
+        info: { adr: 'Medulla: PNMT (needs cortisol from the cortex) converts NA → adrenaline.' },
+        f: [['Phaeochromocytoma', 'adr', { 'adrenaline / noradrenaline (medulla)': '↑↑' }, 'paroxysmal HTN, headache, sweating, palpitations; plasma/urine metanephrines; α-block BEFORE β-block']] },
+    { id: 'anp', n: 'Natriuretic peptides', c: '#5e35b1', p: ['heart', 'kid', 'ves'], h: ['ANP / BNP (atrial / ventricular stretch)', 'natriuresis, renin ↓', 'vasodilatation'], fb: [], lec: 'intro', info: {}, f: [['Heart failure', 'heart', { 'ANP / BNP (atrial / ventricular stretch)': '↑' }, 'BNP / NT-proBNP as marker']] }
+];
+function emIcon(k, x, y, on) {
+    var c = 'em-ic' + (on ? ' on' : '');
+    var S = {
+        brain: '<path d="M-14 4 C -16 -10 -4 -14 0 -10 C 4 -14 16 -10 14 4 C 10 10 -10 10 -14 4 Z"/>',
+        pit: '<circle r="7"/><path d="M0 -7 L0 -14"/>',
+        thy: '<path d="M-3 0 C -8 -12 -16 -6 -14 6 C -12 12 -5 10 -3 4 L3 4 C 5 10 12 12 14 6 C 16 -6 8 -12 3 0 Z"/>',
+        para: '<circle cx="-5" cy="-4" r="3"/><circle cx="5" cy="-4" r="3"/><circle cx="-5" cy="5" r="3"/><circle cx="5" cy="5" r="3"/>',
+        lung: '<path d="M-3 -12 C -14 -8 -16 10 -6 12 C -3 10 -3 0 -3 -12 Z M3 -12 C 14 -8 16 10 6 12 C 3 10 3 0 3 -12 Z"/>',
+        heart: '<path d="M0 10 C -16 0 -12 -12 -4 -10 C -1 -9 0 -6 0 -5 C 0 -6 1 -9 4 -10 C 12 -12 16 0 0 10 Z"/>',
+        breast: '<path d="M-12 -4 C -12 10 12 10 12 -4"/><circle cx="0" cy="4" r="2"/>',
+        skin: '<circle r="6"/><path d="M0 -12 L0 -9 M0 9 L0 12 M-12 0 L-9 0 M9 0 L12 0 M-8 -8 L-6 -6 M6 6 L8 8 M8 -8 L6 -6 M-6 6 L-8 8"/>',
+        liver: '<path d="M-16 -6 C -6 -12 12 -12 16 -6 C 12 4 0 10 -14 6 Z"/>',
+        panc: '<path d="M-16 2 C -12 -6 4 -2 16 -6 C 14 2 2 6 -14 8 Z"/>',
+        adr: '<path d="M-8 6 L0 -9 L8 6 Z"/>',
+        kid: '<path d="M-4 -12 C -14 -12 -14 12 -4 12 C 0 12 2 6 -1 2 C -3 0 -3 -2 -1 -4 C 2 -8 0 -12 -4 -12 Z"/>',
+        gut: '<path d="M-14 -6 C -6 -14 6 2 14 -6 M-14 2 C -6 -6 6 10 14 2 M-14 10 C -6 2 6 18 14 10"/>',
+        fat: '<circle cx="-5" cy="-3" r="6"/><circle cx="5" cy="-3" r="6"/><circle cx="0" cy="6" r="6"/>',
+        ves: '<path d="M-14 0 C -6 -10 6 10 14 0" /><path d="M-14 6 C -6 -4 6 16 14 6"/>',
+        blood: '<path d="M0 -12 C 6 -2 10 2 10 6 C 10 12 -10 12 -10 6 C -10 2 -6 -2 0 -12 Z"/>',
+        gon: '<ellipse cx="-7" rx="5" ry="7"/><ellipse cx="7" rx="5" ry="7"/>',
+        bone: '<path d="M-12 -4 C -16 -8 -10 -12 -8 -8 L8 -8 C 10 -12 16 -8 12 -4 C 16 0 10 4 8 0 L-8 0 C -10 4 -16 0 -12 -4 Z" transform="translate(0 4)"/>',
+        mus: '<path d="M-14 0 C -8 -10 8 -10 14 0 C 8 10 -8 10 -14 0 Z"/><path d="M-10 0 L10 0"/>'
+    };
+    return '<g class="' + c + '" transform="translate(' + x + ' ' + y + ')">' + '<circle r="17" class="em-bg"/>' + (S[k] || '<circle r="6"/>') + '</g>';
+}
+function emShort(t) { t = t.split(' (')[0]; return t.length > 26 ? t.slice(0, 25) + '…' : t; }
+function emPath(pts, off) {
+    var d = '';
+    pts.forEach(function (p, i) { var o = EM_O[p], x = o[0] + off, y = o[1] + off * 0.6; d += (i ? ' L' : 'M') + x + ' ' + y; });
+    return d;
+}
+function vEMetro() {
+    var sel = Object.keys(EM.sel).filter(function (k) { return EM.sel[k]; }), any = sel.length > 0;
+    var used = {}, hTag = {};
+    var lines = EM_L.map(function (L, i) {
+        var on = !!EM.sel[L.id], off = (i - 5) * 2.6, d = emPath(L.p, off);
+        if (on)
+            L.p.forEach(function (o, j) { used[o] = 1; (hTag[o] = hTag[o] || []).push([L, L.h[j]]); });
+        var s = '<path d="' + d + '" class="em-line' + (on ? ' on' : any ? ' dim' : '') + '" stroke="' + L.c + '" data-act="emLine" data-id="' + L.id + '"/>';
+        if (on) {
+            s += '<circle r="6" class="em-train" fill="' + L.c + '"><animateMotion dur="' + (2 + L.p.length * 0.8) + 's" repeatCount="indefinite" path="' + d + '"/></circle>';
+            if (sel.length <= 2)
+                L.fb.forEach(function (f) { var a = EM_O[f[0]], b = EM_O[f[1]]; if (!a || !b)
+                    return; var mx = Math.min(a[0], b[0]) - 60 - i * 4, my = (a[1] + b[1]) / 2; s += '<path d="M' + a[0] + ' ' + a[1] + ' Q ' + mx + ' ' + my + ' ' + b[0] + ' ' + b[1] + '" class="em-fb" marker-end="url(#emArr)"/><text x="' + (mx + 6) + '" y="' + my + '" class="em-fbt">' + h(f[2]) + '</text>'; });
+        }
+        return s;
+    }).join('');
+    var F = EM.fault ? EM_L.filter(function (l) { return l.id === EM.fault[0]; })[0] : null, Fd = F ? F.f[EM.fault[1]] : null;
+    var organs = Object.keys(EM_O).map(function (k) {
+        var o = EM_O[k], on = used[k], lab = '';
+        if (on && sel.length <= 2) {
+            lab = (hTag[k] || []).map(function (t, j) { var eff = Fd && t[0].id === F.id && Fd[2][t[1]]; return '<tspan x="' + (o[0] + 22) + '" dy="' + (j ? 12 : 0) + '" fill="' + t[0].c + '">' + h(emShort(t[1])) + (eff ? ' <tspan class="em-eff">' + h(eff) + '</tspan>' : '') + '</tspan>'; }).join('');
+            lab = '<text x="' + (o[0] + 22) + '" y="' + (o[1] + 4) + '" class="em-hl">' + lab + '</text>';
+        }
+        var bad = Fd && Fd[1] === k ? '<circle cx="' + o[0] + '" cy="' + o[1] + '" r="22" class="em-bad"/><text x="' + (o[0] - 26) + '" y="' + (o[1] - 22) + '" class="em-badt">⚡</text>' : '';
+        return '<g data-act="emSt" data-id="' + k + '" class="em-st">' + bad + emIcon(o[3], o[0], o[1], on) + (o[4] === 'l' ? '<text x="' + (o[0] - 22) + '" y="' + (o[1] + 4) + '" text-anchor="end" class="em-on' : '<text x="' + o[0] + '" y="' + (o[1] + 30) + '" text-anchor="middle" class="em-on') + (on ? ' on' : any ? ' dim' : '') + '">' + h(o[2]) + '</text>' + lab + '</g>';
+    }).join('');
+    var body = '<path class="em-body" d="M200 10 C 168 10 152 34 152 66 C 152 92 166 112 180 120 L 178 132 C 150 138 110 150 100 175 C 88 210 78 270 70 330 C 66 360 62 390 66 410 L 84 410 C 86 380 92 330 104 290 L 112 300 C 112 360 120 420 128 470 C 128 520 134 580 140 630 L 186 630 L 196 470 L 204 470 L 214 630 L 260 630 C 266 580 272 520 272 470 C 280 420 288 360 288 300 L 296 290 C 308 330 314 380 316 410 L 334 410 C 338 390 334 360 330 330 C 322 270 312 210 300 175 C 290 150 250 138 222 132 L 220 120 C 234 112 248 92 248 66 C 248 34 232 10 200 10 Z"/>';
+    var svg = '<svg viewBox="0 0 470 640" class="emsvg"><defs><marker id="emArr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#e53935"/></marker></defs>' + body + lines + organs + '</svg>';
+    var legend = EM_L.map(function (L) { return '<button class="em-lg' + (EM.sel[L.id] ? ' on' : '') + '" data-act="emLine" data-id="' + L.id + '" style="--c:' + L.c + '"><i></i>' + h(L.n) + '</button>'; }).join('');
+    var side = '';
+    if (sel.length === 1) {
+        var L = EM_L.filter(function (l) { return l.id === sel[0]; })[0];
+        side += '<h3 style="color:' + L.c + '">' + h(L.n) + '</h3><ol class="em-stops">' + L.p.map(function (o, j) { return '<li><b>' + h(EM_O[o][2]) + '</b> – ' + h(L.h[j]) + '</li>'; }).join('') + '</ol>' +
+            (L.fb.length ? '<p class="small"><span class="em-fbk"></span> feedback: ' + L.fb.map(function (f) { return h(EM_O[f[0]][2] + ' → ' + EM_O[f[1]][2] + ' (' + f[2] + ')'); }).join('; ') + '</p>' : '') +
+            '<h4>⚡ Breakdown on the line</h4><div class="row">' + L.f.map(function (f, j) { return '<button class="btn sm' + (EM.fault && EM.fault[0] === L.id && EM.fault[1] === j ? ' primary' : '') + '" data-act="emFault" data-id="' + L.id + '|' + j + '">' + h(f[0]) + '</button>'; }).join('') + '</div>' +
+            (Fd ? '<div class="note hint"><b>' + h(Fd[0]) + '</b> – broken station: ' + h(EM_O[Fd[1]][2]) + '<br>' + Object.keys(Fd[2]).map(function (k) { return h(k) + ' <b>' + h(Fd[2][k]) + '</b>'; }).join(' · ') + (Fd[3] ? '<br><i>' + h(Fd[3]) + '</i>' : '') + '</div>' : '') +
+            (APP.lById[L.lec] ? '<a href="#" data-act="openLesson" data-id="' + L.lec + '">Open the lesson →</a>' : '');
+    }
+    else if (sel.length > 1)
+        side += '<h3>' + sel.length + ' lines shown</h3><p class="muted small">Stations shared by several lines are the "interchanges": e.g. the adrenal (cortisol, aldosterone, catecholamines), the kidney (renin, vitamin D, ADH target), the liver (IGF-1, angiotensinogen, 25-OH D).</p>';
+    else
+        side += '<p class="muted">Choose a metro line (one hormonal axis). It is drawn on the body, the train runs in the direction of the signal and the red dashed arrows are the feedback loops. Then break a station to see what goes up and down.</p>';
+    if (EM.st) {
+        var o = EM_O[EM.st], on = EM_L.filter(function (l) { return l.p.indexOf(EM.st) >= 0; });
+        side += '<div class="card em-info"><h4>' + h(o[2]) + '</h4>' + on.map(function (l) { var j = l.p.indexOf(EM.st); return '<p><span class="em-dot" style="background:' + l.c + '"></span><b>' + h(l.n) + '</b>: ' + h(l.h[j]) + (l.info[EM.st] ? '<br><span class="small">' + h(l.info[EM.st]) + '</span>' : '') + '</p>'; }).join('') + (on.length ? '' : '<p class="muted small">No line stops here.</p>') + '</div>';
+    }
+    return '<div class="page-h"><h1>Endocrine metro map</h1><p class="muted">Each hormonal axis is a metro line drawn on the body. Tap one or several lines.</p></div>' +
+        '<div class="em-legend">' + legend + '<button class="btn sm" data-act="emAll">All lines</button><button class="btn sm" data-act="emNone">Clear</button></div>' +
+        '<div class="sat-2 em-wrap"><div class="card">' + svg + '</div><div class="card">' + side + '</div></div>';
+}
+function emAct(act, el, id) {
+    switch (act) {
+        case 'emLine':
+            EM.sel[id] = !EM.sel[id];
+            if (EM.fault && !EM.sel[EM.fault[0]])
+                EM.fault = null;
+            break;
+        case 'emSt':
+            EM.st = EM.st === id ? null : id;
+            break;
+        case 'emFault': {
+            var p = id.split('|');
+            EM.fault = EM.fault && EM.fault[0] === p[0] && EM.fault[1] === +p[1] ? null : [p[0], +p[1]];
+            break;
+        }
+        case 'emAll':
+            EM_L.forEach(function (l) { EM.sel[l.id] = true; });
+            EM.fault = null;
+            break;
+        case 'emNone':
+            EM.sel = {};
+            EM.fault = null;
+            break;
+    }
+    render();
+}
+/* ---------- Interactive clinical cases + OSCE station 5 (surgery) ---------- */
+var CXT = 'ix';
+function cxSplit(p) {
+    var s = p.match(/[^.!?]+[.!?]+(\s|$)|[^.!?]+$/g) || [p];
+    var ex = -1, inv = -1;
+    for (var i = 0; i < s.length; i++) {
+        var t = s[i];
+        if (ex < 0 && /(physical exam|on examination|clinical exam|objectively|examination reveals|on presentation|general clinical|local physical|examination of|on admission|clinically)/i.test(t))
+            ex = i;
+        if (ex >= 0 && i > ex && inv < 0 && /(laborator|blood test|tests (show|reveal|indicate)|ultrasound|\bCT\b|X-?ray|endoscop|colonoscop|\bMRI\b|barium|biops|\bHb\b|leukocyt|FAST)/i.test(t))
+            inv = i;
+    }
+    if (ex < 0)
+        ex = Math.min(2, s.length - 1);
+    if (inv < 0)
+        inv = s.length;
+    return { hist: s.slice(0, ex).join(''), exam: s.slice(ex, inv).join(''), inv: s.slice(inv).join('') };
+}
+function cxStore() { try {
+    return JSON.parse(localStorage.getItem('s5done') || '{}');
+}
+catch (e) {
+    return {};
+} }
+function cxSave(o) { try {
+    localStorage.setItem('s5done', JSON.stringify(o));
+}
+catch (e) { } }
+function vCases() {
+    if (APP.subj !== 'surgery' || !APP.core.cases.some(function (c) { return c.ix; }))
+        return vCasesOld();
+    var best = {};
+    S.jury.forEach(function (j) { best[j.caseId] = Math.max(best[j.caseId] || 0, j.score10); });
+    var st = cxStore();
+    var nS5 = 0, nDone = 0;
+    APP.core.cases.forEach(function (c) { (c.s5 || []).forEach(function (m) { nS5++; if (st[m.code])
+        nDone++; }); });
+    var tabs = '<div class="cxtabs"><button class="btn' + (CXT === 'ix' ? ' primary' : '') + '" data-act="cxTab" data-id="ix">▶ Interactive cases (' + APP.core.cases.length + ')</button><button class="btn' + (CXT === 's5' ? ' primary' : '') + '" data-act="cxTab" data-id="s5">⚕ Station 5 – Diagnosis & treatment (' + nS5 + ')</button></div>';
+    var head = '<div class="page-h"><h1>Clinical cases (oral / OSCE)</h1><p class="muted">' + (CXT === 'ix' ? 'Work up each patient like on the ward: history → examination → most likely diagnosis → order tests → management. You can switch any case to the classic oral mode (free answers' + (AI ? ' graded by the AI jury' : '') + ').' : 'The short "Diagnosis and treatment" station of every chapter of the OSCE book. The book gives only the questions: the model answers were written for this platform – check them against your course.') + '</p></div>' + tabs;
+    if (CXT === 's5') {
+        return head + APP.core.cases.filter(function (c) { return c.s5 && c.s5.length; }).map(function (c) {
+            return '<div class="card"><h3>' + h(c.title) + ' <span class="muted small">· ' + h(c.dx) + '</span></h3><div class="cards">' + c.s5.map(function (m) {
+                var d = st[m.code];
+                return '<a href="#" class="card lc s5c" data-act="cxS5" data-id="' + c.id + '|' + m.code + '"><span class="tag">' + h(m.code) + '</span>' + (d ? ' <span class="tag ok">' + (d === 3 ? '✓ mastered' : d === 2 ? '~ partly' : '↺ redo') + '</span>' : '') + '<span class="small">' + h(m.scenario.slice(0, 150)) + '…</span><span class="muted small">' + m.qa.length + ' questions</span></a>';
+            }).join('') + '</div></div>';
+        }).join('') + '<p class="muted small">' + nDone + ' / ' + nS5 + ' done.</p>';
+    }
+    return head + '<div class="cards">' + APP.core.cases.map(function (c) {
+        return '<a href="#" class="card lc" data-act="openCase" data-id="' + c.id + '"><span class="tag teach">OSCE book</span><b>' + h(c.title) + '</b><span class="muted small">' + h(APP.lById[c.topic] ? APP.lById[c.topic].title : '') + (c.s5 && c.s5.length ? ' · +' + c.s5.length + ' station-5 cases' : '') + '</span>' + (best[c.id] != null ? gradeBadge(best[c.id] * 10) : '') + '</a>';
+    }).join('') + '</div>';
+}
+function vCase() {
+    if (!CASE)
+        return vCases();
+    if (CASE.mode === 's5')
+        return vS5();
+    if (CASE.mode !== 'ix' || !CASE.c.ix)
+        return vCaseOral();
+    return vCaseIx();
+}
+function cxModeBar() {
+    return '<div class="row"><button class="btn sm' + (CASE.mode === 'ix' ? ' primary' : '') + '" data-act="cxMode" data-id="ix">▶ Interactive</button><button class="btn sm' + (CASE.mode !== 'ix' ? ' primary' : '') + '" data-act="cxMode" data-id="oral">🎓 Oral mode (free answers)</button></div>';
+}
+function cxScore() {
+    var c = CASE.c, x = c.ix, X = CASE.ix, sc = 0, max = 0;
+    max += 3;
+    if (X.dx === 0)
+        sc += 3;
+    x.tests.forEach(function (t, i) { if (t.k === 'e') {
+        max += 1;
+        if (X.tests[i])
+            sc += 1;
+    }
+    else if (t.k === 'u') {
+        if (X.tests[i])
+            sc += 0.5;
+    }
+    else if (X.tests[i])
+        sc -= 1; });
+    max += 3;
+    if (X.tx === 0)
+        sc += 3;
+    return Math.max(0, Math.min(10, sc / max * 10));
+}
+function vCaseIx() {
+    var c = CASE.c, x = c.ix, X = CASE.ix, P = cxSplit(c.presentation);
+    if (!X.ord) {
+        X.ord = shuffle(x.dx.map(function (d, i) { return i; }));
+        X.tord = shuffle(x.tx.map(function (d, i) { return i; }));
+    }
+    var stg = X.stage;
+    var stepsL = ['History & differential', 'Examination', 'Most likely diagnosis', 'Order investigations', 'Results', 'Management', 'Debrief'];
+    var bar = '<div class="cxsteps">' + stepsL.map(function (l, i) { return '<span class="' + (i < stg ? 'ok' : i === stg ? 'cur' : '') + '">' + (i + 1) + '. ' + l + '</span>'; }).join('') + '</div>';
+    var chart = '<div class="card cxchart"><div class="cxsec"><b>🗣 History</b><p>' + h(P.hist) + '</p></div>' +
+        (stg >= 1 && P.exam ? '<div class="cxsec ex"><b>🩺 Examination</b><p>' + h(P.exam) + '</p></div>' : '') +
+        (stg >= 4 && P.inv ? '<div class="cxsec inv"><b>🧪 Results</b><p>' + h(P.inv) + '</p></div>' : '') + '</div>';
+    var body = '';
+    if (stg === 0) {
+        var opts = x.dx;
+        body = '<h3>Which diagnoses are you considering? <span class="muted small">(tick your differential)</span></h3><div class="chips">' + X.ord.map(function (i) { return '<button class="chip' + (X.dd[i] ? ' on' : '') + '" data-act="cxDD" data-id="' + i + '">' + h(opts[i]) + '</button>'; }).join('') + '</div>' +
+            '<details><summary>Teacher\'s differential (OSCE book)</summary><div class="teacher">' + c.steps[0].a.map(function (p) { return '<p>' + h(p) + '</p>'; }).join('') + '</div></details>' +
+            '<div class="row runbar"><span class="grow"></span><button class="btn primary" data-act="cxNext">🩺 Examine the patient →</button></div>';
+    }
+    else if (stg === 1) {
+        body = '<h3>Read the examination findings. Which signs matter?</h3><p class="muted small">Key points to look for: ' + h(c.kp[0]) + '</p><div class="row runbar"><span class="grow"></span><button class="btn primary" data-act="cxNext">Make your diagnosis →</button></div>';
+    }
+    else if (stg === 2) {
+        var a = X.dx;
+        body = '<h3>What is the most likely diagnosis?</h3><div class="cxopts">' + X.ord.map(function (i) {
+            var cls = a == null ? '' : i === 0 ? ' good' : i === a ? ' bad' : ' dim';
+            return '<button class="btn cxo' + cls + '" data-act="cxDx" data-id="' + i + '" ' + (a != null ? 'disabled' : '') + '>' + h(x.dx[i]) + '</button>';
+        }).join('') + '</div>' + (a != null ? '<div class="note ' + (a === 0 ? 'ok' : 'hint') + '">' + (a === 0 ? '✓ Correct. ' : '✗ The answer is <b>' + h(x.dx[0]) + '</b>. ') + h(x.dxwhy) + '</div><div class="row runbar"><span class="grow"></span><button class="btn primary" data-act="cxNext">🧪 Order investigations →</button></div>' : '');
+    }
+    else if (stg === 3) {
+        var chk = X.done.tests;
+        body = '<h3>Which investigations do you order?</h3><p class="muted small">Tick what you would request. Some tests are useless or even dangerous here.</p><div class="cxtests">' + x.tests.map(function (t, i) {
+            var on = X.tests[i], cls = !chk ? '' : t.k === 'e' ? (on ? ' good' : ' miss') : t.k === 'u' ? (on ? ' good' : '') : (on ? ' bad' : ' dim');
+            return '<label class="cxt' + cls + '"><input type="checkbox" data-act="cxTest" data-id="' + i + '" ' + (on ? 'checked' : '') + ' ' + (chk ? 'disabled' : '') + '> <span>' + h(t.n) + (chk ? ' <em class="small">– ' + (t.k === 'e' ? '<b>essential</b>' : t.k === 'u' ? 'useful' : '<b>not indicated</b>') + ': ' + h(t.w) + '</em>' : '') + '</span></label>';
+        }).join('') + '</div>' + (chk ? '<div class="row runbar"><span class="grow"></span><button class="btn primary" data-act="cxNext">See the results →</button></div>' : '<div class="row runbar"><span class="grow"></span><button class="btn primary" data-act="cxChkTests">Check my orders</button></div>');
+    }
+    else if (stg === 4) {
+        body = '<h3>Results are in (see the chart above).</h3><details open><summary>Teacher: what to do next</summary><div class="teacher">' + (c.steps[2] ? c.steps[2].a.map(function (p) { return '<p>' + h(p) + '</p>'; }).join('') : '') + '</div></details>' +
+            (c.steps[3] ? '<details><summary>' + h(c.steps[3].q) + '</summary><div class="teacher">' + c.steps[3].a.map(function (p) { return '<p>' + h(p) + '</p>'; }).join('') + '</div></details>' : '') +
+            '<div class="row runbar"><span class="grow"></span><button class="btn primary" data-act="cxNext">Decide the management →</button></div>';
+    }
+    else if (stg === 5) {
+        var t = X.tx;
+        body = '<h3>What is your management plan?</h3><div class="cxopts">' + X.tord.map(function (i) {
+            var cls = t == null ? '' : i === 0 ? ' good' : i === t ? ' bad' : ' dim';
+            return '<button class="btn cxo' + cls + '" data-act="cxTx" data-id="' + i + '" ' + (t != null ? 'disabled' : '') + '>' + h(x.tx[i]) + '</button>';
+        }).join('') + '</div>' + (t != null ? '<div class="note ' + (t === 0 ? 'ok' : 'hint') + '">' + (t === 0 ? '✓ ' : '✗ Best answer: <b>' + h(x.tx[0]) + '</b>. ') + h(x.txwhy) + '</div><div class="row runbar"><span class="grow"></span><button class="btn primary" data-act="cxNext">Debrief →</button></div>' : '');
+    }
+    else {
+        var s10 = cxScore();
+        if (!CASE.saved) {
+            CASE.saved = true;
+            var j = { t: 'jury', subj: APP.subj, id: 'j' + Date.now(), date: Date.now(), caseId: c.id, label: c.title + ' (interactive)', score10: s10, steps: [] };
+            S.jury.push(j);
+            if (S.allJury && S.allJury !== S.jury)
+                S.allJury.push(j);
+            save(j);
+        }
+        body = '<div class="center">' + gradeBadge(s10 * 10, true) + '<p><b>' + s10.toFixed(1) + '/10</b> · Diagnosis: <b>' + h(c.dx) + '</b></p></div>' +
+            '<h3>Key points</h3><ul>' + c.kp.map(function (k) { return '<li>' + h(k) + '</li>'; }).join('') + '</ul>' +
+            '<h3>Teacher\'s full answers</h3>' + c.steps.map(function (s) { return '<details><summary>' + h(s.q) + '</summary><div class="teacher">' + s.a.map(function (p) { return '<p>' + h(p) + '</p>'; }).join('') + '</div></details>'; }).join('') +
+            (c.s5 && c.s5.length ? '<h3>Practise the station-5 cases of this chapter</h3><div class="row">' + c.s5.map(function (m) { return '<button class="btn sm" data-act="cxS5" data-id="' + c.id + '|' + m.code + '">' + h(m.code) + '</button>'; }).join('') + '</div>' : '') +
+            (c.stations && c.stations.length ? '<details><summary>OSCE station checklists (stations 1–4)</summary>' + c.stations.map(function (s) { return '<details><summary>' + h(s.station) + ' – ' + h(s.scenario.slice(0, 110)) + '…</summary><p class="small">' + h(s.scenario) + '</p><ol>' + s.items.map(function (i) { return '<li>' + h(i) + '</li>'; }).join('') + '</ol></details>'; }).join('') + '</details>' : '') +
+            '<div class="row center runbar"><button class="btn primary" data-act="openCase" data-id="' + c.id + '">Try again</button><button class="btn" data-act="cxMode" data-id="oral">Do it in oral mode</button><button class="btn" data-act="nav" data-id="cases">All cases</button></div>';
+    }
+    return '<div class="page-h"><a href="#" data-act="nav" data-id="cases" class="back">← Cases</a><h1>' + h(c.title) + '</h1>' + cxModeBar() + '</div>' + bar + '<div class="cxgrid">' + chart + '<div class="card">' + body + '</div></div>';
+}
+function vS5() {
+    var c = CASE.c, m = CASE.s5, st = cxStore(), R = CASE.s5r || (CASE.s5r = {});
+    var idx = c.s5.indexOf(m), nxt = c.s5[idx + 1];
+    return '<div class="page-h"><a href="#" data-act="cxBackS5" class="back">← Station 5 list</a><h1>Station 5 · ' + h(m.code) + '</h1><p class="muted">' + h(c.title) + '</p></div>' +
+        '<div class="card"><span class="tag">Diagnosis & treatment</span><p class="stem">' + h(m.scenario) + '</p></div>' +
+        m.qa.map(function (qa, i) {
+            var r = R[i] || {};
+            return '<div class="card"><h3>' + (i + 1) + '. ' + h(qa.q) + '</h3><textarea class="ta" rows="3" id="s5a' + i + '" placeholder="Your answer…">' + h(r.ans || '') + '</textarea>' +
+                '<div class="row">' + (r.shown ? '' : '<button class="btn" data-act="cxS5Show" data-id="' + i + '">Show model answer</button>') + (AI && !r.jury ? '<button class="btn primary" data-act="cxS5Jury" data-id="' + i + '"' + (r.busy ? ' disabled' : '') + '>' + (r.busy ? 'The examiner is reading…' : 'Ask the examiner') + '</button>' : '') + '</div>' +
+                (r.jury ? juryHTML(r.jury) : '') +
+                (r.shown || r.jury ? '<div class="teacher model"><b>Model answer</b><p>' + qa.a + '</p></div>' : '') + '</div>';
+        }).join('') +
+        '<div class="card"><b>How did it go?</b><div class="row">' + [[3, '✓ I knew it'], [2, '~ Partly'], [1, '↺ Redo later']].map(function (x) { return '<button class="btn sm' + (st[m.code] === x[0] ? ' primary' : '') + '" data-act="cxS5Grade" data-id="' + x[0] + '">' + x[1] + '</button>'; }).join('') + '<span class="grow"></span>' +
+        (nxt ? '<button class="btn primary" data-act="cxS5" data-id="' + c.id + '|' + nxt.code + '">Next: ' + h(nxt.code) + ' →</button>' : '<button class="btn" data-act="openCase" data-id="' + c.id + '">Open the full case →</button>') + '</div></div>';
+}
+function cxS5Jury(i) {
+    var m = CASE.s5, qa = m.qa[i], R = CASE.s5r;
+    var ta = $('#s5a' + i);
+    var ans = ta ? ta.value.trim() : '';
+    R[i] = R[i] || {};
+    R[i].ans = ans;
+    if (!ans) {
+        toast('Write a few words first – even a rough idea is fine!');
+        return;
+    }
+    R[i].busy = true;
+    render();
+    var model = qa.a.replace(/<[^>]+>/g, '');
+    var prompt = 'You are a kind, encouraging surgery examiner at the OSCE "Diagnosis and treatment" station (UMF Cluj). Start with what the student did well, phrase gaps as "to add next time". Give generous partial credit for correct ideas in other words.\nSCENARIO: ' + m.scenario + '\nQUESTION: ' + qa.q + '\nMODEL ANSWER: ' + model + '\nSTUDENT ANSWER: ' + ans + '\nReply with JSON only: {"score": number 0-10, "good": [short strings], "missing": [max 4], "wrong": [max 3], "feedback": "2 warm sentences", "followup": ""}';
+    var call = AI.json ? AI.json(prompt, { modelTier: 'default' }) : AI(prompt).then(function (r) { return JSON.parse(r.text.replace(/^[^{]*/, '').replace(/[^}]*$/, '')); });
+    call.then(function (r) { R[i].jury = { score: Math.max(0, Math.min(10, Number(r.score) || 0)), hintCost: 0, good: r.good || [], missing: r.missing || [], wrong: r.wrong || [], feedback: r.feedback || '', followup: '' }; })
+        .catch(function () { toast('The examiner could not answer just now – please try again.'); })
+        .then(function () { R[i].busy = false; render(); });
+}
+function cxKeepText() { if (!CASE || CASE.mode !== 's5')
+    return; CASE.s5.qa.forEach(function (q, i) { var t = $('#s5a' + i); if (t) {
+    CASE.s5r[i] = CASE.s5r[i] || {};
+    CASE.s5r[i].ans = t.value;
+} }); }
+function xAct(act, el, id) {
+    if (/^sa/.test(act)) {
+        if (window.saAct)
+            saAct(act, el, id);
+        return;
+    }
+    if (/^em/.test(act)) {
+        if (window.emAct)
+            emAct(act, el, id);
+        return;
+    }
+    var X = CASE && CASE.ix;
+    switch (act) {
+        case 'cxTab':
+            CXT = id;
+            render();
+            break;
+        case 'cxMode':
+            if (id === 'ix') {
+                CASE.mode = 'ix';
+                CASE.ix = { stage: 0, clues: {}, dd: {}, tests: {}, dx: null, tx: null, done: {} };
+                CASE.saved = false;
+            }
+            else {
+                CASE.mode = 'oral';
+                CASE.i = 0;
+                CASE.saved = false;
+            }
+            render();
+            break;
+        case 'cxDD':
+            X.dd[+id] = !X.dd[+id];
+            render();
+            break;
+        case 'cxNext':
+            X.stage++;
+            render();
+            window.scrollTo(0, 0);
+            break;
+        case 'cxDx':
+            X.dx = +id;
+            render();
+            break;
+        case 'cxTest':
+            X.tests[+id] = el.checked;
+            break;
+        case 'cxChkTests':
+            X.done.tests = true;
+            render();
+            break;
+        case 'cxTx':
+            X.tx = +id;
+            render();
+            break;
+        case 'cxS5': {
+            var p = id.split('|');
+            var c = APP.core.cases.filter(function (x) { return x.id === p[0]; })[0];
+            var m = c.s5.filter(function (x) { return x.code === p[1]; })[0];
+            CASE = { c: c, mode: 's5', s5: m, s5r: {}, i: 0, answers: {}, results: {}, hints: {}, shown: {} };
+            go('case');
+            window.scrollTo(0, 0);
+            break;
+        }
+        case 'cxBackS5':
+            CXT = 's5';
+            go('cases');
+            break;
+        case 'cxS5Show':
+            cxKeepText();
+            CASE.s5r[+id] = CASE.s5r[+id] || {};
+            CASE.s5r[+id].shown = true;
+            render();
+            break;
+        case 'cxS5Jury':
+            cxKeepText();
+            cxS5Jury(+id);
+            break;
+        case 'cxS5Grade': {
+            cxKeepText();
+            var st = cxStore();
+            st[CASE.s5.code] = +id;
+            cxSave(st);
+            render();
+            break;
+        }
+    }
+}
+window.xAct = xAct;
 /* General Surgery Study Platform — runs as a Claude artifact (Claude account storage + AI)
    and as a standalone web app (Google sign-in via Firebase, or guest). */
 var APP = { core: null, summary: null };
@@ -1515,7 +2638,7 @@ var MODULES = [
     { id: 'm2', title: 'Ophthalmology – Endocrinology – Diabetes – Haematology – Occupational medicine', subjects: [['ophtha', 'Ophthalmology', 'Oph'], ['endo', 'Endocrinology', 'En'], ['diab', 'Diabetes & nutrition', 'Di'], ['hemato', 'Haematology', 'H'], ['occup', 'Occupational medicine', 'Oc']] },
     { id: 'm0', title: 'General surgery module', subjects: [['surgery', 'General Surgery', '✚']] }
 ];
-var SUBJ = { surgery: { title: 'General Surgery', base: 'data/', book: 'Surgery for Students' }, radiology: { title: 'Radiology', base: 'data/radiology/', atlas: true, book: 'Radiology for Medical Students, vol. I (S. Dudea)' }, ophtha: { title: 'Ophthalmology', base: 'data/ophtha/', book: 'Ophthalmology – new book 2025 (annotated photos)' }, endo: { title: 'Endocrinology', base: 'data/endo/', book: 'Introduction to Endocrinology (I. R. Ilie, Springer 2020)' }, diab: { title: 'Diabetes & nutrition', base: 'data/diab/', book: 'Diabetes, nutrition & metabolic diseases – course book 2025 (scanned)' } };
+var SUBJ = { surgery: { title: 'General Surgery', base: 'data/', atlas: true, book: 'Surgery for Students' }, radiology: { title: 'Radiology', base: 'data/radiology/', atlas: true, book: 'Radiology for Medical Students, vol. I (S. Dudea)' }, ophtha: { title: 'Ophthalmology', base: 'data/ophtha/', book: 'Ophthalmology – new book 2025 (annotated photos)' }, endo: { title: 'Endocrinology', base: 'data/endo/', atlas: true, book: 'Introduction to Endocrinology (I. R. Ilie, Springer 2020)' }, diab: { title: 'Diabetes & nutrition', base: 'data/diab/', book: 'Diabetes, nutrition & metabolic diseases – course book 2025 (scanned)' } };
 function getSubj() { try {
     var v = localStorage.getItem('subj');
     return SUBJ[v] ? v : 'surgery';
@@ -2151,7 +3274,7 @@ function render() {
         return;
     document.querySelectorAll('.nav-a').forEach(function (a) { return a.className = 'nav-a' + (a.getAttribute('data-nav') === VIEW.name ? ' on' : ''); });
     $('#side').className = '';
-    var fn = { dash: vDash, lessons: vLessons, lesson: vLesson, gallery: vGallery, flash: vFlash, practice: vPractice, run: vRun, review: vReview, mock: vMock, final: vFinal, papers: vPapers, cases: vCases, case: vCase, mistakes: vMistakes, plan: vPlan, atlas: vAtlas, help: vHelp, admin: vAdmin, modules: vModules }[VIEW.name] || vDash;
+    var fn = { dash: vDash, lessons: vLessons, lesson: vLesson, gallery: vGallery, flash: vFlash, practice: vPractice, run: vRun, review: vReview, mock: vMock, final: vFinal, papers: vPapers, cases: vCases, case: vCase, mistakes: vMistakes, plan: vPlan, atlas: vAtlasAny, help: vHelp, admin: vAdmin, modules: vModules }[VIEW.name] || vDash;
     $('#main').innerHTML = fn(VIEW.arg);
     $('#main').scrollTop = 0;
     window.scrollTo(0, 0);
@@ -2537,7 +3660,7 @@ function recap(q) {
     return "<div class=\"recap\"><b>Lesson recap \u2013 ".concat(h(p.n), "</b><ul>").concat(lines.slice(0, 4).map(function (l) { return "<li><span class=\"muted small\">".concat(h(l.f), ":</span> ").concat(h(l.x), "</li>"); }).join('') || "<li>".concat(h(p.def), "</li>"), "</ul><a href=\"#\" data-act=\"openRef\" data-id=\"").concat(p.id, "\" data-t=\"").concat(p.t, "\">Open the full lesson \u2192</a></div>");
 }
 /* ---------------- Clinical cases & jury ---------------- */
-function vCases() {
+function vCasesOld() {
     var best = {};
     S.jury.forEach(function (j) { best[j.caseId] = Math.max(best[j.caseId] || 0, j.score10); });
     return "<div class=\"page-h\"><h1>Clinical cases (oral / OSCE)</h1><p class=\"muted\">Teacher's cases from the OSCE book. Answer step by step: diagnosis \u2192 arguments \u2192 tests \u2192 treatment. ".concat(AI ? 'The AI jury gives friendly, constructive feedback.' : 'Compare your answer with the teacher\'s answer and assess yourself.', "</p></div>\n  <div class=\"cards\">").concat(APP.core.cases.map(function (c) { return "<a href=\"#\" class=\"card lc\" data-act=\"openCase\" data-id=\"".concat(c.id, "\"><span class=\"tag teach\">Teacher's case</span><b>").concat(h(c.title), "</b><span class=\"muted small\">").concat(h(APP.lById[c.topic] ? APP.lById[c.topic].title : ''), "</span>").concat(best[c.id] != null ? gradeBadge(best[c.id] * 10) : '', "</a>"); }).join(''), "</div>");
@@ -2547,7 +3670,7 @@ function startCase(id, opts) {
     CASE = { c: c, i: 0, answers: {}, results: {}, hints: {}, busy: false, mockAttempt: opts && opts.mockAttempt, practice: false, shown: {} };
     go('case');
 }
-function vCase() {
+function vCaseOral() {
     if (!CASE)
         return vCases();
     var c = CASE.c, st = c.steps[CASE.i];
@@ -2669,6 +3792,10 @@ document.addEventListener('click', function (ev) {
     var act = el.getAttribute('data-act'), id = el.getAttribute('data-id');
     if (el.tagName === 'A' || el.tagName === 'BUTTON')
         ev.preventDefault();
+    if (/^(sa|cx|em)[A-Z]/.test(act) && window.xAct) {
+        xAct(act, el, id);
+        return;
+    }
     switch (act) {
         case 'google':
             googleLogin();
@@ -2952,6 +4079,11 @@ document.addEventListener('click', function (ev) {
         }
         case 'openCase':
             startCase(id);
+            if (CASE) {
+                CASE.mode = 'ix';
+                CASE.ix = { stage: 0, clues: {}, dd: {}, tests: {}, dx: null, tx: null, done: {} };
+            }
+            render();
             break;
         case 'caseJump':
             saveCaseText();
