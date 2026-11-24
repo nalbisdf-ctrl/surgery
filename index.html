@@ -200,6 +200,14 @@ h2.ch{margin:0 0 4px;font-size:21px}details.pm{margin-top:8px}details.pm>summary
 .or-wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:start}@media(max-width:900px){.or-wrap{grid-template-columns:1fr}}.or-wrap .examq{position:sticky;top:10px;grid-column:auto !important;margin:0}.or-wrap .examq img{max-width:100%;height:auto}.or-wrap .examq p{display:none}
 .or-f{margin-bottom:12px}.or-f label{display:block;margin-bottom:4px}.or-f .inp{width:100%;box-sizing:border-box}.or-ref{margin-top:6px;padding:8px 10px;border-left:4px solid var(--pri);background:var(--pri2);border-radius:6px}.or-ref div{margin:2px 0 6px;font-size:14px}.or-gb{display:flex;gap:6px;flex-wrap:wrap}
 .or-tab{width:100%;border-collapse:collapse;font-size:13px}.or-tab th,.or-tab td{border-bottom:1px solid var(--line);padding:5px;text-align:center}.or-tab td:nth-child(2){text-align:left}.or-g.g2{color:var(--ok);font-weight:700}.or-g.g1{color:#e65100;font-weight:700}.or-g.g0{color:var(--no)}.or-steps{columns:2;font-size:14px}.or-note{display:flex;align-items:center;justify-content:center;gap:18px;margin:10px 0}.or-n100 b{font-size:54px;font-weight:800;color:var(--pri)}.or-n100 span{font-size:20px;color:var(--muted);margin-left:4px}
+.fc-piles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:14px 0}@media(max-width:800px){.fc-piles{grid-template-columns:1fr}}
+.fc-pile{display:flex;gap:14px;align-items:center;padding:16px;border-radius:14px;border:2px solid var(--line);background:var(--card);text-decoration:none;color:var(--ink);transition:transform .15s}.fc-pile:hover{transform:translateY(-2px)}.fc-pile.empty{opacity:.45}
+.fc-pile.unk{border-color:#e57373}.fc-pile.known{border-color:#66bb6a}.fc-pile.fresh{border-color:#90a4ae}
+.fc-stack{position:relative;width:64px;height:78px;flex:none}.fc-stack i,.fc-stack b{position:absolute;inset:0;border-radius:10px;border:2px solid currentColor;background:var(--card)}.fc-stack i:nth-child(1){transform:translate(8px,-8px) rotate(6deg)}.fc-stack i:nth-child(2){transform:translate(4px,-4px) rotate(3deg)}.fc-stack b{display:flex;align-items:center;justify-content:center;font-size:24px}
+.fc-pile.unk .fc-stack{color:#e53935}.fc-pile.known .fc-stack{color:#43a047}.fc-pile.fresh .fc-stack{color:#78909c}
+.fc-pt{display:block;font-weight:700;font-size:17px;margin-bottom:4px}.fc-bar{max-width:520px;margin:12px auto 4px}
+.fc-mini{display:flex;gap:8px;margin-top:6px}.fp{font-size:13px;font-weight:700;padding:3px 10px;border-radius:20px}.fp.unk{background:#fdecea;color:#c62828}.fp.known{background:#e8f5e9;color:#2e7d32}.fp.fresh{background:#eceff1;color:#546e7a}
+.fc-ans .fc-no{border-color:#e57373;color:#c62828}.fc-ans .btn{min-width:150px}
 </style>
 </head>
 <body>
@@ -3886,32 +3894,55 @@ function startXDeck(kind, topic) {
     toast('Loading cards…');
     Promise.all(ts.map(function (t) { return APP.xcache[t] ? Promise.resolve(APP.xcache[t]) : getJSON('data/cards/' + APP.subj + '-' + t + '.json').then(function (d) { APP.xcache[t] = d; return d; }); })).then(function (rs) {
         var deck = [].concat.apply([], rs).filter(function (c) { return !kind || c.kind === kind; }).map(function (c) { return ({ k: c.id, html: 1, q: c.q, a: c.a, sub: (APP.lById[c.topic] ? APP.lById[c.topic].title : c.topic) + ' · ' + c.src }); });
-        var known = (S.fc && S.fc.known) || {};
-        var cards = shuffle(deck.filter(function (c) { return !known[c.k]; })).concat(shuffle(deck.filter(function (c) { return known[c.k]; })));
-        FC = { x: 1, kind: kind || '', topic: topic || '', cards: cards, i: 0, flip: false };
+        FC = { x: 1, kind: kind || '', topic: topic || '', deck: deck, cards: [], i: 0, flip: false, stage: 'pick', title: kind ? ((APP.xidx.kinds || {})[kind] || 'Image cards') : (APP.lById[topic] ? APP.lById[topic].title : 'Image cards') };
         go('flash');
     }).catch(function () { return toast('Could not load the cards – check your connection.'); });
 }
+function fcPiles(deck) {
+    var kn = (S.fc && S.fc.known) || {}, un = (S.fc && S.fc.unk) || {}, P = { unk: [], known: [], fresh: [] };
+    deck.forEach(function (c) { if (kn[c.k])
+        P.known.push(c);
+    else if (un[c.k])
+        P.unk.push(c);
+    else
+        P.fresh.push(c); });
+    return P;
+}
+function fcPileBar() {
+    var P = fcPiles(FC.deck);
+    return "<div class=\"fc-mini\"><span class=\"fp unk\">\u2717 ".concat(P.unk.length, "</span><span class=\"fp fresh\">\u25CF ").concat(P.fresh.length, "</span><span class=\"fp known\">\u2713 ").concat(P.known.length, "</span></div>");
+}
+function vPiles(done) {
+    var P = fcPiles(FC.deck), n = FC.deck.length;
+    var pile = function (id, cls, icon, title, sub, list) { return "<a href=\"#\" class=\"fc-pile ".concat(cls).concat(list.length ? '' : ' empty', "\" data-act=\"fcPile\" data-id=\"").concat(id, "\"><div class=\"fc-stack\"><i></i><i></i><b>").concat(list.length, "</b></div><div><span class=\"fc-pt\">").concat(icon, " ").concat(title, "</span><span class=\"muted small\">").concat(sub, "</span></div></a>"); };
+    return "<div class=\"page-h\"><a href=\"#\" data-act=\"flashPick\" class=\"back\">\u2190 Decks</a><h1>".concat(h(FC.title || 'Flashcards'), "</h1><p class=\"muted\">").concat(done ? "<b>Pile finished</b> (".concat(done, " cards). ") : '', "Choose the pile you want to study. Each answer moves the card: <b>\u2717 I don't know</b> sends it to the red pile, <b>\u2713 I know</b> to the green pile.</p></div>\n  <div class=\"fc-piles\">\n    ").concat(pile('unk', 'unk', '✗', "I don't know", 'cards you failed – study them until they move to the green pile', P.unk), "\n    ").concat(pile('fresh', 'fresh', '●', 'Not seen yet', 'new cards of this deck', P.fresh), "\n    ").concat(pile('known', 'known', '✓', 'I know', 'cards you knew – review them to check they stay known', P.known), "\n  </div>\n  <div class=\"row center\"><button class=\"btn\" data-act=\"fcPile\" data-id=\"todo\">Don't-know + new (").concat(P.unk.length + P.fresh.length, ")</button><button class=\"btn\" data-act=\"fcPile\" data-id=\"all\">Whole deck, shuffled (").concat(n, ")</button></div>\n  <div class=\"bar fc-bar\"><i style=\"width:").concat(n ? Math.round(100 * P.known.length / n) : 0, "%\"></i></div><p class=\"muted small center\">").concat(P.known.length, "/").concat(n, " in the \"I know\" pile").concat(P.known.length ? " \u00B7 <a href=\"#\" data-act=\"fcResetPile\">put every card of this deck back to \"not seen\"</a>" : '', "</p>");
+}
+function confirmSafe() { try {
+    return window.confirm('Put every card of this deck back to "not seen"?');
+}
+catch (e) {
+    return true;
+} }
 function vFlash(arg) {
     if (!FC || arg === 'pick') {
         var mine = (APP.core.cards || []).length;
         return "<div class=\"page-h\"><h1>Flashcards</h1><p class=\"muted\">Tap a card to flip it, then say whether you knew it. Unknown cards come back first next time; your progress is saved.</p></div>\n    ".concat(fcStatsCard(), "\n    <div class=\"cards\">").concat(deckCard('', '', 'All cards', 'everything')).concat(mine ? deckCard('', 'mine', APP.core.cardsTitle || 'My handwritten cards', mine + ' ' + (APP.core.cardsNote || 'cards from your own maps')) : '').concat(deckCard('', 'sheets', 'Pathology sheets only', ''), "</div>\n    ").concat(xDecksHtml(), "\n    <h3 style=\"margin:16px 0 8px\">By lecture</h3><div class=\"cards\">").concat(APP.core.lectures.filter(function (l) { return buildDeck(l.id).length; }).map(function (l) { return deckCard(l.id, '', l.title, ''); }).join(''), "</div>\n    <p class=\"muted small\">Reset a deck by marking cards \"Again\"; the counter shows how many you already know.</p>");
     }
+    if (FC.stage === 'pick')
+        return vPiles(0);
     var c = FC.cards[FC.i];
-    if (!c && FC.x)
-        return "<div class=\"card center\"><h2>Deck finished \uD83C\uDF89</h2><p>".concat(FC.cards.length, " cards reviewed.</p><button class=\"btn primary\" data-act=\"xdeck\" data-k=\"").concat(FC.kind, "\" data-id=\"").concat(FC.topic, "\">Again (unknown first)</button> <button class=\"btn\" data-act=\"flashPick\">Other deck</button></div>");
-    if (c && c.html)
-        return "<div class=\"page-h\"><a href=\"#\" data-act=\"flashPick\" class=\"back\">\u2190 Decks</a><h1>Flashcards</h1><span class=\"muted\">".concat(FC.i + 1, " / ").concat(FC.cards.length, " \u00B7 ").concat(h(c.sub), "</span></div>\n  <div class=\"card xcard\">").concat(c.q, "</div>\n  ").concat(FC.flip ? "<div class=\"card xcard xback\">".concat(c.a, "</div><div class=\"row center\"><button class=\"btn\" data-act=\"fcAgain\">Again</button> <button class=\"btn primary\" data-act=\"fcKnow\">I knew it</button></div>") : "<div class=\"row center\"><button class=\"btn primary\" data-act=\"flip\">Show the answer</button></div>");
     if (!c)
-        return "<div class=\"card center\"><h2>Deck finished \uD83C\uDF89</h2><p>".concat(FC.cards.length, " cards reviewed.</p><button class=\"btn primary\" data-act=\"flashLecture\" data-id=\"").concat(FC.topic, "\" data-m=\"").concat(FC.mode || '', "\">Again (unknown first)</button> <button class=\"btn\" data-act=\"flashPick\">Other deck</button></div>");
-    return "<div class=\"page-h\"><a href=\"#\" data-act=\"flashPick\" class=\"back\">\u2190 Decks</a><h1>Flashcards</h1><span class=\"muted\">".concat(FC.i + 1, " / ").concat(FC.cards.length, "</span></div>\n  <div class=\"flash ").concat(FC.flip ? 'flip' : '', "\" data-act=\"flip\"><div class=\"face front\"><div class=\"muted small\">").concat(h(c.sub), "</div><h2>").concat(h(c.front), "</h2><p class=\"muted small\">Tap to reveal</p></div>\n  <div class=\"face back\"><div class=\"muted small\">").concat(h(c.front), " \u00B7 ").concat(h(c.sub), "</div><ul>").concat(c.back.map(function (b) { return "<li>".concat(h(b), "</li>"); }).join(''), "</ul></div></div>\n  <div class=\"row center\"><button class=\"btn\" data-act=\"fcAgain\">Again</button> <button class=\"btn primary\" data-act=\"fcKnow\">I knew it</button></div>");
+        return vPiles(FC.cards.length);
+    var pileName = { unk: "I don't know", fresh: 'Not seen yet', known: 'I know', todo: "Don't-know + new", all: 'Whole deck' }[FC.pile] || '';
+    var BTN = "<div class=\"row center fc-ans\"><button class=\"btn fc-no\" data-act=\"fcAgain\">\u2717 I don't know</button> <button class=\"btn primary fc-yes\" data-act=\"fcKnow\">\u2713 I know</button></div>";
+    if (c && c.html)
+        return "<div class=\"page-h\"><a href=\"#\" data-act=\"fcPiles\" class=\"back\">\u2190 Piles</a><h1>".concat(h(FC.title || 'Flashcards'), "</h1><span class=\"muted\">Pile \u00AB ").concat(h(pileName), " \u00BB \u00B7 ").concat(FC.i + 1, " / ").concat(FC.cards.length, " \u00B7 ").concat(h(c.sub), "</span>").concat(fcPileBar(), "</div>\n  <div class=\"card xcard\">").concat(c.q, "</div>\n  ").concat(FC.flip ? "<div class=\"card xcard xback\">".concat(c.a, "</div>").concat(BTN) : "<div class=\"row center\"><button class=\"btn primary\" data-act=\"flip\">Show the answer</button></div>");
+    return "<div class=\"page-h\"><a href=\"#\" data-act=\"fcPiles\" class=\"back\">\u2190 Piles</a><h1>".concat(h(FC.title || 'Flashcards'), "</h1><span class=\"muted\">Pile \u00AB ").concat(h(pileName), " \u00BB \u00B7 ").concat(FC.i + 1, " / ").concat(FC.cards.length, "</span>").concat(fcPileBar(), "</div>\n  <div class=\"flash ").concat(FC.flip ? 'flip' : '', "\" data-act=\"flip\"><div class=\"face front\"><div class=\"muted small\">").concat(h(c.sub), "</div><h2>").concat(h(c.front), "</h2><p class=\"muted small\">Tap to reveal</p></div>\n  <div class=\"face back\"><div class=\"muted small\">").concat(h(c.front), " \u00B7 ").concat(h(c.sub), "</div><ul>").concat(c.back.map(function (b) { return "<li>".concat(h(b), "</li>"); }).join(''), "</ul></div></div>\n  ").concat(BTN);
 }
 function startFlash(topic, mode) {
     track('deck:' + (mode || 'std') + ':' + (topic || 'all'));
     var deck = buildDeck(topic || null, mode || '');
-    var known = (S.fc && S.fc.known) || {};
-    var cards = shuffle(deck.filter(function (c) { return !known[c.k]; })).concat(shuffle(deck.filter(function (c) { return known[c.k]; })));
-    FC = { topic: topic || '', mode: mode || '', cards: cards, i: 0, flip: false };
+    FC = { topic: topic || '', mode: mode || '', deck: deck, cards: [], i: 0, flip: false, stage: 'pick', title: topic && APP.lById[topic] ? APP.lById[topic].title : mode === 'mine' ? (APP.core.cardsTitle || 'My cards') : mode === 'sheets' ? 'Pathology sheets' : 'All cards' };
     go('flash');
 }
 /* ---------------- MCQ sets ---------------- */
@@ -4424,15 +4455,52 @@ document.addEventListener('click', function (ev) {
             FC.flip = !FC.flip;
             render();
             break;
+        case 'fcPile': {
+            var P = fcPiles(FC.deck);
+            var list = id === 'todo' ? P.unk.concat(P.fresh) : id === 'all' ? FC.deck.slice() : P[id] || [];
+            if (!list.length) {
+                toast('This pile is empty.');
+                break;
+            }
+            FC.cards = shuffle(list.slice());
+            FC.pile = id;
+            FC.i = 0;
+            FC.flip = false;
+            FC.stage = 'run';
+            render();
+            window.scrollTo(0, 0);
+            break;
+        }
+        case 'fcPiles':
+            FC.stage = 'pick';
+            render();
+            break;
+        case 'fcResetPile': {
+            if (!confirmSafe())
+                break;
+            S.fc.known = S.fc.known || {};
+            S.fc.unk = S.fc.unk || {};
+            FC.deck.forEach(function (c) { delete S.fc.known[c.k]; delete S.fc.unk[c.k]; });
+            S.fc.t = 'fc';
+            S.fc.id = 'fc';
+            save(S.fc);
+            render();
+            break;
+        }
         case 'fcKnow':
         case 'fcAgain': {
             var c = FC.cards[FC.i];
             S.fc.known = S.fc.known || {};
+            S.fc.unk = S.fc.unk || {};
             fcMark(c);
-            if (act === 'fcKnow')
+            if (act === 'fcKnow') {
                 S.fc.known[c.k] = 1;
-            else
+                delete S.fc.unk[c.k];
+            }
+            else {
                 delete S.fc.known[c.k];
+                S.fc.unk[c.k] = 1;
+            }
             S.fc.t = 'fc';
             S.fc.id = 'fc';
             FC.i++;
