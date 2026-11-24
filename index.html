@@ -196,6 +196,7 @@ h2.ch{margin:0 0 4px;font-size:21px}details.pm{margin-top:8px}details.pm>summary
 .ls-ctl{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:10px}.ls-rng{flex:1;min-width:140px}
 .ls-steps{display:flex;gap:4px;margin-top:8px}.ls-st{flex:1;text-align:center;font-size:12px;padding:6px 2px;border-radius:8px;background:#1b2028;color:#b0bec5;text-decoration:none}.ls-st.on{background:#ffd54f;color:#111;font-weight:700}
 .ls-story .ls-txt{font-size:17px;line-height:1.5;min-height:80px;border-left:4px solid #ffd54f;padding-left:12px}.ls-curve{width:100%;background:#0b0d10;border-radius:10px;margin-top:6px}.ls-grid{stroke:#263038}.ls-ax{fill:#78909c;font-size:10px}.ls-cur{stroke:#fff;stroke-width:1.5}.ls-leg{display:flex;gap:12px;font-size:12px;margin:4px 0 10px}
+.fiche .fi-intro{background:var(--pri2);border-radius:10px;padding:10px 12px;font-size:14px}.fi-hot{color:#e65100;font-weight:700}.fi-trap{color:#c62828;font-weight:700}.fiche table.fi-t{width:100%;border-collapse:collapse;margin:8px 0 14px;font-size:14px}.fiche .fi-t th,.fiche .fi-t td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}.fiche .fi-t th{background:var(--pri2)}
 </style>
 </head>
 <body>
@@ -3759,12 +3760,18 @@ function vLesson(id) {
     var tabs = [['overview', 'Overview'], ['sheets', 'Pathologies (' + ps.length + ')'], ['course', 'Full course'], ['book', 'Textbook'], ['visuals', 'Mind maps & schemas']];
     if (l.notes)
         tabs.splice(1, 0, ['notes', '★ Study notes']);
+    if (l.fiche)
+        tabs.splice(1, 0, ['fiche', '📋 Complete summary (from the MCQs)']);
     if (LTAB === 'course' || LTAB === 'book')
         ensureCourse(id);
     var TD = APP.topic && APP.topic[id];
     var body = '';
     if (LTAB === 'overview') {
         body = "<div class=\"card\"><h3>Mind map of the lecture</h3><div class=\"svgwrap\">".concat(mindMap(l, ps), "</div></div>\n    <div class=\"card\"><h3>Key facts</h3><ul class=\"key\">").concat(l.key.map(function (k) { return "<li>".concat(h(k), "</li>"); }).join(''), "</ul></div>\n    <div class=\"card trap\"><h3>\u26A0 Exam traps (from old exams)</h3><ul>").concat(l.traps.map(function (t) { return "<li>".concat(h(t), "</li>"); }).join(''), "</ul></div>\n    <div class=\"card\"><h3>Glossary</h3><dl class=\"gloss\">").concat(l.gloss.map(function (g) { return "<dt>".concat(h(g[0]), "</dt><dd>").concat(h(g[1]), "</dd>"); }).join(''), "</dl></div>\n    <div class=\"card\"><h3>Go deeper</h3><p class=\"muted\">The exam asks for detail: read the <a href=\"#\" data-act=\"ltab\" data-id=\"course\">full course</a>, then the <a href=\"#\" data-act=\"ltab\" data-id=\"book\">textbook chapter</a>, and revise with the <a href=\"#\" data-act=\"ltab\" data-id=\"visuals\">schemas</a>.</p></div>");
+    }
+    else if (LTAB === 'fiche' && l.fiche) {
+        var f = ensurePart(id, 'f');
+        body = f ? "<div class=\"card fiche\"><h2 class=\"ch\">Complete summary \u2013 ".concat(h(l.title), "</h2>").concat(proseBlock(f.html, [], 'F', 'F-'), "<div class=\"center\" style=\"margin-top:14px\"><button class=\"btn primary\" data-act=\"startLecture\" data-id=\"").concat(id, "\">Now test yourself on all the MCQs of this chapter</button></div></div>") : "<div class=\"card\"><p class=\"muted\">Loading the summary\u2026</p></div>";
     }
     else if (LTAB === 'notes' && l.notes) {
         var n = ensurePart(id, 'n');
