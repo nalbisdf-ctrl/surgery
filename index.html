@@ -208,6 +208,11 @@ h2.ch{margin:0 0 4px;font-size:21px}details.pm{margin-top:8px}details.pm>summary
 .fc-pt{display:block;font-weight:700;font-size:17px;margin-bottom:4px}.fc-bar{max-width:520px;margin:12px auto 4px}
 .fc-mini{display:flex;gap:8px;margin-top:6px}.fp{font-size:13px;font-weight:700;padding:3px 10px;border-radius:20px}.fp.unk{background:#fdecea;color:#c62828}.fp.known{background:#e8f5e9;color:#2e7d32}.fp.fresh{background:#eceff1;color:#546e7a}
 .fc-ans .fc-no{border-color:#e57373;color:#c62828}.fc-ans .btn{min-width:150px}
+.ms-top{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}.ms-top h2{margin:0 0 4px}
+.ms-list{display:flex;flex-direction:column;gap:6px;margin:0 0 18px}.ms-q{display:grid;grid-template-columns:200px minmax(0,1fr) auto auto;gap:10px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 12px}@media(max-width:800px){.ms-q{grid-template-columns:1fr}}
+.ms-s{display:flex;flex-wrap:wrap;gap:4px}.ms-ch{font-size:11px;font-weight:700;padding:2px 8px;border-radius:12px;background:var(--pri2);color:var(--pri)}.ms-ch.new{background:#fff3e0;color:#e65100}.ms-hot{font-size:11px;font-weight:800;color:#c62828}
+.ms-themes{display:flex;flex-direction:column;gap:8px}.ms-th{display:flex;gap:14px;align-items:flex-start;margin:0}.ms-rank{font-size:26px;font-weight:800;color:var(--pri);min-width:34px;text-align:center}.ms-body{flex:1}.ms-h{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;align-items:center}.ms-h .ms-ch{margin-left:3px}
+.ms-bar{height:8px;border-radius:4px;background:var(--line);margin:6px 0}.ms-bar i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,#ff7043,#e53935)}.ms-key{margin:4px 0 8px}
 </style>
 </head>
 <body>
@@ -2918,6 +2923,42 @@ function xAct(act, el, id) {
     }
 }
 window.xAct = xAct;
+/* ---------- Most asked (repeated questions + most tested topics) ---------- */
+var MOST = null;
+function vMost() {
+    if (!MOST) {
+        getJSON(SUBJ[APP.subj].base + 'most.json').then(function (d) { MOST = d; render(); }).catch(function () { return toast('Could not load – check your connection.'); });
+        return '<div class="card"><p class="muted">Loading…</p></div>';
+    }
+    var qById = {};
+    APP.core.questions.forEach(function (q) { qById[q.id] = q; });
+    var chip = function (s) { return "<span class=\"ms-ch".concat(/2025/.test(s) ? ' new' : '', "\">").concat(h(s), "</span>"); };
+    var cl = MOST.clusters.filter(function (c) { return c.ids.some(function (i) { return qById[i]; }); });
+    var lt = function (id) { return (APP.lById[id] || {}).title || id; };
+    var maxN = Math.max.apply(null, MOST.themes.map(function (t) { return t.nexam; }));
+    var done = {};
+    S.attempts.forEach(function (a) { return (a.items || []).forEach(function (it) { var q = qById[it.q]; if (!q || !it.a || !it.a.length)
+        return; done[it.q] = q.o.filter(function (o) { return o.c; }).map(function (o) { return o.l; }).sort().join() === it.a.slice().sort().join(); }); });
+    return "<div class=\"page-h\"><h1>\uD83D\uDD25 Most asked</h1><p class=\"muted\">What the past exams (old exam, 2022, 2023, 2025) ask again and again. Start here when time is short.</p></div>\n  <div class=\"card ms-top\"><div><h2 class=\"ch\">1. Questions that came back</h2><p class=\"muted small\">".concat(cl.length, " questions asked in <b>2 or 3 different sessions</b>, almost word for word. If they came back once, they can come back again.</p></div>\n  <button class=\"btn primary\" data-act=\"mostRep\">\u25B6 Practise all ").concat(cl.length, " repeated questions</button></div>\n  <div class=\"ms-list\">").concat(cl.map(function (c) { var q = qById[c.ids[c.ids.length - 1]] || qById[c.ids[0]]; var st = done[q.id]; return "<div class=\"ms-q\"><div class=\"ms-s\">".concat(c.sess.map(chip).join('')).concat(c.sess.length >= 3 ? '<span class="ms-hot">3 sessions</span>' : '', "</div><div class=\"ms-t\">").concat(h(q.q), "<span class=\"muted small\"> \u00B7 ").concat(h(lt(q.topic)), "</span></div><span class=\"ms-st\">").concat(st === true ? '<span class="tag ok">✓ last time right</span>' : st === false ? '<span class="tag no">✗ last time wrong</span>' : '', "</span><button class=\"btn sm\" data-act=\"mostOne\" data-id=\"").concat(q.id, "\">Answer</button></div>"); }).join(''), "</div>\n  <div class=\"card ms-top\"><div><h2 class=\"ch\">2. Most tested topics</h2><p class=\"muted small\">Number of exam questions per topic (official sessions only; practice sets not counted). The first five topics alone make up most of the exam.</p></div></div>\n  <div class=\"ms-themes\">").concat(MOST.themes.map(function (t, i) { var n = t.ids.filter(function (x) { return qById[x]; }).length; return "<div class=\"card ms-th\"><div class=\"ms-rank\">".concat(i + 1, "</div><div class=\"ms-body\"><div class=\"ms-h\"><b>").concat(h(t.n), "</b><span class=\"muted small\">").concat(t.nexam, " exam questions \u00B7 ").concat(Object.keys(t.sess).filter(function (s) { return s !== 'Practice' && s !== 'Bank'; }).sort().map(chip).join(''), "</span></div><div class=\"ms-bar\"><i style=\"width:").concat(Math.round(100 * t.nexam / maxN), "%\"></i></div>").concat(t.key ? "<p class=\"small ms-key\">\uD83D\uDD11 ".concat(h(t.key), "</p>") : '', "<div class=\"row\"><button class=\"btn sm primary\" data-act=\"mostTheme\" data-id=\"").concat(t.k, "\">Practise (").concat(n, ")</button><button class=\"btn sm\" data-act=\"mostFiche\" data-id=\"").concat(t.lec, "\">Summary: ").concat(h(lt(t.lec)), "</button></div></div></div>"); }).join(''), "</div>");
+}
+function mostAct(act, id) {
+    var has = function (i) { return APP.core.questions.some(function (q) { return q.id === i; }); };
+    if (act === 'mostRep') {
+        var ids = MOST.clusters.map(function (c) { return c.ids.filter(has).slice(-1)[0]; }).filter(Boolean);
+        startSet({ kind: 'custom', label: 'Most asked – repeated questions', qs: shuffle(ids), mode: 'practice' });
+    }
+    else if (act === 'mostOne')
+        startSet({ kind: 'custom', label: 'Most asked – 1 question', qs: [id], mode: 'practice' });
+    else if (act === 'mostTheme') {
+        var t = MOST.themes.filter(function (x) { return x.k === id; })[0];
+        startSet({ kind: 'custom', label: 'Most asked – ' + t.n, qs: shuffle(t.ids.filter(has)), mode: 'practice' });
+    }
+    else if (act === 'mostFiche') {
+        LTAB = 'fiche';
+        LPART = 0;
+        go('lesson', id);
+    }
+}
 /* General Surgery Study Platform — runs as a Claude artifact (Claude account storage + AI)
    and as a standalone web app (Google sign-in via Firebase, or guest). */
 var APP = { core: null, summary: null };
@@ -3085,7 +3126,7 @@ var MODULES = [
     { id: 'm2', title: 'Ophthalmology – Endocrinology – Diabetes – Haematology – Occupational medicine', subjects: [['ophtha', 'Ophthalmology', 'Oph'], ['endo', 'Endocrinology', 'En'], ['diab', 'Diabetes & nutrition', 'Di'], ['hemato', 'Haematology', 'H'], ['occup', 'Occupational medicine', 'Oc']] },
     { id: 'm0', title: 'General surgery module', subjects: [['surgery', 'General Surgery', '✚']] }
 ];
-var SUBJ = { surgery: { title: 'General Surgery', base: 'data/', atlas: true, book: 'Surgery for Students' }, radiology: { title: 'Radiology', base: 'data/radiology/', atlas: true, book: 'Radiology for Medical Students, vol. I (S. Dudea)' }, ophtha: { title: 'Ophthalmology', base: 'data/ophtha/', book: 'Ophthalmology – new book 2025 (annotated photos)' }, endo: { title: 'Endocrinology', base: 'data/endo/', atlas: true, book: 'Introduction to Endocrinology (I. R. Ilie, Springer 2020)' }, diab: { title: 'Diabetes & nutrition', base: 'data/diab/', book: 'Diabetes, nutrition & metabolic diseases – course book 2025 (scanned)' } };
+var SUBJ = { surgery: { title: 'General Surgery', base: 'data/', atlas: true, book: 'Surgery for Students' }, radiology: { title: 'Radiology', base: 'data/radiology/', atlas: true, most: true, book: 'Radiology for Medical Students, vol. I (S. Dudea)' }, ophtha: { title: 'Ophthalmology', base: 'data/ophtha/', book: 'Ophthalmology – new book 2025 (annotated photos)' }, endo: { title: 'Endocrinology', base: 'data/endo/', atlas: true, book: 'Introduction to Endocrinology (I. R. Ilie, Springer 2020)' }, diab: { title: 'Diabetes & nutrition', base: 'data/diab/', book: 'Diabetes, nutrition & metabolic diseases – course book 2025 (scanned)' } };
 function getSubj() { try {
     var v = localStorage.getItem('subj');
     return SUBJ[v] ? v : 'surgery';
@@ -3140,7 +3181,7 @@ function switchSubject(id) {
         return;
     }
     $('#main').innerHTML = '<div class="card"><p class="muted">Loading ' + h(SUBJ[id].title) + '…</p></div>';
-    loadCore(id).then(function () { applySubject(); FC = null; LTAB = 'overview'; ADM.data = null; renderShell(); go('dash'); }).catch(function () { return toast('Could not load this subject – check your connection.'); });
+    loadCore(id).then(function () { applySubject(); FC = null; MOST = null; LTAB = 'overview'; ADM.data = null; renderShell(); go('dash'); }).catch(function () { return toast('Could not load this subject – check your connection.'); });
 }
 function vModules() {
     return "<div class=\"page-h\"><h1>Modules & subjects</h1><p class=\"muted\">Pick the subject you want to study. Progress is saved separately for each subject.</p></div>\n  ".concat(MODULES.map(function (m) { return "<div class=\"card\"><h3>".concat(h(m.title), "</h3><div class=\"cards\">").concat(m.subjects.map(function (x) { return "<a href=\"#\" class=\"card lc".concat(SUBJ[x[0]] ? '' : ' soon', "\" data-act=\"subject\" data-id=\"").concat(x[0], "\"><span class=\"lic\">").concat(h(x[2]), "</span><b>").concat(h(x[1]), "</b><span class=\"muted small\">").concat(SUBJ[x[0]] ? (x[0] === APP.subj ? 'Current subject' : 'Open') : 'Coming soon', "</span></a>"); }).join(''), "</div></div>"); }).join(''));
@@ -3671,7 +3712,7 @@ function adminUsage(list) {
     var nu = function (k) { return Object.keys(users[k] || {}).length; };
     var rows = function (prefix, label) { return Object.keys(agg).filter(function (k) { return k.indexOf(prefix) === 0; }).sort(function (a, b) { return agg[b] - agg[a]; }).map(function (k) { return "<tr><td>".concat(h(label(k.slice(prefix.length))), "</td><td>").concat(agg[k], "</td><td>").concat(nu(k), "</td></tr>"); }).join(''); };
     var navName = function (n) { var f = NAV.filter(function (x) { return x[0] === n; })[0]; return f ? f[1] : n === 'lesson' ? 'Lesson page' : n === 'run' ? 'MCQ set (running)' : n === 'review' ? 'Set review' : n === 'case' ? 'Clinical case page' : n === 'modules' ? 'Modules & subjects' : n === 'help' ? 'Grading help' : n; };
-    var unused = NAV.filter(function (n) { return (n[0] !== 'cases' || APP.core.cases.length) && (n[0] !== 'osce5' || APP.core.cases.some(function (c) { return c.s5 && c.s5.length; })) && (n[0] !== 'atlas' || SUBJ[APP.subj].atlas); }).filter(function (n) { return !agg['v:' + n[0]]; }).map(function (n) { return n[1]; });
+    var unused = NAV.filter(function (n) { return (n[0] !== 'cases' || APP.core.cases.length) && (n[0] !== 'osce5' || APP.core.cases.some(function (c) { return c.s5 && c.s5.length; })) && (n[0] !== 'most' || SUBJ[APP.subj].most) && (n[0] !== 'atlas' || SUBJ[APP.subj].atlas); }).filter(function (n) { return !agg['v:' + n[0]]; }).map(function (n) { return n[1]; });
     var lec = function (k) { return APP.lById[k] ? APP.lById[k].title : k; };
     var tabN = { overview: 'Overview', sheets: 'Pathology sheets', course: 'Full course', book: 'Textbook', visuals: 'Drawings' };
     var deckN = function (k) { var p = k.split(':'), K = (APP.xidx && APP.xidx.kinds) || {}; var kind = p[0] === 'x' ? (p[1] === 'all' ? 'Imported/image cards – all' : (K[p[1]] || p[1])) : ({ std: 'Site cards', mine: 'Handwritten cards', sheets: 'Pathology sheets' }[p[1]] || p[1]); return kind + ' · ' + (p[2] === 'all' || !p[2] ? 'all chapters' : lec(p[2])); };
@@ -3684,7 +3725,7 @@ function adminUsage(list) {
 }
 /* ---------------- shell & routing ---------------- */
 var NAV = [['dash', 'Dashboard', '◉'], ['lessons', 'Lessons', '▤'], ['gallery', 'Mind maps & drawings', '✎'], ['flash', 'Flashcards', '❏'], ['practice', 'Lecture MCQs', '✓'],
-    ['mock', 'Mock exam', '◷'], ['final', 'Final test', '★'], ['papers', 'Past papers', '▦'], ['cases', 'Clinical cases', '✚'], ['osce5', 'OSCE station 5 (diagnosis & treatment)', '⚕'], ['mistakes', 'My mistakes', '↺'], ['plan', 'Study planner', '▣'], ['atlas', 'Visual atlas', '◐']];
+    ['mock', 'Mock exam', '◷'], ['final', 'Final test', '★'], ['papers', 'Past papers', '▦'], ['most', 'Most asked', '🔥'], ['cases', 'Clinical cases', '✚'], ['osce5', 'OSCE station 5 (diagnosis & treatment)', '⚕'], ['mistakes', 'My mistakes', '↺'], ['plan', 'Study planner', '▣'], ['atlas', 'Visual atlas', '◐']];
 function renderShell() {
     $('#login').className = 'hidden';
     $('#shell').className = '';
@@ -3696,7 +3737,7 @@ function renderShell() {
         document.title = ttl + ' – Study Platform';
     }
     catch (e) { }
-    $('#nav').innerHTML = "<a href=\"#modules\" class=\"nav-a subj".concat(VIEW.name === 'modules' ? ' on' : '', "\" data-nav=\"modules\"><span class=\"ni\">\u21C4</span>Modules & subjects</a>") + (isAdmin() ? NAV.concat([['admin', 'Students (admin)', '♛']]) : NAV).filter(function (n) { return (n[0] !== 'cases' || APP.core.cases.length) && (n[0] !== 'atlas' || SUBJ[APP.subj].atlas) && (n[0] !== 'osce5' || APP.core.cases.some(function (c) { return c.s5 && c.s5.length; })); }).map(function (n) { return "<a href=\"#".concat(n[0], "\" class=\"nav-a").concat(VIEW.name === n[0] ? ' on' : '', "\" data-nav=\"").concat(n[0], "\"><span class=\"ni\">").concat(n[2], "</span>").concat(n[1], "</a>"); }).join('') +
+    $('#nav').innerHTML = "<a href=\"#modules\" class=\"nav-a subj".concat(VIEW.name === 'modules' ? ' on' : '', "\" data-nav=\"modules\"><span class=\"ni\">\u21C4</span>Modules & subjects</a>") + (isAdmin() ? NAV.concat([['admin', 'Students (admin)', '♛']]) : NAV).filter(function (n) { return (n[0] !== 'cases' || APP.core.cases.length) && (n[0] !== 'atlas' || SUBJ[APP.subj].atlas) && (n[0] !== 'most' || SUBJ[APP.subj].most) && (n[0] !== 'osce5' || APP.core.cases.some(function (c) { return c.s5 && c.s5.length; })); }).map(function (n) { return "<a href=\"#".concat(n[0], "\" class=\"nav-a").concat(VIEW.name === n[0] ? ' on' : '', "\" data-nav=\"").concat(n[0], "\"><span class=\"ni\">").concat(n[2], "</span>").concat(n[1], "</a>"); }).join('') +
         "<div class=\"nav-foot\"><div class=\"save-pill ".concat(STORE ? STORE.mode : '', "\">").concat(h(STORE ? STORE.label : ''), "</div>\n    <button class=\"btn sm\" data-act=\"theme\">\u25D0 Light / dark</button>").concat(S.mode === 'web' ? '<button class="btn sm" data-act="logout">' + (S.guest ? 'Exit guest mode' : 'Sign out') + '</button>' : '', "</div>");
     $('#tutorBtn').style.display = AI ? '' : 'none';
 }
@@ -3721,7 +3762,7 @@ function render() {
         return;
     document.querySelectorAll('.nav-a').forEach(function (a) { return a.className = 'nav-a' + (a.getAttribute('data-nav') === VIEW.name ? ' on' : ''); });
     $('#side').className = '';
-    var fn = { dash: vDash, lessons: vLessons, lesson: vLesson, gallery: vGallery, flash: vFlash, practice: vPractice, run: vRun, review: vReview, mock: vMock, final: vFinal, papers: vPapers, cases: function () { CXT = 'ix'; return vCases(); }, case: vCase, mistakes: vMistakes, plan: vPlan, atlas: vAtlasAny, osce5: vOsce5, help: vHelp, admin: vAdmin, modules: vModules }[VIEW.name] || vDash;
+    var fn = { dash: vDash, lessons: vLessons, lesson: vLesson, gallery: vGallery, flash: vFlash, practice: vPractice, run: vRun, review: vReview, mock: vMock, final: vFinal, papers: vPapers, cases: function () { CXT = 'ix'; return vCases(); }, case: vCase, mistakes: vMistakes, plan: vPlan, atlas: vAtlasAny, osce5: vOsce5, most: vMost, help: vHelp, admin: vAdmin, modules: vModules }[VIEW.name] || vDash;
     $('#main').innerHTML = fn(VIEW.arg);
     $('#main').scrollTop = 0;
     window.scrollTo(0, 0);
@@ -4268,6 +4309,10 @@ document.addEventListener('click', function (ev) {
     var act = el.getAttribute('data-act'), id = el.getAttribute('data-id');
     if (el.tagName === 'A' || el.tagName === 'BUTTON')
         ev.preventDefault();
+    if (/^most[A-Z]/.test(act)) {
+        mostAct(act, id);
+        return;
+    }
     if (/^(sa|cx|em|ls)[A-Z]/.test(act) && window.xAct) {
         xAct(act, el, id);
         return;
