@@ -3134,10 +3134,10 @@ function fxLoadPool() {
     return Promise.all([
         EXP ? Promise.resolve(EXP) : getJSON(base + 'expics.json').then(function (d) { return (EXP = d); }),
         APP.oral ? Promise.resolve(APP.oral) : getJSON('data/radiology/oral.json').then(function (d) { return (APP.oral = d); }).catch(function () { return (APP.oral = {}); })
-    ].concat(tops.map(function (x) { return getJSON('data/cards/radiology-' + x + '.json').catch(function () { return []; }); }))).then(function (rs) {
-        var cards = [].concat.apply([], rs.slice(2).map(function (r) { return Array.isArray(r) ? r : Object.keys(r || {}).map(function (k) { return r[k]; }); })).filter(function (c) { return c && c.q && c.q.indexOf('<img') >= 0; });
-        var img = shuffle(EXP).map(function (e) { return ({ kind: 'Imaging', src: base + 'expics/' + e.img, tech: e.tech + ' · ' + e.pl, reg: e.reg, dx: e.a, desc: (e.s.filter(function (s) { return /doc notes/i.test(s.t); })[0] || { i: [] }).i.join(' · '), key: (e.s.filter(function (s) { return !/doc notes/i.test(s.t); })[0] || { i: [] }).i.slice(0, 3).join(' · ') }); });
-        var rad = shuffle(cards).map(function (c) { var r = orRef(c); return { kind: 'Radiology', src: fxImgOf(c.q), tech: r.tech + (r.view && r.view !== '—' ? ' · ' + r.view : ''), reg: r.seg, dx: r.dx, desc: r.desc, key: r.look }; }).filter(function (x) { return x.src && x.dx && x.dx !== '—'; });
+    ].concat(tops.map(function (x) { return getJSON('data/cards/radiology-' + x + '.json').then(function (r) { return (Array.isArray(r) ? r : Object.keys(r || {}).map(function (k) { return r[k]; })).map(function (c) { return c && Object.assign({}, c, { _t: x }); }); }).catch(function () { return []; }); }))).then(function (rs) {
+        var cards = [].concat.apply([], rs.slice(2)).filter(function (c) { return c && c.q && c.q.indexOf('<img') >= 0; });
+        var img = shuffle(EXP).map(function (e) { return ({ kind: 'Imaging', sys: fxSysRecap(e), src: base + 'expics/' + e.img, tech: e.tech + ' · ' + e.pl, reg: e.reg, dx: e.a, desc: (e.s.filter(function (s) { return /doc notes/i.test(s.t); })[0] || { i: [] }).i.join(' · '), key: (e.s.filter(function (s) { return !/doc notes/i.test(s.t); })[0] || { i: [] }).i.slice(0, 3).join(' · ') }); });
+        var rad = shuffle(cards).map(function (c) { var r = orRef(c); return { kind: 'Radiology', sys: FX_SYS_MAP[c._t] || 'other', src: fxImgOf(c.q), tech: r.tech + (r.view && r.view !== '—' ? ' · ' + r.view : ''), reg: r.seg, dx: r.dx, desc: r.desc, key: r.look }; }).filter(function (x) { return x.src && x.dx && x.dx !== '—'; });
         return { img: img, rad: rad };
     });
 }
@@ -3307,6 +3307,106 @@ function fxMissView(m) {
     if (!m.length)
         return '<div class="card center"><b>No image mistakes this time 🎉</b></div>';
     return "<div class=\"card\"><h3>Review of your image mistakes (".concat(m.length, ")</h3><p class=\"small muted\">Also saved in Exam pictures \u2192 \uD83D\uDCCC Image mistakes, so you can review them again later.</p>\n  ").concat(m.map(function (e) { return fxMissCard(e.x, "<div class=\"small\"><b>".concat(e.from, "</b>").concat(e.yours.map(function (y) { return "<div>".concat(y[0], ": ").concat(y[1] ? "<i>".concat(h(y[1]), "</i> ") : '').concat(y[2] === 0 ? '<span class="tag no">✗</span>' : y[2] === 1 ? '<span class="tag ok">✓</span>' : '', "</div>"); }).join(''), "</div>")); }).join(''), "</div>");
+}
+/* ---------- Image drill: exam-style questions, corrected after each image ---------- */
+var FX_SYS = { all: 'All systems', msk: 'Bones, joints & spine', uro: 'Kidney & urinary', retro: 'Adrenals & pelvis', dig: 'Digestive & liver', other: 'Physics, chest & head' };
+var FX_SYS_MAP = { msk1: 'msk', msk2: 'msk', urinary: 'uro', retro: 'retro', digestive: 'dig', basics: 'other', techniques: 'other' };
+function fxSysRecap(e) { return e.t === 'bone' || e.t === 'spine' ? 'msk' : e.t === 'uro' ? 'uro' : e.t === 'pelvis' ? 'retro' : e.t === 'abd' ? (/drenal/i.test(e.a) ? 'retro' : 'dig') : 'other'; }
+var DR = { sys: 'all', n: 10, only: false };
+var DR_Q = [
+    function (x) { return ['Which imaging method is this?', 'Which diagnosis do you suggest?']; },
+    function (x) { return ['Which technique and plane / phase / sequence?', 'What is the most likely diagnosis?']; },
+    function (x) { return ['Name the examination and the region shown.', 'What is the main finding and your diagnosis?']; },
+    function (x) { return ['Which modality and which segment?', 'Give the diagnosis and one differential.']; }
+];
+function drStart() {
+    DR.loading = true;
+    render();
+    fxLoadPool().then(function (P) {
+        var all = shuffle(P.img.concat(P.rad));
+        if (DR.sys !== 'all')
+            all = all.filter(function (x) { return x.sys === DR.sys; });
+        if (DR.only)
+            all = all.filter(function (x) { return x.kind === 'Imaging'; });
+        var used = {};
+        var list = fxUnique(all, DR.n === 0 ? 9999 : DR.n, used);
+        if (!list.length) {
+            DR.loading = false;
+            toast('No images for this selection.');
+            render();
+            return;
+        }
+        Object.assign(DR, { loading: false, run: true, list: list, i: 0, open: false, a1: '', a2: '', a3: '', g1: null, g2: null, ok: 0, done: 0, miss: [] });
+        render();
+        window.scrollTo(0, 0);
+    }).catch(function () { DR.loading = false; toast('Could not load the images – check your connection.'); render(); });
+}
+function drKeep() { ['a1', 'a2', 'a3'].forEach(function (k) { var el = document.getElementById('dr_' + k); if (el)
+    DR[k] = el.value; }); }
+function vDrill() {
+    var head = "<div class=\"page-h\"><h1>\uD83C\uDFAF Image drill</h1><p class=\"muted\">Exam-style image questions (like part 1 + the interview of the final), corrected right after each image. No timer, no MCQs.</p></div>";
+    if (DR.loading)
+        return head + '<div class="card"><p class="muted">Loading images…</p></div>';
+    if (!DR.run)
+        return head + "<div class=\"card\"><h3>System</h3><div class=\"ex-chips\">".concat(Object.keys(FX_SYS).map(function (k) { return "<button class=\"chip".concat(DR.sys === k ? ' on' : '', "\" data-act=\"drSys\" data-id=\"").concat(k, "\">").concat(FX_SYS[k], "</button>"); }).join(''), "</div>\n    <h3>Number of images</h3><div class=\"ex-chips\">").concat([[10, '10'], [20, '20'], [40, '40'], [0, 'Until I stop']].map(function (_a) {
+            var n = _a[0], l = _a[1];
+            return "<button class=\"chip".concat(DR.n === n ? ' on' : '', "\" data-act=\"drN\" data-id=\"").concat(n, "\">").concat(l, "</button>");
+        }).join(''), "</div>\n    <h3>Images</h3><div class=\"ex-chips\"><button class=\"chip").concat(!DR.only ? ' on' : '', "\" data-act=\"drOnly\" data-id=\"0\">Whole site (radiology + imaging)</button><button class=\"chip").concat(DR.only ? ' on' : '', "\" data-act=\"drOnly\" data-id=\"1\">\u2605 Recap only (imaging practical topics)</button></div>\n    <p class=\"small muted\">Every image has a different diagnosis. Wrong ones go to \uD83D\uDDBC Exam pictures \u2192 \uD83D\uDCCC Image mistakes.</p>\n    <div class=\"center\"><button class=\"btn primary\" data-act=\"drGo\">\u25B6 Start</button></div></div>");
+    if (DR.i >= DR.list.length)
+        return head + drEnd();
+    var x = DR.list[DR.i], q = DR_Q[DR.i % DR_Q.length](x), all = DR.g1 != null && DR.g2 != null;
+    return head + "<div class=\"card\"><div class=\"row\" style=\"justify-content:space-between\"><b>Image ".concat(DR.i + 1).concat(DR.n ? ' / ' + DR.list.length : '', "</b><span class=\"small muted\" style=\"margin-left:12px\">").concat(DR.ok, " / ").concat(DR.done, " correct diagnoses \u00B7 <a href=\"#\" data-act=\"drStop\">stop</a></span></div>\n  ").concat(fxImgBox(x, DR.i + 1), "\n  <label class=\"small\"><b>Q1.</b> ").concat(q[0], "</label><input id=\"dr_a1\" class=\"inp\" value=\"").concat(h(DR.a1), "\" ").concat(DR.open ? 'disabled' : '', ">\n  <label class=\"small\" style=\"margin-top:8px;display:block\"><b>Q2.</b> ").concat(q[1], "</label><input id=\"dr_a2\" class=\"inp\" value=\"").concat(h(DR.a2), "\" ").concat(DR.open ? 'disabled' : '', ">\n  <label class=\"small\" style=\"margin-top:8px;display:block\"><b>Interview (optional).</b> Describe what you see and what you would do next.</label><textarea id=\"dr_a3\" class=\"inp\" rows=\"2\" ").concat(DR.open ? 'disabled' : '', ">").concat(h(DR.a3), "</textarea>\n  ").concat(DR.open ? "<table class=\"tbl ex-tbl\" style=\"margin-top:10px\">\n    <tr><th>Q1 \u2013 technique</th><td><i class=\"muted\">".concat(h(DR.a1 || '—'), "</i> \u2192 <b>").concat(h(x.tech), "</b><div class=\"muted small\">").concat(h(x.reg || ''), "</div></td><td class=\"ex-g\">").concat(drG('g1', DR.g1), "</td></tr>\n    <tr><th>Q2 \u2013 diagnosis</th><td><i class=\"muted\">").concat(h(DR.a2 || '—'), "</i> \u2192 <b class=\"ex-dx\">").concat(h(x.dx), "</b></td><td class=\"ex-g\">").concat(drG('g2', DR.g2), "</td></tr>\n    ").concat(x.desc ? "<tr><th>Description</th><td colspan=\"2\" class=\"small\">".concat(h(x.desc), "</td></tr>") : '').concat(x.key ? "<tr><th>Key points</th><td colspan=\"2\" class=\"small\">".concat(x.kind === 'Imaging' ? x.key : h(x.key), "</td></tr>") : '', "</table>\n    <div class=\"center\" style=\"margin-top:10px\"><button class=\"btn primary\" data-act=\"drNext\" ").concat(all ? '' : 'disabled', ">").concat(all ? 'Next image →' : 'Tick Q1 and Q2', "</button></div>")
+        : "<div class=\"center\" style=\"margin-top:10px\"><button class=\"btn primary\" data-act=\"drCheck\">Check</button> <button class=\"btn\" data-act=\"drSkip\">Skip</button></div>", "</div>");
+}
+function drG(k, v) { return "<button class=\"btn sm".concat(v === 1 ? ' primary' : '', "\" data-act=\"drG\" data-id=\"").concat(k, ":1\">\u2713</button><button class=\"btn sm").concat(v === 0 ? ' bad' : '', "\" data-act=\"drG\" data-id=\"").concat(k, ":0\">\u2717</button>"); }
+function drEnd() {
+    var pct = DR.done ? Math.round(100 * DR.ok / DR.done) : 0;
+    return "<div class=\"card center result\"><div>".concat(gradeBadge(pct, true), "</div><h2>").concat(DR.ok, " / ").concat(DR.done, " correct diagnoses (").concat(pct, "%)</h2>\n  <div class=\"row center\"><button class=\"btn primary\" data-act=\"drGo\">\u25B6 New drill (same settings)</button> <button class=\"btn\" data-act=\"drMenu\">Change settings</button></div></div>").concat(fxMissView(DR.miss));
+}
+function drAct(act, id) {
+    drKeep();
+    if (act === 'drSys')
+        DR.sys = id;
+    else if (act === 'drN')
+        DR.n = +id;
+    else if (act === 'drOnly')
+        DR.only = id === '1';
+    else if (act === 'drGo') {
+        drStart();
+        return;
+    }
+    else if (act === 'drMenu')
+        DR.run = false;
+    else if (act === 'drCheck')
+        DR.open = true;
+    else if (act === 'drG') {
+        var p = id.split(':');
+        DR[p[0]] = +p[1];
+        render();
+        return;
+    }
+    else if (act === 'drSkip' || act === 'drNext') {
+        if (act === 'drNext') {
+            var x_1 = DR.list[DR.i];
+            DR.done++;
+            if (DR.g2 === 1)
+                DR.ok++;
+            if (DR.g1 === 0 || DR.g2 === 0) {
+                DR.miss.push({ x: x_1, from: 'Image ' + (DR.i + 1), yours: [['Technique', DR.a1, DR.g1], ['Diagnosis', DR.a2, DR.g2]] });
+                var D = expDoc();
+                D.miss = (D.miss || []).filter(function (o) { return o.src !== x_1.src; });
+                D.miss.unshift({ src: x_1.src, tech: x_1.tech, reg: x_1.reg, dx: x_1.dx, desc: x_1.desc || '', date: Date.now() });
+                D.miss = D.miss.slice(0, 150);
+                save(D);
+            }
+        }
+        Object.assign(DR, { i: DR.i + 1, open: false, a1: '', a2: '', a3: '', g1: null, g2: null });
+    }
+    else if (act === 'drStop') {
+        DR.list = DR.list.slice(0, DR.i);
+    }
+    render();
+    window.scrollTo(0, 0);
 }
 /* General Surgery Study Platform — runs as a Claude artifact (Claude account storage + AI)
    and as a standalone web app (Google sign-in via Firebase, or guest). */
@@ -4063,7 +4163,7 @@ function adminUsage(list) {
     var nu = function (k) { return Object.keys(users[k] || {}).length; };
     var rows = function (prefix, label) { return Object.keys(agg).filter(function (k) { return k.indexOf(prefix) === 0; }).sort(function (a, b) { return agg[b] - agg[a]; }).map(function (k) { return "<tr><td>".concat(h(label(k.slice(prefix.length))), "</td><td>").concat(agg[k], "</td><td>").concat(nu(k), "</td></tr>"); }).join(''); };
     var navName = function (n) { var f = NAV.filter(function (x) { return x[0] === n; })[0]; return f ? f[1] : n === 'lesson' ? 'Lesson page' : n === 'run' ? 'MCQ set (running)' : n === 'review' ? 'Set review' : n === 'case' ? 'Clinical case page' : n === 'modules' ? 'Modules & subjects' : n === 'help' ? 'Grading help' : n; };
-    var unused = NAV.filter(function (n) { return (n[0] !== 'cases' || APP.core.cases.length) && (n[0] !== 'osce5' || APP.core.cases.some(function (c) { return c.s5 && c.s5.length; })) && (n[0] !== 'most' || SUBJ[APP.subj].most) && (n[0] !== 'expics' || SUBJ[APP.subj].most) && (n[0] !== 'atlas' || SUBJ[APP.subj].atlas); }).filter(function (n) { return !agg['v:' + n[0]]; }).map(function (n) { return n[1]; });
+    var unused = NAV.filter(function (n) { return (n[0] !== 'cases' || APP.core.cases.length) && (n[0] !== 'osce5' || APP.core.cases.some(function (c) { return c.s5 && c.s5.length; })) && (n[0] !== 'most' || SUBJ[APP.subj].most) && (n[0] !== 'expics' || SUBJ[APP.subj].most) && (n[0] !== 'drill' || SUBJ[APP.subj].most) && (n[0] !== 'atlas' || SUBJ[APP.subj].atlas); }).filter(function (n) { return !agg['v:' + n[0]]; }).map(function (n) { return n[1]; });
     var lec = function (k) { return APP.lById[k] ? APP.lById[k].title : k; };
     var tabN = { overview: 'Overview', sheets: 'Pathology sheets', course: 'Full course', book: 'Textbook', visuals: 'Drawings' };
     var deckN = function (k) { var p = k.split(':'), K = (APP.xidx && APP.xidx.kinds) || {}; var kind = p[0] === 'x' ? (p[1] === 'all' ? 'Imported/image cards – all' : (K[p[1]] || p[1])) : ({ std: 'Site cards', mine: 'Handwritten cards', sheets: 'Pathology sheets' }[p[1]] || p[1]); return kind + ' · ' + (p[2] === 'all' || !p[2] ? 'all chapters' : lec(p[2])); };
@@ -4076,7 +4176,7 @@ function adminUsage(list) {
 }
 /* ---------------- shell & routing ---------------- */
 var NAV = [['dash', 'Dashboard', '◉'], ['lessons', 'Lessons', '▤'], ['gallery', 'Mind maps & drawings', '✎'], ['flash', 'Flashcards', '❏'], ['practice', 'Lecture MCQs', '✓'],
-    ['mock', 'Mock exam', '◷'], ['final', 'Final test', '★'], ['papers', 'Past papers', '▦'], ['most', 'Most asked', '🔥'], ['expics', 'Exam pictures', '🖼'], ['cases', 'Clinical cases', '✚'], ['osce5', 'OSCE station 5 (diagnosis & treatment)', '⚕'], ['mistakes', 'My mistakes', '↺'], ['plan', 'Study planner', '▣'], ['atlas', 'Visual atlas', '◐']];
+    ['mock', 'Mock exam', '◷'], ['final', 'Final test', '★'], ['papers', 'Past papers', '▦'], ['most', 'Most asked', '🔥'], ['expics', 'Exam pictures', '🖼'], ['drill', 'Image drill', '🎯'], ['cases', 'Clinical cases', '✚'], ['osce5', 'OSCE station 5 (diagnosis & treatment)', '⚕'], ['mistakes', 'My mistakes', '↺'], ['plan', 'Study planner', '▣'], ['atlas', 'Visual atlas', '◐']];
 function renderShell() {
     $('#login').className = 'hidden';
     $('#shell').className = '';
@@ -4088,7 +4188,7 @@ function renderShell() {
         document.title = ttl + ' – Study Platform';
     }
     catch (e) { }
-    $('#nav').innerHTML = "<a href=\"#modules\" class=\"nav-a subj".concat(VIEW.name === 'modules' ? ' on' : '', "\" data-nav=\"modules\"><span class=\"ni\">\u21C4</span>Modules & subjects</a>") + (isAdmin() ? NAV.concat([['admin', 'Students (admin)', '♛']]) : NAV).filter(function (n) { return (n[0] !== 'cases' || APP.core.cases.length) && (n[0] !== 'atlas' || SUBJ[APP.subj].atlas) && (n[0] !== 'most' || SUBJ[APP.subj].most) && (n[0] !== 'expics' || SUBJ[APP.subj].most) && (n[0] !== 'osce5' || APP.core.cases.some(function (c) { return c.s5 && c.s5.length; })); }).map(function (n) { return "<a href=\"#".concat(n[0], "\" class=\"nav-a").concat(VIEW.name === n[0] ? ' on' : '', "\" data-nav=\"").concat(n[0], "\"><span class=\"ni\">").concat(n[2], "</span>").concat(n[1], "</a>"); }).join('') +
+    $('#nav').innerHTML = "<a href=\"#modules\" class=\"nav-a subj".concat(VIEW.name === 'modules' ? ' on' : '', "\" data-nav=\"modules\"><span class=\"ni\">\u21C4</span>Modules & subjects</a>") + (isAdmin() ? NAV.concat([['admin', 'Students (admin)', '♛']]) : NAV).filter(function (n) { return (n[0] !== 'cases' || APP.core.cases.length) && (n[0] !== 'atlas' || SUBJ[APP.subj].atlas) && (n[0] !== 'most' || SUBJ[APP.subj].most) && (n[0] !== 'expics' || SUBJ[APP.subj].most) && (n[0] !== 'drill' || SUBJ[APP.subj].most) && (n[0] !== 'osce5' || APP.core.cases.some(function (c) { return c.s5 && c.s5.length; })); }).map(function (n) { return "<a href=\"#".concat(n[0], "\" class=\"nav-a").concat(VIEW.name === n[0] ? ' on' : '', "\" data-nav=\"").concat(n[0], "\"><span class=\"ni\">").concat(n[2], "</span>").concat(n[1], "</a>"); }).join('') +
         "<div class=\"nav-foot\"><div class=\"save-pill ".concat(STORE ? STORE.mode : '', "\">").concat(h(STORE ? STORE.label : ''), "</div>\n    <button class=\"btn sm\" data-act=\"theme\">\u25D0 Light / dark</button>").concat(S.mode === 'web' ? '<button class="btn sm" data-act="logout">' + (S.guest ? 'Exit guest mode' : 'Sign out') + '</button>' : '', "</div>");
     $('#tutorBtn').style.display = AI ? '' : 'none';
 }
@@ -4113,7 +4213,7 @@ function render() {
         return;
     document.querySelectorAll('.nav-a').forEach(function (a) { return a.className = 'nav-a' + (a.getAttribute('data-nav') === VIEW.name ? ' on' : ''); });
     $('#side').className = '';
-    var fn = { dash: vDash, lessons: vLessons, lesson: vLesson, gallery: vGallery, flash: vFlash, practice: vPractice, run: vRun, review: vReview, mock: vMock, final: vFinal, papers: vPapers, cases: function () { CXT = 'ix'; return vCases(); }, case: vCase, mistakes: vMistakes, plan: vPlan, atlas: vAtlasAny, osce5: vOsce5, most: vMost, expics: vExpics, help: vHelp, admin: vAdmin, modules: vModules }[VIEW.name] || vDash;
+    var fn = { dash: vDash, lessons: vLessons, lesson: vLesson, gallery: vGallery, flash: vFlash, practice: vPractice, run: vRun, review: vReview, mock: vMock, final: vFinal, papers: vPapers, cases: function () { CXT = 'ix'; return vCases(); }, case: vCase, mistakes: vMistakes, plan: vPlan, atlas: vAtlasAny, osce5: vOsce5, most: vMost, expics: vExpics, drill: vDrill, help: vHelp, admin: vAdmin, modules: vModules }[VIEW.name] || vDash;
     $('#main').innerHTML = fn(VIEW.arg);
     $('#main').scrollTop = 0;
     window.scrollTo(0, 0);
@@ -4672,6 +4772,10 @@ document.addEventListener('click', function (ev) {
     }
     if (/^fx[A-Z]/.test(act)) {
         fxAct(act, id);
+        return;
+    }
+    if (/^dr[A-Z]/.test(act)) {
+        drAct(act, id);
         return;
     }
     if (/^(sa|cx|em|ls)[A-Z]/.test(act) && window.xAct) {
