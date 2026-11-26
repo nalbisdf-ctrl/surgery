@@ -224,6 +224,7 @@ h2.ch{margin:0 0 4px;font-size:21px}details.pm{margin-top:8px}details.pm>summary
 .fx-row{display:grid;grid-template-columns:200px 1fr;gap:12px;align-items:start;padding:10px 0;border-top:1px dashed var(--line)}.fx-row img{width:200px;max-height:150px;object-fit:contain;background:#000;border-radius:8px}.fx-qa{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:6px;font-size:14px}
 @media(max-width:700px){.fx-row{grid-template-columns:1fr}.fx-row img{width:100%}}
 .fx-miss{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:14px;align-items:start;padding:12px 0;border-top:1px dashed var(--line)}.fx-miss img{width:100%;max-height:360px;object-fit:contain;background:#000;border-radius:8px}@media(max-width:800px){.fx-miss{grid-template-columns:1fr}}
+.hd ul{margin:4px 0 10px 18px;padding:0}.hd li{margin:3px 0;font-size:14px}.hd-ok{color:#2e7d32;font-weight:600}.hd-t{margin-top:8px}.hd-cheer{font-size:16px;color:var(--pri);font-weight:600;margin:6px 0}
 </style>
 </head>
 <body>
@@ -1300,7 +1301,7 @@ function atExam() {
         var pct = Math.round(tot_1 / (E.cards.length * 6) * 100);
         if (!E.saved) {
             E.saved = true;
-            var j = { t: 'jury', subj: APP.subj, id: 'j' + Date.now(), date: Date.now(), caseId: 'oral', label: 'Oral exam – ' + E.cards.length + ' images' + (E.topic ? ' (' + ((APP.lById[E.topic] || {}).title || E.topic) + ')' : ''), score10: pct / 10, score100: pct, steps: [] };
+            var j = { t: 'jury', subj: APP.subj, id: 'j' + Date.now(), date: Date.now(), caseId: 'oral', label: 'Oral exam – ' + E.cards.length + ' images' + (E.topic ? ' (' + ((APP.lById[E.topic] || {}).title || E.topic) + ')' : ''), score10: pct / 10, score100: pct, steps: [], or: E.cards.map(function (c, i) { var r = orRef(c), A = E.ans[i] || { f: {}, g: {} }; return { r: { cid: c.id, src: null, dx: r.dx, tech: r.tech + (r.view && r.view !== '—' ? ' · ' + r.view : ''), reg: r.seg, desc: String(r.desc || '').slice(0, 300) }, f: A.f || {}, g: A.g || {} }; }) };
             S.jury.push(j);
             if (S.allJury && S.allJury !== S.jury)
                 S.allJury.push(j);
@@ -3137,7 +3138,7 @@ function fxLoadPool() {
     ].concat(tops.map(function (x) { return getJSON('data/cards/radiology-' + x + '.json').then(function (r) { return (Array.isArray(r) ? r : Object.keys(r || {}).map(function (k) { return r[k]; })).map(function (c) { return c && Object.assign({}, c, { _t: x }); }); }).catch(function () { return []; }); }))).then(function (rs) {
         var cards = [].concat.apply([], rs.slice(2)).filter(function (c) { return c && c.q && c.q.indexOf('<img') >= 0; });
         var img = shuffle(EXP).map(function (e) { return ({ kind: 'Imaging', sys: fxSysRecap(e), src: base + 'expics/' + e.img, tech: e.tech + ' · ' + e.pl, reg: e.reg, dx: e.a, desc: (e.s.filter(function (s) { return /doc notes/i.test(s.t); })[0] || { i: [] }).i.join(' · '), key: (e.s.filter(function (s) { return !/doc notes/i.test(s.t); })[0] || { i: [] }).i.slice(0, 3).join(' · ') }); });
-        var rad = shuffle(cards).map(function (c) { var r = orRef(c); return { kind: 'Radiology', sys: FX_SYS_MAP[c._t] || 'other', src: fxImgOf(c.q), tech: r.tech + (r.view && r.view !== '—' ? ' · ' + r.view : ''), reg: r.seg, dx: r.dx, desc: r.desc, key: r.look }; }).filter(function (x) { return x.src && x.dx && x.dx !== '—'; });
+        var rad = shuffle(cards).map(function (c) { var r = orRef(c); return { kind: 'Radiology', cid: c.id, sys: FX_SYS_MAP[c._t] || 'other', src: fxImgOf(c.q), tech: r.tech + (r.view && r.view !== '—' ? ' · ' + r.view : ''), reg: r.seg, dx: r.dx, desc: r.desc, key: r.look }; }).filter(function (x) { return x.src && x.dx && x.dx !== '—'; });
         return { img: img, rad: rad };
     });
 }
@@ -3275,7 +3276,7 @@ function fxAct(act, id) {
             FX.stage = 'done';
             fxSaveMiss();
             var p1 = fxP1(), p3 = fxP3(), tot = Math.round(0.25 * p1 + 0.5 * FX.p2pct + 0.25 * p3);
-            var j = { t: 'jury', subj: APP.subj, id: 'j' + Date.now(), date: Date.now(), caseId: 'final3', label: 'Final exam (quiz ' + p1 + '% · MCQ ' + Math.round(FX.p2pct) + '% · interview ' + p3 + '%)', score10: tot / 10, score100: tot, steps: [] };
+            var j = { t: 'jury', subj: APP.subj, id: 'j' + Date.now(), date: Date.now(), caseId: 'final3', label: 'Final exam (quiz ' + p1 + '% · MCQ ' + Math.round(FX.p2pct) + '% · interview ' + p3 + '%)', score10: tot / 10, score100: tot, steps: [], fx: { p1pct: p1, p2pct: Math.round(FX.p2pct), p3pct: p3, p2id: FX.p2id || null, p1: FX.p1.map(function (it) { return ({ r: fxRef(it.x), a1: it.a1, a2: it.a2, g1: it.g1, g2: it.g2 }); }), p3: FX.p3.map(function (it) { return ({ r: fxRef(it.x), a: it.a, g: it.g }); }) } };
             S.jury.push(j);
             if (S.allJury && S.allJury !== S.jury)
                 S.allJury.push(j);
@@ -3407,6 +3408,89 @@ function drAct(act, id) {
     }
     render();
     window.scrollTo(0, 0);
+}
+function fxRef(x) { return { cid: x.cid || null, src: x.src && x.src.indexOf('data:') !== 0 ? x.src : null, dx: x.dx, tech: x.tech, reg: x.reg || '', desc: String(x.desc || '').slice(0, 300) }; }
+/* ---------- My exams: full history of finals, orals and MCQ sets, with what to review ---------- */
+var HSRC = null;
+function hLoadSrc() {
+    if (HSRC)
+        return Promise.resolve(HSRC);
+    return fxLoadPool().then(function (P) { HSRC = {}; P.rad.forEach(function (x) { if (x.cid)
+        HSRC[x.cid] = x.src; }); return HSRC; });
+}
+function hSrc(r) { return r.src || (HSRC && r.cid && HSRC[r.cid]) || ''; }
+function hCheer(pct) {
+    var m = pct >= 85 ? ['Outstanding work – this is exam-ready. Be proud of yourself 🌟', 'Brilliant! You clearly know this. Keep that calm confidence for the real day ✨']
+        : pct >= 75 ? ['Really solid – you are well above the pass mark. A few details and it is perfect 💪', 'Great job! The foundations are there; polish the little points below and you are set 🙂']
+            : pct >= 65 ? ['Good, you are passing comfortably. The list below is short – that is good news 💚', 'Nice progress! Every mistake here is one you will not make on exam day 🌱']
+                : pct >= 45 ? ['You passed – well done for pushing through. Review the points below calmly, you are getting there 🤍', 'It counts, and it is moving in the right direction. Small steps, one detail at a time 🌿']
+                    : ['Not yet – and that is completely okay. This is exactly why we practise. Take a breath, look at the list, and try again 🤍', 'Hard one, but you learned more from it than from an easy one. Be kind to yourself and go one detail at a time 🌱'];
+    return m[Math.floor(Date.now() / 86400000) % m.length];
+}
+function hMcqDetails(a, max) {
+    var wrong = [];
+    (a.items || []).forEach(function (it) { var q = Q(it.q); if (!q || !it.a || !it.a.length)
+        return; if (qScore(q, it.a) < 1)
+        wrong.push(q); });
+    var byT = {};
+    wrong.forEach(function (q) { (byT[q.topic] = byT[q.topic] || []).push(q); });
+    var keys = Object.keys(byT).sort(function (x, y) { return byT[y].length - byT[x].length; });
+    var n = 0;
+    var html = keys.map(function (t) { return "<div class=\"hd-t\"><b>".concat(h((APP.lById[t] || {}).title || t), "</b> <span class=\"muted small\">(").concat(byT[t].length, ")</span><ul>").concat(byT[t].map(function (q) { if (max && n >= max)
+        return ''; n++; var ok = q.o.filter(function (o) { return o.c; }).map(function (o) { return o.t; }).join(' · '); return "<li>".concat(h(q.q), " <span class=\"hd-ok\">\u2192 ").concat(h(ok), "</span></li>"); }).join(''), "</ul></div>"); }).join('');
+    return { n: wrong.length, html: html, topics: keys };
+}
+function hImgList(rows) {
+    return rows.length ? "<ul>".concat(rows.map(function (r) { return "<li><b>".concat(h(r.dx), "</b> <span class=\"muted small\">(").concat(h(r.tech || ''), ")</span></li>"); }).join(''), "</ul>") : '';
+}
+function hImgCard(r, lines) {
+    var src = hSrc(r);
+    return "<div class=\"fx-miss\">".concat(src ? "<img src=\"".concat(src, "\" alt=\"\">") : '<div class="muted small center">image loading…</div>', "<div><div class=\"small\">").concat(lines, "</div><table class=\"tbl ex-tbl\"><tr><th>Technique</th><td>").concat(h(r.tech || '—'), "</td></tr><tr><th>Region</th><td>").concat(h(r.reg || '—'), "</td></tr><tr><th>Diagnosis</th><td><b class=\"ex-dx\">").concat(h(r.dx), "</b></td></tr>").concat(r.desc ? "<tr><th>Description</th><td class=\"small\">".concat(h(r.desc), "</td></tr>") : '', "</table></div></div>");
+}
+function hMark(v) { return v === 1 || v === 2 ? '<span class="tag ok">✓</span>' : v === 0 ? '<span class="tag no">✗</span>' : ''; }
+function hDate(d) { return new Date(d).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) + ' ' + new Date(d).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }); }
+function vHistory() {
+    if (!HSRC)
+        hLoadSrc().then(function () { if (VIEW.name === 'history' || VIEW.name === 'exview')
+            render(); }).catch(function () { });
+    var J = S.jury.filter(function (j) { return j.caseId === 'final3' || j.caseId === 'oral'; }).map(function (j) { return ({ d: j.date, kind: j.caseId === 'final3' ? 'Final exam' : 'Oral (10 images)', label: j.label, pct: j.score100 != null ? j.score100 : j.score10 * 10, act: 'hOpen', id: j.id, full: !!(j.fx || j.or) }); });
+    var A = S.attempts.filter(function (a) { return (a.items || []).some(function (it) { return it.a && it.a.length; }); }).map(function (a) { return ({ d: a.date, kind: a.kind === 'mock' ? 'Mock exam' : a.kind === 'paper' ? 'Past paper' : a.kind === 'final3' ? 'Final – MCQ part' : 'MCQ set', label: a.label, pct: attemptFinal(a), act: 'openReview', id: a.id, full: true }); });
+    var all = J.concat(A).sort(function (x, y) { return y.d - x.d; });
+    var best = all.length ? Math.max.apply(null, all.map(function (x) { return x.pct; })) : 0;
+    return "<div class=\"page-h\"><h1>\uD83D\uDCCB My exams</h1><p class=\"muted\">Every exam you did \u2013 finals, orals and MCQ sets. Open one to see it in full, what was missed, and a short list of details to review.</p></div>\n  ".concat(all.length ? "<div class=\"card\"><p>".concat(all.length, " exams done \u00B7 best ").concat(gradeBadge(best), " ").concat(Math.round(best), "%. ").concat(hCheer(best), "</p></div>\n  <div class=\"card\"><table class=\"tbl\"><tr><th>Date</th><th>Type</th><th>Exam</th><th>Score</th><th></th></tr>").concat(all.map(function (x) { return "<tr><td class=\"small\">".concat(hDate(x.d), "</td><td class=\"small\">").concat(x.kind, "</td><td>").concat(h(x.label), "</td><td>").concat(gradeBadge(x.pct), " ").concat(Math.round(x.pct), "%</td><td><button class=\"btn sm\" data-act=\"").concat(x.act, "\" data-id=\"").concat(x.id, "\">").concat(x.full ? 'Open' : 'Summary', "</button></td></tr>"); }).join(''), "</table></div>")
+        : '<div class="card"><p class="muted">No exam yet. Start with a Final test or an Image drill – your results will appear here 🙂</p></div>');
+}
+function vExView(id) {
+    var j = S.jury.filter(function (x) { return x.id === id; })[0];
+    if (!j)
+        return vHistory();
+    if (!HSRC)
+        hLoadSrc().then(function () { if (VIEW.name === 'exview')
+            render(); }).catch(function () { });
+    var pct = j.score100 != null ? j.score100 : j.score10 * 10;
+    var back = '<p><a href="#" data-act="nav" data-id="history">← My exams</a></p>';
+    var top = "<div class=\"card center result\"><div>".concat(gradeBadge(pct, true), "</div><h2>").concat(Math.round(pct), "% \u00B7 ").concat(passed(pct) ? '<span class="tag ok">PASSED</span>' : '<span class="tag no">NOT PASSED</span>', "</h2><p class=\"muted\">").concat(h(j.label), " \u00B7 ").concat(hDate(j.date), "</p><p class=\"hd-cheer\">").concat(hCheer(pct), "</p></div>");
+    if (j.fx) {
+        var F_1 = j.fx, att = F_1.p2id ? S.attempts.filter(function (a) { return a.id === F_1.p2id; })[0] : null, md = att ? hMcqDetails(att, 30) : null;
+        var imgMiss = F_1.p1.filter(function (x) { return x.g2 === 0; }).map(function (x) { return x.r; }).concat(F_1.p3.filter(function (x) { return x.g && x.g.x === 0; }).map(function (x) { return x.r; }));
+        var techMiss = F_1.p1.filter(function (x) { return x.g1 === 0; }).map(function (x) { return x.r; });
+        var det = "<div class=\"card hd\"><h3>\uD83D\uDCDD Details to review</h3>\n      ".concat(imgMiss.length ? "<p><b>Images to recognise (".concat(imgMiss.length, ")</b></p>").concat(hImgList(imgMiss)) : '<p>✓ All image diagnoses right – lovely!</p>', "\n      ").concat(techMiss.length ? "<p><b>Technique / plane to name better (".concat(techMiss.length, ")</b></p>").concat(hImgList(techMiss)) : '', "\n      ").concat(md ? (md.n ? "<p><b>MCQ points (".concat(md.n, ")</b></p>").concat(md.html) : '<p>✓ No MCQ mistakes!</p>') : '<p class="muted small">MCQ part not found on this device.</p>', "</div>");
+        var p1 = "<div class=\"card\"><h3>Part 1 \u2013 Quiz \u00B7 ".concat(gradeBadge(F_1.p1pct), " ").concat(F_1.p1pct, "%</h3>").concat(F_1.p1.map(function (x, k) { return hImgCard(x.r, "<b>Image ".concat(k + 1, "</b><div>Technique: <i>").concat(h(x.a1 || '—'), "</i> ").concat(hMark(x.g1), "</div><div>Diagnosis: <i>").concat(h(x.a2 || '—'), "</i> ").concat(hMark(x.g2), "</div>")); }).join(''), "</div>");
+        var p2 = "<div class=\"card\"><h3>Part 2 \u2013 MCQs \u00B7 ".concat(gradeBadge(F_1.p2pct), " ").concat(F_1.p2pct, "%</h3>").concat(att ? "<p>".concat(md.n, " question").concat(md.n === 1 ? '' : 's', " with mistakes. <button class=\"btn sm\" data-act=\"openReview\" data-id=\"").concat(att.id, "\">See all 50 questions with corrections</button> ").concat(md.n ? "<button class=\"btn sm\" data-act=\"redoWrong\" data-id=\"".concat(att.id, "\">Redo my mistakes</button>") : '', "</p>") : '<p class="muted">Not available.</p>', "</div>");
+        var p3 = "<div class=\"card\"><h3>Part 3 \u2013 Interview \u00B7 ".concat(gradeBadge(F_1.p3pct), " ").concat(F_1.p3pct, "%</h3>").concat(F_1.p3.map(function (x, k) { return hImgCard(x.r, "<b>Image ".concat(k + 1, "</b>").concat(x.a ? "<div>Your answer: <i>".concat(h(x.a), "</i></div>") : '', "<div>Exam & description ").concat(hMark(x.g.d), " \u00B7 Diagnosis ").concat(hMark(x.g.x), " \u00B7 Follow-up ").concat(hMark(x.g.f), "</div>")); }).join(''), "</div>");
+        return "<div class=\"page-h\"><h1>Final exam \u2013 full review</h1></div>".concat(back).concat(top).concat(det).concat(p1).concat(p2).concat(p3);
+    }
+    if (j.or) {
+        var miss = j.or.filter(function (x) { return x.g.dx !== 2; }).map(function (x) { return x.r; });
+        var det = "<div class=\"card hd\"><h3>\uD83D\uDCDD Details to review</h3>".concat(miss.length ? "<p><b>Diagnoses to fix (".concat(miss.length, ")</b></p>").concat(hImgList(miss)) : '<p>✓ Every diagnosis right – beautiful!</p>', "</div>");
+        var lab_1 = { tech: 'Technique', seg: 'Segment', view: 'Plane/window', look: 'What we look at', desc: 'Description', dx: 'Diagnosis' };
+        return "<div class=\"page-h\"><h1>Oral exam \u2013 full review</h1></div>".concat(back).concat(top).concat(det, "<div class=\"card\"><h3>The 10 images</h3>").concat(j.or.map(function (x, k) { return hImgCard(x.r, "<b>Image ".concat(k + 1, "</b>").concat(x.f && x.f.dx ? "<div>Your diagnosis: <i>".concat(h(x.f.dx), "</i></div>") : '', "<div>").concat(Object.keys(lab_1).map(function (f) { return "".concat(lab_1[f], " ").concat(x.g[f] === 2 ? '<span class="tag ok">✓</span>' : x.g[f] === 1 ? '<span class="tag">~</span>' : '<span class="tag no">✗</span>'); }).join(' · '), "</div>")); }).join(''), "</div>");
+    }
+    return "<div class=\"page-h\"><h1>".concat(h(j.label), "</h1></div>").concat(back).concat(top, "<div class=\"card\"><p class=\"muted\">This exam was done before the full review existed, so only the score was saved. New exams will be shown in full here.</p></div>");
+}
+function hReviewBox(a) {
+    var pct = attemptFinal(a), md = hMcqDetails(a, 25);
+    return "<div class=\"card hd\"><p class=\"hd-cheer\">".concat(hCheer(pct), "</p>").concat(md.n ? "<h3>\uD83D\uDCDD Details to review (".concat(md.n, ")</h3>").concat(md.html) : '<h3>✓ Nothing to review – perfect set!</h3>', "</div>");
 }
 /* General Surgery Study Platform — runs as a Claude artifact (Claude account storage + AI)
    and as a standalone web app (Google sign-in via Firebase, or guest). */
@@ -4176,7 +4260,7 @@ function adminUsage(list) {
 }
 /* ---------------- shell & routing ---------------- */
 var NAV = [['dash', 'Dashboard', '◉'], ['lessons', 'Lessons', '▤'], ['gallery', 'Mind maps & drawings', '✎'], ['flash', 'Flashcards', '❏'], ['practice', 'Lecture MCQs', '✓'],
-    ['mock', 'Mock exam', '◷'], ['final', 'Final test', '★'], ['papers', 'Past papers', '▦'], ['most', 'Most asked', '🔥'], ['expics', 'Exam pictures', '🖼'], ['drill', 'Image drill', '🎯'], ['cases', 'Clinical cases', '✚'], ['osce5', 'OSCE station 5 (diagnosis & treatment)', '⚕'], ['mistakes', 'My mistakes', '↺'], ['plan', 'Study planner', '▣'], ['atlas', 'Visual atlas', '◐']];
+    ['mock', 'Mock exam', '◷'], ['final', 'Final test', '★'], ['papers', 'Past papers', '▦'], ['most', 'Most asked', '🔥'], ['expics', 'Exam pictures', '🖼'], ['drill', 'Image drill', '🎯'], ['history', 'My exams', '📋'], ['cases', 'Clinical cases', '✚'], ['osce5', 'OSCE station 5 (diagnosis & treatment)', '⚕'], ['mistakes', 'My mistakes', '↺'], ['plan', 'Study planner', '▣'], ['atlas', 'Visual atlas', '◐']];
 function renderShell() {
     $('#login').className = 'hidden';
     $('#shell').className = '';
@@ -4213,7 +4297,7 @@ function render() {
         return;
     document.querySelectorAll('.nav-a').forEach(function (a) { return a.className = 'nav-a' + (a.getAttribute('data-nav') === VIEW.name ? ' on' : ''); });
     $('#side').className = '';
-    var fn = { dash: vDash, lessons: vLessons, lesson: vLesson, gallery: vGallery, flash: vFlash, practice: vPractice, run: vRun, review: vReview, mock: vMock, final: vFinal, papers: vPapers, cases: function () { CXT = 'ix'; return vCases(); }, case: vCase, mistakes: vMistakes, plan: vPlan, atlas: vAtlasAny, osce5: vOsce5, most: vMost, expics: vExpics, drill: vDrill, help: vHelp, admin: vAdmin, modules: vModules }[VIEW.name] || vDash;
+    var fn = { dash: vDash, lessons: vLessons, lesson: vLesson, gallery: vGallery, flash: vFlash, practice: vPractice, run: vRun, review: vReview, mock: vMock, final: vFinal, papers: vPapers, cases: function () { CXT = 'ix'; return vCases(); }, case: vCase, mistakes: vMistakes, plan: vPlan, atlas: vAtlasAny, osce5: vOsce5, most: vMost, expics: vExpics, drill: vDrill, history: vHistory, exview: vExView, help: vHelp, admin: vAdmin, modules: vModules }[VIEW.name] || vDash;
     $('#main').innerHTML = fn(VIEW.arg);
     $('#main').scrollTop = 0;
     window.scrollTo(0, 0);
@@ -4545,7 +4629,7 @@ function vReview(attId) {
     var hist = function (qid) { return S.attempts.filter(function (x) { return x.id !== a.id; }).map(function (x) { var it = x.items.filter(function (y) { return y.q === qid && y.a.length; })[0]; return it ? { d: x.date, s: qScore(Q(qid), it.a), a: it.a } : null; }).filter(Boolean); };
     var caseInfo = a.kind === 'mock' && a.caseScore != null ? "<p>MCQ part ".concat(gradeBadge(pct), " ").concat(Math.round(pct), "% \u00B7 Clinical case ").concat(gradeBadge(a.caseScore * 10), " ").concat(a.caseScore.toFixed(1), "/10 \u2192 final = 75% MCQ + 25% case.\n    ").concat(passed(pct) && passed(a.caseScore * 10) ? '' : '<br><span class="muted">Both parts must reach 45% to pass.</span>', "</p>") : '';
     var passAll = a.kind === 'mock' && a.caseScore != null ? passed(pct) && passed(a.caseScore * 10) && passed(fin) : passed(fin);
-    return "<div class=\"page-h\"><h1>Your result</h1></div>\n  <div class=\"card center result\"><div>".concat(gradeBadge(fin, true), "</div><h2>").concat(Math.round(fin), "% \u00B7 ").concat(passAll ? '<span class="tag ok">PASSED</span>' : '<span class="tag no">NOT PASSED</span>', "</h2>\n  <p class=\"muted\">").concat(h(a.label), " \u00B7 ").concat(answered, "/").concat(a.items.length, " answered \u00B7 ").concat(wrong.length, " with mistakes</p>").concat(caseInfo, "\n  <p><b>Your style:</b> ").concat(fp, " wrong tick(s), ").concat(fn, " missed answer(s). ").concat(h(style), "</p>\n  ").concat(a.kind === 'final3' && FX && FX.stage === 'p2' ? "<div class=\"row center\" style=\"margin-bottom:8px\"><button class=\"btn primary\" data-act=\"fxP2Done\" data-id=\"".concat(a.id, "\">Continue \u2192 Part 3 (interview)</button></div>") : '', "<div class=\"row center\"><button class=\"btn primary\" data-act=\"redoWrong\" data-id=\"").concat(a.id, "\" ").concat(wrong.length ? '' : 'disabled', ">Redo my mistakes</button> <button class=\"btn\" data-act=\"nav\" data-id=\"dash\">Dashboard</button></div></div>\n  <h2>Personal review</h2>\n  ").concat(wrong.length ? wrong.map(function (w) {
+    return "<div class=\"page-h\"><h1>Your result</h1></div>\n  <div class=\"card center result\"><div>".concat(gradeBadge(fin, true), "</div><h2>").concat(Math.round(fin), "% \u00B7 ").concat(passAll ? '<span class="tag ok">PASSED</span>' : '<span class="tag no">NOT PASSED</span>', "</h2>\n  <p class=\"muted\">").concat(h(a.label), " \u00B7 ").concat(answered, "/").concat(a.items.length, " answered \u00B7 ").concat(wrong.length, " with mistakes</p>").concat(caseInfo, "\n  <p><b>Your style:</b> ").concat(fp, " wrong tick(s), ").concat(fn, " missed answer(s). ").concat(h(style), "</p>\n  ").concat(a.kind === 'final3' && FX && FX.stage === 'p2' ? "<div class=\"row center\" style=\"margin-bottom:8px\"><button class=\"btn primary\" data-act=\"fxP2Done\" data-id=\"".concat(a.id, "\">Continue \u2192 Part 3 (interview)</button></div>") : '', "<div class=\"row center\"><button class=\"btn primary\" data-act=\"redoWrong\" data-id=\"").concat(a.id, "\" ").concat(wrong.length ? '' : 'disabled', ">Redo my mistakes</button> <button class=\"btn\" data-act=\"nav\" data-id=\"dash\">Dashboard</button></div></div>").concat(APP.subj === 'radiology' ? hReviewBox(a) : '', "\n  <h2>Personal review</h2>\n  ").concat(wrong.length ? wrong.map(function (w) {
         var hs = hist(w.q.id);
         return "<div class=\"card qcard\"><div class=\"qmeta\"><span>".concat(h(APP.lById[w.q.topic] ? APP.lById[w.q.topic].title : ''), "</span><span class=\"muted small\">").concat(h(w.q.exam), "</span>").concat(w.q.flag ? '<span class="tag warn">debatable key</span>' : '', "</div>\n    ").concat(w.q.stem ? "<p class=\"stem\">".concat(h(w.q.stem), "</p>") : '', "<h3 class=\"qt\">").concat(h(w.q.q), "</h3>\n    <p class=\"small\">You ticked <b>").concat(w.it.a.join(', ') || '—', "</b> \u00B7 key <b>").concat(w.q.o.filter(function (o) { return o.c; }).map(function (o) { return o.l; }).join(', '), "</b></p>\n    <div class=\"opts\">").concat(w.q.o.map(function (o) { var t = w.it.a.indexOf(o.l) >= 0; var v = o.c && t ? '<span class="vd ok">✓ correct</span>' : o.c ? '<span class="vd no">you missed it: it IS an answer</span>' : t ? '<span class="vd no">you ticked it but it is NOT an answer</span>' : '<span class="vd muted">correctly left out</span>'; return "<div class=\"opt ".concat(o.c && t ? 'good' : o.c ? 'miss' : t ? 'bad' : 'neutral', "\"><span class=\"ol\">").concat(o.l, "</span><span class=\"ot\">").concat(h(o.t)).concat(v).concat(o.e ? "<span class=\"ex\">".concat(o.c ? 'True' : 'False', " \u2013 ").concat(h(o.e), "</span>") : '', "</span></div>"); }).join(''), "</div>\n    ").concat(w.q.note ? "<div class=\"note\">\u2139 ".concat(h(w.q.note), "</div>") : '', "\n    ").concat(hs.length ? "<p class=\"small muted\">Your history on this question: ".concat(hs.map(function (x) { return "".concat(fmtDate(x.d), " ").concat(x.s === 1 ? '✓' : x.s > 0 ? '½' : '✗'); }).join(' · '), "</p>") : '<p class="small muted">First attempt at this question.</p>', "\n    ").concat(w.q.ref ? "<button class=\"btn sm\" data-act=\"openRef\" data-id=\"".concat(w.q.ref, "\" data-t=\"").concat(w.q.topic, "\">Lesson recap</button>") : '', "</div>");
     }).join('') : '<div class="card"><p>No mistakes – excellent work! 🎉</p></div>');
@@ -4776,6 +4860,10 @@ document.addEventListener('click', function (ev) {
     }
     if (/^dr[A-Z]/.test(act)) {
         drAct(act, id);
+        return;
+    }
+    if (act === 'hOpen') {
+        go('exview', id);
         return;
     }
     if (/^(sa|cx|em|ls)[A-Z]/.test(act) && window.xAct) {
