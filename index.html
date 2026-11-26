@@ -226,6 +226,9 @@ h2.ch{margin:0 0 4px;font-size:21px}details.pm{margin-top:8px}details.pm>summary
 .fx-miss{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:14px;align-items:start;padding:12px 0;border-top:1px dashed var(--line)}.fx-miss img{width:100%;max-height:360px;object-fit:contain;background:#000;border-radius:8px}@media(max-width:800px){.fx-miss{grid-template-columns:1fr}}
 .hd ul{margin:4px 0 10px 18px;padding:0}.hd li{margin:3px 0;font-size:14px}.hd-ok{color:#2e7d32;font-weight:600}.hd-t{margin-top:8px}.hd-cheer{font-size:16px;color:var(--pri);font-weight:600;margin:6px 0}
 .pv-svg{width:100%;height:auto;background:#fff;border:1px solid var(--line);border-radius:12px;margin:8px 0}.pv-svg .pv-t{font-size:13px;font-weight:700;fill:#263238}.pv-svg .pv-t.b{fill:#607080;font-weight:600}.pv-svg .pv-s{font-size:11px;fill:#607080}.pv-svg .pv-ln line{stroke:#90a4ae}.pv-svg .pv-l{font-size:12px;font-weight:700;stroke:none}.pv-h{margin:18px 0 8px}
+.pv-wrap{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:14px;align-items:start}@media(max-width:850px){.pv-wrap{grid-template-columns:1fr}}
+.pv-map .pv-k{cursor:pointer;transition:opacity .15s}.pv-map .pv-k:hover{opacity:.8}.pv-map g.pv-on>*{stroke:#ff9800!important;stroke-width:5!important}.pv-map rect.pv-on{stroke:#ff9800;stroke-width:5}
+.pv-map .pv-t{font-size:13px;font-weight:700;fill:#37474f}.pv-map .pv-lb{font-size:13px;font-weight:700;fill:#ef6c00;cursor:pointer;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}.sw{display:inline-block;width:14px;height:14px;border:1px solid #888;border-radius:3px;vertical-align:-2px;margin-right:4px}.pv-side{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}.pv-side h3{margin:0 0 6px}.pv-dx{margin:4px 0 0 16px;padding:0}.pv-dx li{margin:3px 0}.pv-q{font-size:17px}.pv-ok{color:#2e7d32;font-weight:700}.pv-no{color:#c62828;font-weight:700}
 </style>
 </head>
 <body>
@@ -1511,10 +1514,83 @@ function orSaveMiss(E) {
 /* ---------- uterus & female pelvis ---------- */
 function atPelvis(d) {
     var sg = d.signs.filter(function (s) { return s.sub === 'pelvis'; }), mu = d.multi.filter(function (m) { return m.sub === 'pelvis'; });
-    var zon = "<svg viewBox=\"0 -24 660 324\" class=\"pv-svg\" role=\"img\" aria-label=\"Uterus zonal anatomy on T2\">\n  <text x=\"10\" y=\"-6\" class=\"pv-t b\">Sagittal T2 \u2013 anterior on the left</text>\n  <path d=\"M40 130 Q40 60 110 60 L160 60 Q200 60 200 130 Q200 190 120 195 Q40 195 40 130 Z\" fill=\"#fafafa\" stroke=\"#90a4ae\"/><text x=\"120\" y=\"135\" class=\"pv-t\" text-anchor=\"middle\">BLADDER</text><text x=\"120\" y=\"152\" class=\"pv-s\" text-anchor=\"middle\">urine = very bright</text>\n  <g transform=\"rotate(-30 330 130)\"><ellipse cx=\"330\" cy=\"110\" rx=\"105\" ry=\"55\" fill=\"#9e9e9e\"/><ellipse cx=\"330\" cy=\"110\" rx=\"80\" ry=\"34\" fill=\"#424242\"/><ellipse cx=\"330\" cy=\"110\" rx=\"66\" ry=\"18\" fill=\"#fff\"/></g>\n  <rect x=\"370\" y=\"175\" width=\"60\" height=\"70\" rx=\"25\" fill=\"#212121\"/><rect x=\"386\" y=\"187\" width=\"28\" height=\"46\" rx=\"12\" fill=\"#9e9e9e\"/><circle cx=\"400\" cy=\"200\" r=\"5\" fill=\"#fff\"/>\n  <path d=\"M470 120 Q520 120 520 200 L520 290 L480 290 L480 200 Q480 160 470 150 Z\" fill=\"#616161\"/><circle cx=\"500\" cy=\"230\" r=\"12\" fill=\"#000\"/><text x=\"560\" y=\"235\" class=\"pv-t\">RECTUM</text><text x=\"560\" y=\"252\" class=\"pv-s\">gas = black</text>\n  <g class=\"pv-ln\"><line x1=\"300\" y1=\"95\" x2=\"250\" y2=\"30\"/><text x=\"190\" y=\"26\" class=\"pv-l\" fill=\"#00897b\">ENDOMETRIUM = bright stripe</text>\n  <line x1=\"350\" y1=\"75\" x2=\"370\" y2=\"35\"/><text x=\"372\" y=\"34\" class=\"pv-l\" fill=\"#455a64\">JUNCTIONAL ZONE = dark band</text>\n  <line x1=\"420\" y1=\"70\" x2=\"470\" y2=\"58\"/><text x=\"474\" y=\"62\" class=\"pv-l\" fill=\"#757575\">MYOMETRIUM = grey</text>\n  <line x1=\"372\" y1=\"215\" x2=\"300\" y2=\"255\"/><text x=\"160\" y=\"268\" class=\"pv-l\" fill=\"#212121\">CERVIX = dark stromal ring</text>\n  <line x1=\"405\" y1=\"200\" x2=\"430\" y2=\"285\"/><text x=\"300\" y=\"292\" class=\"pv-l\" fill=\"#f57f17\">small bright dot = Naboth cyst</text></g></svg>";
+    var zon = pvMap();
     var tbl = "<table class=\"tbl\"><tr><th>Question</th><th>Exam</th></tr><tr><td>First line (uterus, ovaries, pain, bleeding)</td><td><b>Transvaginal US</b> (or suprapubic, full bladder)</td></tr><tr><td>Indeterminate adnexal mass, fibroid mapping</td><td><b>MRI</b></td></tr><tr><td>Local staging of uterine / cervical cancer</td><td><b>MRI T2</b> (+ diffusion, gadolinium)</td></tr><tr><td>Nodes, distant metastases, carcinomatosis</td><td><b>CT</b> (\u00B1 PET-CT)</td></tr><tr><td>T1 or T2?</td><td>Look at the urine: <b>bright = T2</b>; dark urine + bright fat = T1; fat dark = fat-sat</td></tr></table>";
     return "<div class=\"card\"><h2 class=\"ch\">\u2640 Uterus & female pelvis</h2><p class=\"muted small\">Normal anatomy first, then the lesions on real exam images (find it, then press <b>Show the sign</b>), then one disease with several techniques.</p>".concat(zon).concat(tbl, "</div>\n  <h3 class=\"pv-h\">Signs on real images (").concat(sg.length, ")</h3>\n  <div class=\"rxgrid\">").concat(sg.map(function (s) { return "<div class=\"rxcard\"><div class=\"rxhead\"><b>".concat(h(s.name), "</b></div><div class=\"rxrow\"><div class=\"rxpic\">").concat(picto(s.picto), "</div>").concat(atOverlay(s, AT.show[s.id]), "</div>\n  <div class=\"rxfoot\"><button class=\"btn sm ").concat(AT.show[s.id] ? '' : 'primary', "\" data-act=\"atShow\" data-id=\"").concat(s.id, "\">").concat(AT.show[s.id] ? 'Hide the sign' : 'Show the sign', "</button><p class=\"").concat(AT.show[s.id] ? '' : 'blur', "\">").concat(h(s.text), "</p></div></div>"); }).join(''), "</div>\n  <h3 class=\"pv-h\">One disease, several techniques</h3>") +
         mu.map(function (m) { return "<div class=\"rxcard wide\"><div class=\"rxhead\"><b>".concat(h(m.title), "</b></div><div class=\"rxpanels\">").concat(m.panels.map(function (p) { return "<figure><div class=\"rxtech\">".concat(h(p.tech), "</div><img src=\"").concat(atImg(p.img), "\" alt=\"\"><figcaption>").concat(h(p.cap), "</figcaption></figure>"); }).join(''), "</div><p class=\"rxnote\">").concat(h(m.note), "</p></div>"); }).join('');
+}
+/* ---------- interactive female pelvis map ---------- */
+var PV = { seq: 'T2', sel: null, quiz: false, q: null, sc: [0, 0], fb: null };
+var PV_S = {
+    bladder: { n: 'Bladder', c: { T2: '#f5f5f5', T1: '#2b2b2b', US: '#050505', CT: '#5a5a5a' }, d: 'Most anterior organ. Urine = the best way to tell the sequence: white on T2, dark on T1, black (anechoic) on US, water density (0–20 HU) on CT.', dx: [['Bladder tumour: grows from the wall INTO the lumen (filling defect)', ''], ['Bladder stone: bright + shadow on US, dense on CT', '']] },
+    endo: { n: 'Endometrium', c: { T2: '#ffffff', T1: '#6e6e6e', US: '#d9d9d9', CT: '#7a7a7a' }, d: 'Central stripe of the uterus. Bright on T2, echogenic line on US. Thickness varies with the cycle; post-menopause > 4–5 mm with bleeding → biopsy.', dx: [['Endometrial thickening', 'pv_endo_thick'], ['Endometrial cancer', 'pv_endo_ca'], ['IUD (bright line on US)', 'pv_iud']] },
+    jz: { n: 'Junctional zone', c: { T2: '#2e2e2e', T1: '#6e6e6e', US: '#6a6a6a', CT: '#7a7a7a' }, d: 'Inner myometrium, dark band on T2 only (invisible on T1 and CT). If a cancer breaks it → myometrial invasion (FIGO staging). Thick > 12 mm = adenomyosis.', dx: [['Endometrial cancer: breaks the junctional zone', 'pv_endo_ca']] },
+    myo: { n: 'Myometrium', c: { T2: '#8c8c8c', T1: '#6e6e6e', US: '#8a8a8a', CT: '#7a7a7a' }, d: 'Muscle wall of the uterus: intermediate grey on T2, homogeneous on US. Fibroids come from here.', dx: [['Uterine fibroid (US)', 'pv_fib_us'], ['Fibroid – MRI', 'pv_fib_mri'], ['Large fibroid compressing the bladder', 'pv_fib_sag']] },
+    cervix: { n: 'Cervix', c: { T2: '#1c1c1c', T1: '#6e6e6e', US: '#7a7a7a', CT: '#7a7a7a' }, d: 'Dark fibrous stromal ring on T2. Cervical cancer = intermediate mass that breaks this dark ring. Small round very bright dots inside = Naboth cysts (benign).', dx: [['Naboth cyst', 'pv_naboth'], ['Cervical cancer', 'pv_cervix_ca']] },
+    ovary: { n: 'Ovary', c: { T2: '#9a9a9a', T1: '#6e6e6e', US: '#8a8a8a', CT: '#7a7a7a' }, d: 'Grey stroma with small round follicles (bright on T2, anechoic on US). Lies beside / behind the uterus. US first; MRI for indeterminate masses.', dx: [['Normal ovaries with follicles', 'pv_normal'], ['Simple cyst (benign)', 'pv_cyst'], ['Cyst in cyst (suspect)', 'pv_cystcyst'], ['Mass behind the bladder', 'pv_behind'], ['Endometrioma (T1 bright)', 'pv_endometrioma_t1'], ['Endometrioma (T2 shading)', 'pv_endometrioma_t2']] },
+    rectum: { n: 'Rectum', c: { T2: '#555555', T1: '#555555', US: '#7a7a7a', CT: '#666666' }, d: 'Posterior. Gas inside is black on every technique (MRI, CT, X-ray) and blocks ultrasound.', dx: [] },
+    fat: { n: 'Pelvic fat', c: { T2: '#d6d6d6', T1: '#f0f0f0', US: '#b5b5b5', CT: '#2a2a2a' }, d: 'Fat is bright on T1 AND T2 (dark only on fat-sat) and has negative HU on CT. A dermoid cyst contains fat → bright T1, drops on fat-sat.', dx: [['Dermoid cyst = fat in an ovarian mass', '']] }
+};
+var PV_FOLL = ['#ffffff', '#151515', '#000000', '#5a5a5a'];
+function pvFill(k) { return PV_S[k].c[PV.seq]; }
+function pvMap() {
+    var sel = PV.sel, on = function (k) { return sel === k ? ' pv-on' : ''; };
+    var sh = function (k, el) { return "<g class=\"pv-k".concat(on(k), "\" data-act=\"pvSel\" data-id=\"").concat(k, "\">").concat(el, "</g>"); };
+    var fol = PV_FOLL[['T2', 'T1', 'US', 'CT'].indexOf(PV.seq)];
+    var svg = "<svg viewBox=\"0 0 660 330\" class=\"pv-svg pv-map\" role=\"img\" aria-label=\"Interactive female pelvis\">\n  <rect x=\"0\" y=\"0\" width=\"660\" height=\"330\" rx=\"12\" fill=\"".concat(pvFill('fat'), "\" class=\"pv-k").concat(on('fat'), "\" data-act=\"pvSel\" data-id=\"fat\"/>\n  ").concat(sh('bladder', "<path d=\"M40 150 Q40 70 115 70 L165 70 Q205 70 205 150 Q205 210 125 215 Q40 215 40 150 Z\" fill=\"".concat(pvFill('bladder'), "\" stroke=\"#78909c\" stroke-width=\"2\"/>")), "\n  <g transform=\"rotate(-30 335 135)\">\n  ").concat(sh('myo', "<ellipse cx=\"335\" cy=\"115\" rx=\"108\" ry=\"58\" fill=\"".concat(pvFill('myo'), "\" stroke=\"#78909c\" stroke-width=\"1.5\"/>")), "\n  ").concat(sh('jz', "<ellipse cx=\"335\" cy=\"115\" rx=\"82\" ry=\"36\" fill=\"".concat(pvFill('jz'), "\"/>")), "\n  ").concat(sh('endo', "<ellipse cx=\"335\" cy=\"115\" rx=\"66\" ry=\"17\" fill=\"".concat(pvFill('endo'), "\"/>")), "\n  </g>\n  ").concat(sh('cervix', "<rect x=\"372\" y=\"190\" width=\"62\" height=\"72\" rx=\"26\" fill=\"".concat(pvFill('cervix'), "\" stroke=\"#78909c\"/><rect x=\"388\" y=\"202\" width=\"30\" height=\"48\" rx=\"13\" fill=\"").concat(PV.seq === 'T2' ? '#8c8c8c' : pvFill('cervix'), "\"/>")), "\n  ").concat(sh('ovary', "<ellipse cx=\"520\" cy=\"80\" rx=\"46\" ry=\"30\" fill=\"".concat(pvFill('ovary'), "\" stroke=\"#78909c\" stroke-width=\"1.5\"/>") + [[500, 72], [522, 66], [540, 82], [510, 92], [530, 96]].map(function (p) { return "<circle cx=\"".concat(p[0], "\" cy=\"").concat(p[1], "\" r=\"6\" fill=\"").concat(fol, "\"/>"); }).join('')), "\n  ").concat(sh('rectum', "<path d=\"M478 135 Q528 135 528 215 L528 320 L486 320 L486 215 Q486 175 476 165 Z\" fill=\"".concat(pvFill('rectum'), "\" stroke=\"#78909c\"/><circle cx=\"507\" cy=\"250\" r=\"12\" fill=\"#000\"/>")), "\n  ").concat(PV.quiz ? '' : [['bladder', 122, 240], ['endo', 300, 40], ['jz', 205, 60], ['myo', 445, 200], ['cervix', 403, 282], ['ovary', 520, 128], ['rectum', 580, 230]].map(function (l) { return "<text x=\"".concat(l[1], "\" y=\"").concat(l[2], "\" class=\"pv-lb\" text-anchor=\"middle\" data-act=\"pvSel\" data-id=\"").concat(l[0], "\">").concat(PV_S[l[0]].n, "</text>"); }).join(''), "\n  <text x=\"12\" y=\"20\" class=\"pv-t\">").concat(PV.seq === 'US' ? 'Ultrasound (suprapubic)' : PV.seq === 'CT' ? 'CT (no contrast)' : 'MRI ' + PV.seq, " \u00B7 sagittal \u00B7 anterior on the left</text>\n  ").concat(PV.seq === 'US' ? '<text x="12" y="318" class="pv-s">US: gas in the rectum blocks the beam (shadow)</text>' : '', "</svg>");
+    var seqs = ['T2', 'T1', 'US', 'CT'].map(function (x) { return "<button class=\"chip".concat(PV.seq === x ? ' on' : '', "\" data-act=\"pvSeq\" data-id=\"").concat(x, "\">").concat(x === 'US' ? 'Ultrasound' : x === 'CT' ? 'CT' : 'MRI ' + x, "</button>"); }).join('');
+    var side;
+    if (PV.quiz) {
+        side = "<div class=\"pv-side\"><h3>\uD83C\uDFAF Find it</h3><p class=\"pv-q\">Click: <b>".concat(PV_S[PV.q].n, "</b></p>").concat(PV.fb ? "<p class=\"".concat(PV.fb[0] ? 'pv-ok' : 'pv-no', "\">").concat(PV.fb[0] ? '✓ Correct!' : '✗ That was the ' + PV_S[PV.fb[1]].n + '.', "</p>") : '', "<p class=\"muted small\">Score ").concat(PV.sc[0], " / ").concat(PV.sc[1], " \u00B7 change the technique above to make it harder (on T1 and CT the uterine layers are not visible, so they are not asked).</p><button class=\"btn sm\" data-act=\"pvQuiz\" data-id=\"0\">Stop the quiz</button></div>");
+    }
+    else if (sel) {
+        var S2 = PV_S[sel];
+        side = "<div class=\"pv-side\"><h3>".concat(S2.n, "</h3><p class=\"small\">").concat(S2.d, "</p><p class=\"small\"><b>Signal now:</b> <span class=\"sw\" style=\"background:").concat(pvFill(sel), "\"></span> on ").concat(PV.seq === 'US' ? 'ultrasound' : PV.seq === 'CT' ? 'CT' : PV.seq, "</p>").concat(S2.dx.length ? "<p class=\"small\"><b>Diseases here</b> (click to see the real image):</p><ul class=\"pv-dx\">".concat(S2.dx.map(function (x) { return x[1] ? "<li><a href=\"#\" data-act=\"pvGo\" data-id=\"".concat(x[1], "\">").concat(h(x[0]), " \u2192</a></li>") : "<li>".concat(h(x[0]), "</li>"); }).join(''), "</ul>") : '', "<button class=\"btn sm primary\" data-act=\"pvQuiz\" data-id=\"1\" style=\"margin-top:8px\">\uD83C\uDFAF Quiz: find the structure</button></div>");
+    }
+    else
+        side = "<div class=\"pv-side\"><h3>\uD83D\uDC46 Click a structure</h3><p class=\"small muted\">Click the bladder, uterus layers, cervix, ovary, rectum or the fat to see its normal look and the diseases that start there. Switch T2 / T1 / US / CT to see how each one changes colour.</p><button class=\"btn sm primary\" data-act=\"pvQuiz\" data-id=\"1\">\uD83C\uDFAF Quiz: find the structure</button></div>";
+    return "<div class=\"ex-chips\">".concat(seqs, "</div><div class=\"pv-wrap\">").concat(svg).concat(side, "</div>\n  <p class=\"small muted\">Tip: look at the bladder first \u2013 white urine = T2, dark urine = T1, black = ultrasound, grey = CT. Fat stays bright on T1 and T2.</p>");
+}
+function pvNewQ() { var ks = Object.keys(PV_S).filter(function (k) { return k !== PV.q && !((PV.seq === 'T1' || PV.seq === 'CT') && (k === 'jz' || k === 'endo')) && !(PV.seq === 'US' && k === 'jz'); }); PV.q = ks[Math.floor(Math.random() * ks.length)]; }
+function pvAct(act, id) {
+    if (act === 'pvSeq') {
+        PV.seq = id;
+        if (PV.quiz) {
+            PV.fb = null;
+            pvNewQ();
+        }
+    }
+    else if (act === 'pvQuiz') {
+        PV.sel = null;
+        PV.quiz = id === '1';
+        PV.fb = null;
+        PV.sc = [0, 0];
+        if (PV.quiz)
+            pvNewQ();
+    }
+    else if (act === 'pvSel') {
+        if (PV.quiz) {
+            PV.sc[1]++;
+            var ok = id === PV.q;
+            if (ok)
+                PV.sc[0]++;
+            PV.fb = [ok, PV.q];
+            PV.sel = null;
+            if (ok)
+                pvNewQ();
+        }
+        else
+            PV.sel = PV.sel === id ? null : id;
+    }
+    else if (act === 'pvGo') {
+        AT.show[id] = true;
+        render();
+        var el = document.querySelector("[data-act=\"atShow\"][data-id=\"".concat(id, "\"]"));
+        if (el)
+            el.closest('.rxcard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+    }
+    render();
 }
 /* ---------- Radiology: lesion story (contrast film) ---------- */
 var LS = { id: null, u: 0, play: false, lab: false, timer: null, speed: 1 };
@@ -4880,6 +4956,10 @@ document.addEventListener('click', function (ev) {
     }
     if (/^dr[A-Z]/.test(act)) {
         drAct(act, id);
+        return;
+    }
+    if (/^pv[A-Z]/.test(act)) {
+        pvAct(act, id);
         return;
     }
     if (act === 'hOpen') {
