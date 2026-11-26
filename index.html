@@ -223,6 +223,7 @@ h2.ch{margin:0 0 4px;font-size:21px}details.pm{margin-top:8px}details.pm>summary
 .fx-steps{display:flex;gap:6px;margin:0 0 12px;flex-wrap:wrap}.fx-steps span{padding:5px 12px;border-radius:14px;background:var(--line);font-weight:700;font-size:13px}.fx-steps span.on{background:var(--pri);color:#fff}
 .fx-row{display:grid;grid-template-columns:200px 1fr;gap:12px;align-items:start;padding:10px 0;border-top:1px dashed var(--line)}.fx-row img{width:200px;max-height:150px;object-fit:contain;background:#000;border-radius:8px}.fx-qa{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:6px;font-size:14px}
 @media(max-width:700px){.fx-row{grid-template-columns:1fr}.fx-row img{width:100%}}
+.fx-miss{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:14px;align-items:start;padding:12px 0;border-top:1px dashed var(--line)}.fx-miss img{width:100%;max-height:360px;object-fit:contain;background:#000;border-radius:8px}@media(max-width:800px){.fx-miss{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -1304,9 +1305,10 @@ function atExam() {
             if (S.allJury && S.allJury !== S.jury)
                 S.allJury.push(j);
             save(j);
+            orSaveMiss(E);
         }
         var weak = OR_F.map(function (f) { return [f[1], E.cards.filter(function (c, i) { return ((E.ans[i] || { g: {} }).g[f[0]] || 0) < 2; }).length]; }).sort(function (a, b) { return b[1] - a[1]; })[0];
-        return "<div class=\"card center\"><h2>Oral finished</h2><div class=\"or-note\">".concat(gradeBadge(pct, true), "<div class=\"or-n100\"><b>").concat(pct, "</b><span>/ 100</span></div></div><p class=\"muted\">").concat(tot_1, " / ").concat(E.cards.length * 6, " points (\u2713 = 1, ~ = \u00BD, \u2717 = 0 for each of the 6 points) \u00B7 saved in your grades on the Dashboard</p>").concat(weak[1] ? "<p class=\"muted\">Point to work on: <b>".concat(h(weak[0]), "</b> (missed or partial on ").concat(weak[1], " image").concat(weak[1] > 1 ? 's' : '', ").</p>") : '', "</div>\n    <div class=\"card\"><table class=\"or-tab\"><tr><th>#</th><th>Diagnosis</th>").concat(OR_F.map(function (f) { return "<th>".concat(h(f[1].split(' ')[0]), "</th>"); }).join(''), "<th>Score</th></tr>").concat(rows, "</table>\n    <div class=\"row center\"><button class=\"btn primary\" data-act=\"atStart\">New oral (10 new images)</button> <button class=\"btn\" data-act=\"atReset\">Settings</button></div></div>");
+        return "<div class=\"card center\"><h2>Oral finished</h2><div class=\"or-note\">".concat(gradeBadge(pct, true), "<div class=\"or-n100\"><b>").concat(pct, "</b><span>/ 100</span></div></div><p class=\"muted\">").concat(tot_1, " / ").concat(E.cards.length * 6, " points (\u2713 = 1, ~ = \u00BD, \u2717 = 0 for each of the 6 points) \u00B7 saved in your grades on the Dashboard</p><p class=\"small muted\">Images with a wrong diagnosis are saved in \uD83D\uDDBC Exam pictures \u2192 \uD83D\uDCCC Image mistakes.</p>").concat(weak[1] ? "<p class=\"muted\">Point to work on: <b>".concat(h(weak[0]), "</b> (missed or partial on ").concat(weak[1], " image").concat(weak[1] > 1 ? 's' : '', ").</p>") : '', "</div>\n    <div class=\"card\"><table class=\"or-tab\"><tr><th>#</th><th>Diagnosis</th>").concat(OR_F.map(function (f) { return "<th>".concat(h(f[1].split(' ')[0]), "</th>"); }).join(''), "<th>Score</th></tr>").concat(rows, "</table>\n    <div class=\"row center\"><button class=\"btn primary\" data-act=\"atStart\">New oral (10 new images)</button> <button class=\"btn\" data-act=\"atReset\">Settings</button></div></div>");
     }
     var c = E.cards[E.i], A = E.ans[E.i] = E.ans[E.i] || { f: {}, g: {} }, R = orRef(c), rev = E.rev;
     var field = function (f) {
@@ -1470,6 +1472,29 @@ document.addEventListener('input', function (ev) {
 });
 document.addEventListener('change', function (ev) { if (ev.target && ev.target.getAttribute && ev.target.getAttribute('data-atl'))
     render(); });
+function orSaveMiss(E) {
+    try {
+        var D_1 = expDoc();
+        D_1.miss = D_1.miss || [];
+        var n_1 = 0;
+        E.cards.forEach(function (c, i) {
+            var A = E.ans[i] || { g: {} };
+            if (A.g.dx === 2)
+                return;
+            var r = orRef(c), src = fxImgOf(c.q);
+            if (!src)
+                return;
+            D_1.miss = D_1.miss.filter(function (o) { return o.src !== src; });
+            D_1.miss.unshift({ src: src, tech: r.tech + (r.view && r.view !== '—' ? ' · ' + r.view : ''), reg: r.seg, dx: r.dx, desc: r.desc, date: Date.now() });
+            n_1++;
+        });
+        if (n_1) {
+            D_1.miss = D_1.miss.slice(0, 150);
+            save(D_1);
+        }
+    }
+    catch (e) { }
+}
 /* ---------- Radiology: lesion story (contrast film) ---------- */
 var LS = { id: null, u: 0, play: false, lab: false, timer: null, speed: 1 };
 var LS_PH = ['Native', 'Arterial', 'Portal venous', 'Delayed', 'Late / excretory'];
@@ -3021,7 +3046,11 @@ function vExpics() {
     }
     var M = expDoc().m, L = expList(), st = expStats(), ko = L.filter(function (e) { return M[e.n] && M[e.n].d === 0; }).length;
     var cnt = function (k) { return k === 'all' ? EXP.length : EXP.filter(function (e) { return e.t === k; }).length; };
-    var head = "<div class=\"page-h\"><h1>\uD83D\uDDBC Exam pictures</h1><p class=\"muted\">".concat(EXP.length, " images from the recap, answered like at the oral: technique \u2192 segment \u2192 plane/window \u2192 description \u2192 diagnosis.</p></div>\n  <div class=\"card\"><div class=\"ex-chips\">").concat(Object.keys(EX_T).map(function (k) { return "<button class=\"chip".concat(EXS.topic === k ? ' on' : '', "\" data-act=\"exTopic\" data-id=\"").concat(k, "\">").concat(EX_T[k], " <span class=\"muted\">").concat(cnt(k), "</span></button>"); }).join(''), "</div>\n  <div class=\"ex-top\"><div class=\"small\"><span class=\"tag ok\">\u2713 ").concat(st.ok, " right</span> <span class=\"tag no\">\u2717 ").concat(st.ko, " missed</span> <span class=\"muted\">\u00B7 ").concat(EXP.length - st.done, " not done").concat(st.avg != null ? " \u00B7 average ".concat(st.avg, "%") : '', " ").concat(S.guest ? '· guest mode: not saved' : '· saved to your account', "</span></div>\n  <div class=\"row\"><button class=\"btn primary\" data-act=\"exStart\" data-id=\"all\">\u25B6 Quiz \u2013 random (").concat(L.length, ")</button>").concat(ko ? "<button class=\"btn\" data-act=\"exStart\" data-id=\"missed\">Redo the ".concat(ko, " missed</button>") : '', "<button class=\"btn\" data-act=\"exStart\" data-id=\"seq\">In order</button>").concat(EXS.mode === 'quiz' ? '<button class="btn" data-act="exGrid">▦ All images</button>' : '', "</div></div></div>");
+    var head = "<div class=\"page-h\"><h1>\uD83D\uDDBC Exam pictures</h1><p class=\"muted\">".concat(EXP.length, " images from the recap, answered like at the oral: technique \u2192 segment \u2192 plane/window \u2192 description \u2192 diagnosis.</p></div>\n  <div class=\"card\"><div class=\"ex-chips\">").concat(Object.keys(EX_T).map(function (k) { return "<button class=\"chip".concat(EXS.topic === k ? ' on' : '', "\" data-act=\"exTopic\" data-id=\"").concat(k, "\">").concat(EX_T[k], " <span class=\"muted\">").concat(cnt(k), "</span></button>"); }).join(''), "</div>\n  <div class=\"ex-top\"><div class=\"small\"><span class=\"tag ok\">\u2713 ").concat(st.ok, " right</span> <span class=\"tag no\">\u2717 ").concat(st.ko, " missed</span> <span class=\"muted\">\u00B7 ").concat(EXP.length - st.done, " not done").concat(st.avg != null ? " \u00B7 average ".concat(st.avg, "%") : '', " ").concat(S.guest ? '· guest mode: not saved' : '· saved to your account', "</span></div>\n  <div class=\"row\"><button class=\"btn primary\" data-act=\"exStart\" data-id=\"all\">\u25B6 Quiz \u2013 random (").concat(L.length, ")</button>").concat(ko ? "<button class=\"btn\" data-act=\"exStart\" data-id=\"missed\">Redo the ".concat(ko, " missed</button>") : '', "<button class=\"btn\" data-act=\"exStart\" data-id=\"seq\">In order</button><button class=\"btn\" data-act=\"exMiss\">\uD83D\uDCCC Image mistakes (").concat((expDoc().miss || []).length, ")</button>").concat(EXS.mode !== 'grid' ? '<button class="btn" data-act="exGrid">▦ All images</button>' : '', "</div></div></div>");
+    if (EXS.mode === 'miss') {
+        var ms = expDoc().miss || [];
+        return head + "<div class=\"card\"><h3>\uD83D\uDCCC Image mistakes (".concat(ms.length, ")</h3><p class=\"small muted\">Images you got wrong in the Final test (radiology + imaging). Remove one when you know it.</p>").concat(ms.length ? ms.map(function (x, k) { return fxMissCard(x, "<div class=\"row\" style=\"justify-content:space-between\"><span class=\"muted small\">".concat(new Date(x.date).toLocaleDateString(), "</span><button class=\"btn sm\" data-act=\"exMissDel\" data-id=\"").concat(k, "\">\u2713 I know it now \u2013 remove</button></div>")); }).join('') : '<p class="muted">No image mistakes saved yet.</p>', "</div>");
+    }
     if (EXS.mode === 'grid')
         return head + "<div class=\"ex-grid\">".concat(L.map(function (e) { var m = M[e.n]; return "<a href=\"#\" class=\"ex-th\" data-act=\"exOpen\" data-id=\"".concat(e.n, "\"><img loading=\"lazy\" src=\"").concat(base, "expics/").concat(e.img, "\" alt=\"\"><span class=\"ex-n\">").concat(e.n, "</span>").concat(m ? "<span class=\"ex-m ".concat(m.d === 1 ? 'ok' : 'no', "\">").concat(m.s != null ? m.s + '/5' : m.d === 1 ? '✓' : '✗', "</span>") : '', "</a>"); }).join(''), "</div>");
     var e = EXP.filter(function (x) { return x.n === EXS.order[EXS.i]; })[0];
@@ -3060,6 +3089,14 @@ function expAct(act, id) {
     }
     else if (act === 'exGrid')
         EXS.mode = 'grid';
+    else if (act === 'exMiss')
+        EXS.mode = 'miss';
+    else if (act === 'exMissDel') {
+        D.miss.splice(+id, 1);
+        save(D);
+        render();
+        return;
+    }
     else if (act === 'exReveal')
         EXS.open = true;
     else if (act === 'exNav') {
@@ -3175,7 +3212,7 @@ function vFinal3() {
     }
     if (FX.stage === 'done') {
         var p1 = fxP1(), p2 = FX.p2pct, p3 = fxP3(), tot = Math.round(0.25 * p1 + 0.5 * p2 + 0.25 * p3);
-        return intro + steps + "<div class=\"card center result\"><div>".concat(gradeBadge(tot, true), "</div><h2>").concat(tot, "% \u00B7 ").concat(passed(tot) ? '<span class="tag ok">PASSED</span>' : '<span class="tag no">NOT PASSED</span>', "</h2>\n    <table class=\"tbl\" style=\"max-width:520px;margin:10px auto\"><tr><th>Part</th><th>Score</th><th>Weight</th></tr>\n    <tr><td>1. Quiz (10 images)</td><td>").concat(gradeBadge(p1), " ").concat(p1, "%</td><td>25%</td></tr><tr><td>2. MCQs (50)</td><td>").concat(gradeBadge(p2), " ").concat(Math.round(p2), "% ").concat(FX.p2id ? "<a href=\"#\" data-act=\"openReview\" data-id=\"".concat(FX.p2id, "\">review</a>") : '', "</td><td>50%</td></tr><tr><td>3. Interview</td><td>").concat(gradeBadge(p3), " ").concat(p3, "%</td><td>25%</td></tr></table>\n    <p class=\"small muted\">Saved in the Dashboard (Grading \u2013 oral exams).</p><div class=\"row center\"><button class=\"btn primary\" data-act=\"fxNew\">New final exam</button> <button class=\"btn\" data-act=\"nav\" data-id=\"dash\">Dashboard</button></div></div>");
+        return intro + steps + "<div class=\"card center result\"><div>".concat(gradeBadge(tot, true), "</div><h2>").concat(tot, "% \u00B7 ").concat(passed(tot) ? '<span class="tag ok">PASSED</span>' : '<span class="tag no">NOT PASSED</span>', "</h2>\n    <table class=\"tbl\" style=\"max-width:520px;margin:10px auto\"><tr><th>Part</th><th>Score</th><th>Weight</th></tr>\n    <tr><td>1. Quiz (10 images)</td><td>").concat(gradeBadge(p1), " ").concat(p1, "%</td><td>25%</td></tr><tr><td>2. MCQs (50)</td><td>").concat(gradeBadge(p2), " ").concat(Math.round(p2), "% ").concat(FX.p2id ? "<a href=\"#\" data-act=\"openReview\" data-id=\"".concat(FX.p2id, "\">review</a>") : '', "</td><td>50%</td></tr><tr><td>3. Interview</td><td>").concat(gradeBadge(p3), " ").concat(p3, "%</td><td>25%</td></tr></table>\n    <p class=\"small muted\">Saved in the Dashboard (Grading \u2013 oral exams).</p><div class=\"row center\"><button class=\"btn primary\" data-act=\"fxNew\">New final exam</button> <button class=\"btn\" data-act=\"nav\" data-id=\"dash\">Dashboard</button></div></div>").concat(fxMissView(FX.miss || []));
     }
     return intro;
 }
@@ -3236,6 +3273,7 @@ function fxAct(act, id) {
             FX.j++;
         else {
             FX.stage = 'done';
+            fxSaveMiss();
             var p1 = fxP1(), p3 = fxP3(), tot = Math.round(0.25 * p1 + 0.5 * FX.p2pct + 0.25 * p3);
             var j = { t: 'jury', subj: APP.subj, id: 'j' + Date.now(), date: Date.now(), caseId: 'final3', label: 'Final exam (quiz ' + p1 + '% · MCQ ' + Math.round(FX.p2pct) + '% · interview ' + p3 + '%)', score10: tot / 10, score100: tot, steps: [] };
             S.jury.push(j);
@@ -3246,6 +3284,29 @@ function fxAct(act, id) {
     }
     render();
     window.scrollTo(0, 0);
+}
+function fxSaveMiss() {
+    var m = [];
+    FX.p1.forEach(function (it, k) { if (it.g1 === 0 || it.g2 === 0)
+        m.push({ x: it.x, from: 'Quiz image ' + (k + 1), yours: [['Technique', it.a1, it.g1], ['Diagnosis', it.a2, it.g2]] }); });
+    FX.p3.forEach(function (it, k) { if (['d', 'x', 'f'].some(function (q) { return it.g[q] === 0; }))
+        m.push({ x: it.x, from: 'Interview image ' + (k + 1), yours: [['Your answer', it.a, null], ['Exam & description', '', it.g.d], ['Diagnosis', '', it.g.x], ['Follow-up', '', it.g.f]] }); });
+    FX.miss = m;
+    if (!m.length)
+        return;
+    var D = expDoc();
+    D.miss = D.miss || [];
+    m.forEach(function (e) { D.miss = D.miss.filter(function (o) { return o.src !== e.x.src; }); D.miss.unshift({ src: e.x.src, tech: e.x.tech, reg: e.x.reg, dx: e.x.dx, desc: e.x.desc || '', date: Date.now() }); });
+    D.miss = D.miss.slice(0, 150);
+    save(D);
+}
+function fxMissCard(x, extra) {
+    return "<div class=\"fx-miss\"><img src=\"".concat(x.src, "\" alt=\"\"><div>").concat(extra || '', "<table class=\"tbl ex-tbl\"><tr><th>Technique</th><td>").concat(h(x.tech || '—'), "</td></tr><tr><th>Region</th><td>").concat(h(x.reg || '—'), "</td></tr><tr><th>Diagnosis</th><td><b class=\"ex-dx\">").concat(h(x.dx), "</b></td></tr>").concat(x.desc ? "<tr><th>Description</th><td class=\"small\">".concat(h(x.desc), "</td></tr>") : '', "</table></div></div>");
+}
+function fxMissView(m) {
+    if (!m.length)
+        return '<div class="card center"><b>No image mistakes this time 🎉</b></div>';
+    return "<div class=\"card\"><h3>Review of your image mistakes (".concat(m.length, ")</h3><p class=\"small muted\">Also saved in Exam pictures \u2192 \uD83D\uDCCC Image mistakes, so you can review them again later.</p>\n  ").concat(m.map(function (e) { return fxMissCard(e.x, "<div class=\"small\"><b>".concat(e.from, "</b>").concat(e.yours.map(function (y) { return "<div>".concat(y[0], ": ").concat(y[1] ? "<i>".concat(h(y[1]), "</i> ") : '').concat(y[2] === 0 ? '<span class="tag no">✗</span>' : y[2] === 1 ? '<span class="tag ok">✓</span>' : '', "</div>"); }).join(''), "</div>")); }).join(''), "</div>");
 }
 /* General Surgery Study Platform — runs as a Claude artifact (Claude account storage + AI)
    and as a standalone web app (Google sign-in via Firebase, or guest). */
