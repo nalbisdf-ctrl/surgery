@@ -1350,7 +1350,10 @@ function atStart() {
             AT.seen = {};
             fresh = all;
         }
-        var pick = fresh.slice(0, n);
+        var pick = [], ukeys = {};
+        fresh.forEach(function (c) { if (pick.length >= n)
+            return; var k = fxKey(orRef(c).dx); if (k && ukeys[k])
+            return; ukeys[k] = 1; pick.push(c); });
         pick.forEach(function (c) { AT.seen[c.id] = 1; });
         AT.ex = { cards: pick, i: 0, n: n, topic: topic, ans: {}, rev: false };
         render();
@@ -3101,12 +3104,23 @@ function fxLoadPool() {
         return { img: img, rad: rad };
     });
 }
+function fxKey(dx) { return String(dx || '').toLowerCase().replace(/\([^)]*\)/g, ' ').replace(/[^a-z0-9 ]/g, ' ').replace(/\b(of|the|with|and|a|an|left|right|bilateral|on|in)\b/g, ' ').replace(/\s+/g, ' ').trim(); }
+function fxUnique(arr, n, used) { var out = []; for (var _i = 0, arr_1 = arr; _i < arr_1.length; _i++) {
+    var x = arr_1[_i];
+    var k = fxKey(x.dx);
+    if (!k || used[k])
+        continue;
+    used[k] = 1;
+    out.push(x);
+    if (out.length === n)
+        break;
+} return out; }
 function fxStart() {
     FX = { stage: 'loading' };
     render();
     fxLoadPool().then(function (P) {
-        var p1 = shuffle(P.img.slice(0, 5).concat(P.rad.slice(0, 5)));
-        var p3 = shuffle(P.img.slice(5, 7).concat(P.rad.slice(5, 7)));
+        var all = shuffle(P.img.concat(P.rad)), used = {};
+        var p1 = fxUnique(all, 10, used), p3 = fxUnique(all, 4, used);
         FX = { stage: 'p1', i: 0, p1: p1.map(function (x) { return ({ x: x, a1: '', a2: '', g1: null, g2: null }); }), p3: p3.map(function (x) { return ({ x: x, a: '', g: {} }); }), j: 0, start: Date.now() };
         render();
         window.scrollTo(0, 0);
@@ -3137,7 +3151,7 @@ function fxImgBox(x, n) { return "<div class=\"ex-img\"><img src=\"".concat(x.sr
 function vFinal3() {
     var intro = "<div class=\"page-h\"><h1>Final exam \u2013 radiology</h1><p class=\"muted\">Same format as the real exam. No timer. Graded at the end of each part.</p></div>";
     if (!FX)
-        return intro + "<div class=\"card\"><table class=\"tbl\"><tr><th>Part</th><th>What</th><th>Weight</th></tr>\n    <tr><td><b>1. Quiz</b></td><td>10 images (5 imaging + 5 radiology), 2 simple questions each: technique & diagnosis \u00B7 0.5 point each</td><td>25%</td></tr>\n    <tr><td><b>2. MCQs</b></td><td>50 MCQs: 30 radiology + 20 imaging</td><td>50%</td></tr>\n    <tr><td><b>3. Interview</b></td><td>4 more images with direct follow-up questions</td><td>25%</td></tr></table>\n    <p class=\"small muted\">Imaging images come from the recap (Exam pictures); radiology images can be anything from the course atlas.</p>\n    <div class=\"center\"><button class=\"btn primary\" data-act=\"fxStart\">Start the final exam</button></div></div>";
+        return intro + "<div class=\"card\"><table class=\"tbl\"><tr><th>Part</th><th>What</th><th>Weight</th></tr>\n    <tr><td><b>1. Quiz</b></td><td>10 images from the whole site (course atlas + recap), 10 different diagnoses, 2 simple questions each: technique & diagnosis \u00B7 0.5 point each</td><td>25%</td></tr>\n    <tr><td><b>2. MCQs</b></td><td>50 MCQs: 30 radiology + 20 imaging</td><td>50%</td></tr>\n    <tr><td><b>3. Interview</b></td><td>4 more images (new diagnoses) with direct follow-up questions</td><td>25%</td></tr></table>\n    <p class=\"small muted\">Images are drawn from every picture on the site (lessons, atlas, recap) \u2013 never the same diagnosis twice in one exam.</p>\n    <div class=\"center\"><button class=\"btn primary\" data-act=\"fxStart\">Start the final exam</button></div></div>";
     if (FX.stage === 'loading')
         return intro + '<div class="card"><p class="muted">Loading images…</p></div>';
     var steps = "<div class=\"fx-steps\">".concat([['p1', '1. Quiz'], ['p2', '2. MCQs'], ['p3', '3. Interview'], ['done', 'Result']].map(function (_a) {
@@ -3146,17 +3160,17 @@ function vFinal3() {
     }).join(''), "</div>");
     if (FX.stage === 'p1') {
         var it = FX.p1[FX.i], n = FX.i + 1;
-        return intro + steps + "<div class=\"card\"><div class=\"row\" style=\"justify-content:space-between\"><b>Part 1 \u00B7 Image ".concat(n, " / 10</b><span class=\"muted small\">").concat(it.x.kind, "</span></div>").concat(fxImgBox(it.x, n), "\n    <label class=\"small\"><b>Q1.</b> Which technique / examination is this?</label><input id=\"fxA1\" class=\"inp\" value=\"").concat(h(it.a1), "\" placeholder=\"e.g. CT with contrast, axial\">\n    <label class=\"small\" style=\"margin-top:8px;display:block\"><b>Q2.</b> What is the diagnosis (or main finding)?</label><input id=\"fxA2\" class=\"inp\" value=\"").concat(h(it.a2), "\" placeholder=\"your diagnosis\">\n    <div class=\"row\" style=\"justify-content:space-between;margin-top:12px\"><button class=\"btn\" data-act=\"fxP1Nav\" data-id=\"-1\" ").concat(FX.i ? '' : 'disabled', ">\u2190 Previous</button>").concat(FX.i < 9 ? '<button class="btn primary" data-act="fxP1Nav" data-id="1">Next image →</button>' : '<button class="btn primary" data-act="fxP1End">Finish part 1 → correct it</button>', "</div></div>");
+        return intro + steps + "<div class=\"card\"><div class=\"row\" style=\"justify-content:space-between\"><b>Part 1 \u00B7 Image ".concat(n, " / 10</b></div>").concat(fxImgBox(it.x, n), "\n    <label class=\"small\"><b>Q1.</b> Which technique / examination is this?</label><input id=\"fxA1\" class=\"inp\" value=\"").concat(h(it.a1), "\" placeholder=\"e.g. CT with contrast, axial\">\n    <label class=\"small\" style=\"margin-top:8px;display:block\"><b>Q2.</b> What is the diagnosis (or main finding)?</label><input id=\"fxA2\" class=\"inp\" value=\"").concat(h(it.a2), "\" placeholder=\"your diagnosis\">\n    <div class=\"row\" style=\"justify-content:space-between;margin-top:12px\"><button class=\"btn\" data-act=\"fxP1Nav\" data-id=\"-1\" ").concat(FX.i ? '' : 'disabled', ">\u2190 Previous</button>").concat(FX.i < 9 ? '<button class="btn primary" data-act="fxP1Nav" data-id="1">Next image →</button>' : '<button class="btn primary" data-act="fxP1End">Finish part 1 → correct it</button>', "</div></div>");
     }
     if (FX.stage === 'p1c') {
         var all = FX.p1.every(function (it) { return it.g1 != null && it.g2 != null; });
-        return intro + steps + "<div class=\"card\"><h3>Part 1 \u2013 correction</h3><p class=\"small muted\">Compare and tick each answer (0.5 point each).</p>\n    ".concat(FX.p1.map(function (it, k) { return "<div class=\"fx-row\"><img src=\"".concat(it.x.src, "\" alt=\"\"><div><b>Image ").concat(k + 1, "</b> <span class=\"muted small\">").concat(it.x.kind, "</span>\n      <div class=\"fx-qa\"><span>Technique: <i>").concat(h(it.a1 || '—'), "</i> \u2192 <b>").concat(h(it.x.tech), "</b></span>").concat(fxG('g1', k, it.g1), "</div>\n      <div class=\"fx-qa\"><span>Diagnosis: <i>").concat(h(it.a2 || '—'), "</i> \u2192 <b>").concat(h(it.x.dx), "</b></span>").concat(fxG('g2', k, it.g2), "</div></div></div>"); }).join(''), "\n    <div class=\"center\" style=\"margin-top:10px\"><b>Part 1: ").concat(fxP1(), "%</b> <button class=\"btn primary\" data-act=\"fxP2\" ").concat(all ? '' : 'disabled', ">").concat(all ? 'Go to part 2 – 50 MCQs →' : 'Tick every answer first', "</button></div></div>");
+        return intro + steps + "<div class=\"card\"><h3>Part 1 \u2013 correction</h3><p class=\"small muted\">Compare and tick each answer (0.5 point each).</p>\n    ".concat(FX.p1.map(function (it, k) { return "<div class=\"fx-row\"><img src=\"".concat(it.x.src, "\" alt=\"\"><div><b>Image ").concat(k + 1, "</b>\n      <div class=\"fx-qa\"><span>Technique: <i>").concat(h(it.a1 || '—'), "</i> \u2192 <b>").concat(h(it.x.tech), "</b></span>").concat(fxG('g1', k, it.g1), "</div>\n      <div class=\"fx-qa\"><span>Diagnosis: <i>").concat(h(it.a2 || '—'), "</i> \u2192 <b>").concat(h(it.x.dx), "</b></span>").concat(fxG('g2', k, it.g2), "</div></div></div>"); }).join(''), "\n    <div class=\"center\" style=\"margin-top:10px\"><b>Part 1: ").concat(fxP1(), "%</b> <button class=\"btn primary\" data-act=\"fxP2\" ").concat(all ? '' : 'disabled', ">").concat(all ? 'Go to part 2 – 50 MCQs →' : 'Tick every answer first', "</button></div></div>");
     }
     if (FX.stage === 'p2')
         return intro + steps + "<div class=\"card center\"><p>Part 2 is running in the MCQ player.</p><button class=\"btn primary\" data-act=\"fxP2\">Restart part 2</button></div>";
     if (FX.stage === 'p3') {
         var it_1 = FX.p3[FX.j], n = FX.j + 1;
-        return intro + steps + "<div class=\"card\"><div class=\"row\" style=\"justify-content:space-between\"><b>Part 3 \u2013 interview \u00B7 Image ".concat(n, " / ").concat(FX.p3.length, "</b><span class=\"muted small\">").concat(it_1.x.kind, "</span></div>").concat(fxImgBox(it_1.x, n), "\n    <ol class=\"small\"><li>What examination is this and which region? Describe what you see.</li><li>What is your diagnosis?</li><li>Follow-up: what supports it / what else would you look for or do next?</li></ol>\n    <textarea id=\"fxI\" class=\"inp\" rows=\"4\" placeholder=\"Answer as you would speak to the examiner\">").concat(h(it_1.a), "</textarea>\n    ").concat(it_1.open ? "<table class=\"tbl ex-tbl\" style=\"margin-top:10px\">\n      <tr><th>1. Exam & description</th><td>".concat(h(it_1.x.tech), " \u00B7 ").concat(h(it_1.x.reg), "<div class=\"muted small\">").concat(h(it_1.x.desc || ''), "</div></td><td class=\"ex-g\">").concat(fxG3('d', it_1.g.d), "</td></tr>\n      <tr><th>2. Diagnosis</th><td><b class=\"ex-dx\">").concat(h(it_1.x.dx), "</b></td><td class=\"ex-g\">").concat(fxG3('x', it_1.g.x), "</td></tr>\n      <tr><th>3. Follow-up</th><td>").concat(it_1.x.kind === 'Imaging' ? it_1.x.key : h(it_1.x.key || ''), "</td><td class=\"ex-g\">").concat(fxG3('f', it_1.g.f), "</td></tr></table>\n      <div class=\"center\" style=\"margin-top:10px\"><button class=\"btn primary\" data-act=\"fxP3Next\" ").concat(['d', 'x', 'f'].every(function (k) { return it_1.g[k] != null; }) ? '' : 'disabled', ">").concat(FX.j < FX.p3.length - 1 ? 'Next image →' : 'See my final grade →', "</button></div>")
+        return intro + steps + "<div class=\"card\"><div class=\"row\" style=\"justify-content:space-between\"><b>Part 3 \u2013 interview \u00B7 Image ".concat(n, " / ").concat(FX.p3.length, "</b></div>").concat(fxImgBox(it_1.x, n), "\n    <ol class=\"small\"><li>What examination is this and which region? Describe what you see.</li><li>What is your diagnosis?</li><li>Follow-up: what supports it / what else would you look for or do next?</li></ol>\n    <textarea id=\"fxI\" class=\"inp\" rows=\"4\" placeholder=\"Answer as you would speak to the examiner\">").concat(h(it_1.a), "</textarea>\n    ").concat(it_1.open ? "<table class=\"tbl ex-tbl\" style=\"margin-top:10px\">\n      <tr><th>1. Exam & description</th><td>".concat(h(it_1.x.tech), " \u00B7 ").concat(h(it_1.x.reg), "<div class=\"muted small\">").concat(h(it_1.x.desc || ''), "</div></td><td class=\"ex-g\">").concat(fxG3('d', it_1.g.d), "</td></tr>\n      <tr><th>2. Diagnosis</th><td><b class=\"ex-dx\">").concat(h(it_1.x.dx), "</b></td><td class=\"ex-g\">").concat(fxG3('x', it_1.g.x), "</td></tr>\n      <tr><th>3. Follow-up</th><td>").concat(it_1.x.kind === 'Imaging' ? it_1.x.key : h(it_1.x.key || ''), "</td><td class=\"ex-g\">").concat(fxG3('f', it_1.g.f), "</td></tr></table>\n      <div class=\"center\" style=\"margin-top:10px\"><button class=\"btn primary\" data-act=\"fxP3Next\" ").concat(['d', 'x', 'f'].every(function (k) { return it_1.g[k] != null; }) ? '' : 'disabled', ">").concat(FX.j < FX.p3.length - 1 ? 'Next image →' : 'See my final grade →', "</button></div>")
             : "<div class=\"center\" style=\"margin-top:10px\"><button class=\"btn primary\" data-act=\"fxP3Open\">Check with the examiner's answer</button></div>", "</div>");
     }
     if (FX.stage === 'done') {
